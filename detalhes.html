@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmassim 24hrs - Detalhes do Fechamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased p-4">
+
+  <div class="max-w-md mx-auto w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 my-6">
+    <div class="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white p-6 text-center space-y-1">
+      <div class="text-xs font-black tracking-widest text-amber-400 uppercase">FARMASSIM 24HRS</div>
+      <h1 class="text-xl font-black">Detalhes do Fechamento</h1>
+      <p id="detalhe-dh" class="text-xs text-emerald-200 font-medium">--/--/---- --:--</p>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-between items-center">
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Operador Responsável</span>
+          <span id="detalhe-op" class="text-sm font-black text-slate-800">--</span>
+        </div>
+        <span id="detalhe-status" class="px-3 py-1 text-xs font-black rounded-xl border">--</span>
+      </div>
+
+      <!-- Moedas -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-coins text-amber-500"></i> Contagem de Moedas
+        </h3>
+        <div id="lista-moedas-detalhe" class="space-y-1.5 text-xs font-semibold"></div>
+      </div>
+
+      <!-- Cédulas -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Contagem de Cédulas
+        </h3>
+        <div id="lista-cedulas-detalhe" class="space-y-1.5 text-xs font-semibold"></div>
+      </div>
+
+      <!-- Outros -->
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-xs font-semibold">
+        <div class="flex justify-between text-slate-600"><span>(+) Extras:</span><span id="detalhe-ext" class="font-bold text-emerald-700">R$ 0,00</span></div>
+        <div class="flex justify-between text-slate-600"><span>(-) Sangria:</span><span id="detalhe-san" class="font-bold text-rose-600">R$ 0,00</span></div>
+        <div class="border-t border-slate-200 pt-2 flex justify-between items-center text-sm">
+          <span class="font-extrabold text-slate-800">Total Líquido:</span>
+          <span id="detalhe-tg" class="text-base font-black text-emerald-800">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-4 text-center border-t border-slate-100 text-[10px] text-slate-400 font-bold">
+      Emerson de França - 2026
+    </div>
+  </div>
+
+  <script>
+    function formatarBRL(valor) {
+      return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      document.getElementById('detalhe-op').innerText = urlParams.get('op') || 'Não informado';
+      document.getElementById('detalhe-dh').innerText = urlParams.get('dh') || '--/--/----';
+      
+      const tg = parseFloat(urlParams.get('tg')) || 0;
+      const ok = urlParams.get('ok') === 'SIM';
+      
+      document.getElementById('detalhe-tg').innerText = formatarBRL(tg);
+      document.getElementById('detalhe-ext').innerText = formatarBRL(parseFloat(urlParams.get('ext')) || 0);
+      document.getElementById('detalhe-san').innerText = formatarBRL(parseFloat(urlParams.get('san')) || 0);
+
+      const statusBadge = document.getElementById('detalhe-status');
+      if (ok) {
+        statusBadge.className = "px-3 py-1 text-xs font-black rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300";
+        statusBadge.innerText = "MALOTE OK (SIM)";
+      } else {
+        statusBadge.className = "px-3 py-1 text-xs font-black rounded-xl bg-rose-100 text-rose-800 border border-rose-300";
+        statusBadge.innerText = "MALOTE (NÃO)";
+      }
+
+      // Preencher Moedas
+      const containerMoedas = document.getElementById('lista-moedas-detalhe');
+      const valoresMoedas = [0.05, 0.10, 0.25, 0.50, 1.00];
+      containerMoedas.innerHTML = valoresMoedas.map(val => {
+        const qtd = parseInt(urlParams.get(`m_${val}`)) || 0;
+        const sub = qtd * val;
+        return `
+          <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200/60">
+            <span class="text-slate-700">Moeda de <b>R$ ${val.toFixed(2)}</b>:</span>
+            <span class="font-bold text-slate-900">${qtd}x <span class="text-slate-400 font-normal">(${formatarBRL(sub)})</span></span>
+          </div>
+        `;
+      }).join('');
+
+      // Preencher Cédulas
+      const containerCedulas = document.getElementById('lista-cedulas-detalhe');
+      const valoresCedulas = [2, 5, 10, 20, 50, 100, 200];
+      containerCedulas.innerHTML = valoresCedulas.map(val => {
+        const qtd = parseInt(urlParams.get(`c_${val}`)) || 0;
+        const sub = qtd * val;
+        return `
+          <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200/60">
+            <span class="text-slate-700">Nota de <b>R$ ${val}</b>:</span>
+            <span class="font-bold text-slate-900">${qtd}x <span class="text-slate-400 font-normal">(${formatarBRL(sub)})</span></span>
+          </div>
+        `;
+      }).join('');
+    };
+  </script>
+</body>
+</html>
