@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full bg-slate-50">
 <head>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23006B2B'/><text x='50' y='68' font-family='Inter, sans-serif' font-weight='900' font-size='55' fill='%23FFFFFF' text-anchor='middle'>F</text><polygon points='65,30 72,42 58,42' fill='%23ffd700'/></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmassim 24hrs - Gestão de Entregas & Supabase</title>
@@ -45,6 +44,7 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 bg-slate-100 flex flex-col min-h-screen">
 
+    <!-- CABEÇALHO PADRONIZADO E LIMPO -->
     <header class="bg-farmassim-600 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
@@ -56,10 +56,9 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
-                                <span class="bg-farmassimYellow-500 text-farmassim-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm hidden sm:inline-block">Supabase Cloud</span>
                             </div>
                             <p class="text-xs text-farmassim-100 font-medium flex items-center gap-1.5">
-                                <i class="fa-solid fa-database text-farmassimYellow-400"></i> Sistema de Entregas Integrado em Nuvem
+                                <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Sistema de Entregas
                             </p>
                         </div>
                     </div>
@@ -76,16 +75,12 @@
                         <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Códigos
                     </a>
 
-                    <div id="btnStatusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
+                    <div id="btnStatusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
                         <span id="badgeStatusSupabase" class="flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Conectando...
                         </span>
                     </div>
 
-                    <span class="bg-farmassim-700 text-white px-3 py-1.5 rounded-xl border border-farmassim-500/50 text-xs font-semibold flex items-center gap-2 shadow-inner">
-                        <i class="fa-regular fa-calendar-check text-farmassimYellow-400"></i>
-                        <span id="headerTodayDate">--/--/----</span>
-                    </span>
                     <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
                         <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
                     </button>
@@ -109,41 +104,16 @@
             <div id="toastMessage" class="ml-3 text-sm font-bold text-slate-700">Operação realizada com sucesso!</div>
         </div>
 
-        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                <div>
-                    <label for="dataSessao" class="block text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">
-                        <i class="fa-regular fa-calendar-days text-farmassim-600 mr-1"></i> Data do Turno
-                    </label>
-                    <input type="date" id="dataSessao" onchange="carregarDadosSupabase()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="selectCaixa" class="block text-xs font-bold text-farmassim-700 uppercase tracking-wider">
-                            <i class="fa-solid fa-user-doctor text-farmassim-600 mr-1"></i> Operador Logado
-                        </label>
-                    </div>
-                    <select id="selectCaixa" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold cursor-not-allowed">
-                    </select>
-                </div>
-
-                <div>
-                    <label for="filtroOperadorHistorico" class="block text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-filter text-farmassim-600 mr-1"></i> Filtrar Histórico
-                    </label>
-                    <select id="filtroOperadorHistorico" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-extrabold cursor-not-allowed">
-                    </select>
-                </div>
-            </div>
-        </section>
-
+        <!-- FORMULÁRIO DE LANÇAMENTO RÁPIDO -->
         <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1.5 h-full bg-farmassim-600"></div>
             <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento Rápido (Supabase)
                 </h2>
+                <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 text-farmassim-800 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200">
+                    Operador: Carregando...
+                </span>
             </div>
 
             <form id="formRegistro" onsubmit="adicionarRegistro(event)" class="space-y-4">
@@ -224,6 +194,7 @@
             </form>
         </section>
 
+        <!-- CARDS DE RESUMO DO DIA -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                 <div>
@@ -271,15 +242,13 @@
             </div>
         </section>
 
+        <!-- TABELA DE ENTREGAS DO DIA -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50">
                 <div class="flex items-center gap-3">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas
+                        <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas de Hoje
                     </h2>
-                    <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-100 text-farmassim-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-farmassim-200">
-                        Visão do Operador
-                    </span>
                 </div>
 
                 <div class="flex-1 max-w-md flex items-center gap-2">
@@ -327,6 +296,46 @@
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
+    <!-- MODAL PAGAMENTO MISTO (NOVO LANÇAMENTO) -->
+    <div id="modalAddMisto" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Misto (2 Formas)
+                </h3>
+                <button onclick="closeModal('modalAddMisto')" class="text-white/80 hover:text-white rounded-lg p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label>
+                        <select id="addMistoForma1" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label>
+                        <input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label>
+                        <select id="addMistoForma2" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label>
+                        <input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal('modalAddMisto')" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Cancelar</button>
+                <button onclick="confirmarPagamentoMisto()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl shadow-sm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL CONSULTA / HISTÓRICO AVANÇADO -->
     <div id="modalConsultaHistorico" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
@@ -351,13 +360,11 @@
                     </div>
                     <div>
                         <label for="histMotoboy" class="block text-[11px] font-bold text-slate-600 mb-1">Motoboy</label>
-                        <select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
-                        </select>
+                        <select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
                     </div>
                     <div>
                         <label for="histOperador" class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label>
-                        <select id="histOperador" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold cursor-not-allowed">
-                        </select>
+                        <select id="histOperador" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold cursor-not-allowed"></select>
                     </div>
                     <div>
                         <button onclick="executarConsultaHistorico()" class="w-full py-2 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-lg transition-all shadow-sm">
@@ -436,8 +443,7 @@
                 <div id="editPainelSimples" class="space-y-3">
                     <div>
                         <label for="editSelectPagamento" class="block text-xs font-bold text-slate-600 mb-1">Forma de Pagamento</label>
-                        <select id="editSelectPagamento" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
-                        </select>
+                        <select id="editSelectPagamento" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold"></select>
                     </div>
                 </div>
 
@@ -445,8 +451,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label for="editForma1" class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label>
-                            <select id="editForma1" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
-                            </select>
+                            <select id="editForma1" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
                         </div>
                         <div>
                             <label for="editVal1" class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label>
@@ -456,8 +461,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label for="editForma2" class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label>
-                            <select id="editForma2" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
-                            </select>
+                            <select id="editForma2" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
                         </div>
                         <div>
                             <label for="editVal2" class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label>
@@ -473,12 +477,8 @@
             </div>
 
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">
-                    Cancelar
-                </button>
-                <button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl shadow-sm">
-                    Salvar Alterações
-                </button>
+                <button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">Cancelar</button>
+                <button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl shadow-sm">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -511,9 +511,7 @@
                     </h4>
                     <div class="flex gap-2 mb-3">
                         <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
-                        <button onclick="cadastrarMotoboy()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">
-                            Adicionar
-                        </button>
+                        <button onclick="cadastrarMotoboy()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
                     <div id="listaMotoboys" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto"></div>
                 </div>
@@ -527,9 +525,7 @@
                     <div class="space-y-2 mb-3">
                         <div class="flex gap-2">
                             <input type="text" id="novoPagamentoNome" placeholder="Ex: Pix, Cartão, Dinheiro..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
-                            <button onclick="cadastrarFormaPagamento()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">
-                                Adicionar
-                            </button>
+                            <button onclick="cadastrarFormaPagamento()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                         </div>
                         <label class="inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="novoPagamentoRequerTroco" checked class="w-4 h-4 text-farmassim-600 rounded">
@@ -541,9 +537,7 @@
             </div>
 
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">
-                    Fechar
-                </button>
+                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">Fechar</button>
             </div>
         </div>
     </div>
@@ -575,6 +569,7 @@
         let exibirConcluidas = true;
         let resultadoConsultaGlobal = [];
         let operadorAtivo = '';
+        let dataAtualFormatted = '';
 
         window.onload = async function() {
             operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
@@ -588,16 +583,13 @@
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
 
-            const dataAtualFormatted = `${year}-${month}-${day}`;
-            document.getElementById('dataSessao').value = dataAtualFormatted;
-            document.getElementById('headerTodayDate').innerText = `${day}/${month}/${year}`;
+            dataAtualFormatted = `${year}-${month}-${day}`;
             
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
-            document.getElementById('selectCaixa').innerHTML = `<option value="${operadorAtivo}">${operadorAtivo}</option>`;
-            document.getElementById('filtroOperadorHistorico').innerHTML = `<option value="${operadorAtivo}">${operadorAtivo}</option>`;
             document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
+            document.getElementById('histOperador').innerHTML = `<option value="${operadorAtivo}">${operadorAtivo}</option>`;
 
             await carregarCadastrosSupabase();
             focarCampoPedido();
@@ -650,10 +642,8 @@
             badge.className = "flex items-center gap-1.5 text-amber-300";
             badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span class="hidden sm:inline">DB:</span> Sincronizando...`;
 
-            const dataSel = document.getElementById('dataSessao').value;
-
             try {
-                let query = supabaseClient.from('entregas_farmassim').select('*').eq('data', dataSel);
+                let query = supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted);
                 if (operadorAtivo) { query = query.eq('caixa', operadorAtivo); }
 
                 const { data, error } = await query.order('created_at', { ascending: false });
@@ -791,7 +781,7 @@
             }
 
             const novoRegistroDB = {
-                data: document.getElementById('dataSessao').value,
+                data: dataAtualFormatted,
                 hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 caixa: operadorAtivo,
                 coo: document.getElementById('coo').value.trim(),
@@ -1257,6 +1247,8 @@
 
             document.getElementById('selectMotoboy').innerHTML = opcoesMotoboys;
             document.getElementById('formaPagamento').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma1').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma2').innerHTML = opcoesPag;
             document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
             document.getElementById('editForma1').innerHTML = opcoesPag;
             document.getElementById('editForma2').innerHTML = opcoesPag;
@@ -1274,7 +1266,7 @@
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `entregas_farmassim_${document.getElementById('dataSessao').value}.csv`;
+            link.download = `entregas_farmassim_${dataAtualFormatted}.csv`;
             link.click();
         }
 
