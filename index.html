@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmassim 24hrs - Portal Central de Sistemas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Crypto-JS para validação Hash das Senhas do PDV A7Pharma -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        farmassim: {
+                            50: '#eefdf4', 100: '#d7fbe2', 200: '#b0f5c6', 300: '#75ea9c',
+                            500: '#008337', 600: '#006B2B', 700: '#005421', 800: '#00421a', 900: '#002e12',
+                        },
+                        farmassimYellow: { 400: '#ffe033', 500: '#ffd700', 600: '#e6c200' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .logo-text { font-style: italic; font-weight: 900; letter-spacing: -0.03em; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="font-sans antialiased h-full text-slate-800 flex flex-col min-h-screen">
+
+    <!-- MODAL DE LOGIN POR NÚMERO E SENHA INTEGRADO AO PDV -->
+    <div id="modalSelecaoOperadorInicial" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-5 text-center flex flex-col justify-between">
+            <div class="space-y-4">
+                <div class="bg-farmassim-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-farmassim-600">
+                    <i class="fa-solid fa-user-lock text-3xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Portal Restrito Farmassim</h2>
+                    <p class="text-xs text-slate-500 mt-1">Insira suas credenciais do PDV A7Pharma para acessar o sistema.</p>
+                </div>
+                
+                <div class="space-y-3 text-left">
+                    <div>
+                        <label for="inputUsuarioID" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-hashtag text-farmassim-600 mr-1"></i> Número do Usuário (PDV)
+                        </label>
+                        <input type="text" id="inputUsuarioID" placeholder="Ex: 488, 4, 17" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                    </div>
+                    <div>
+                        <label for="inputSenha" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-key text-farmassim-600 mr-1"></i> Senha
+                        </label>
+                        <input type="password" id="inputSenha" placeholder="••••" onkeydown="if(event.key === 'Enter') confirmarOperadorInicial()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                    </div>
+                    <div id="loginErrorMsg" class="hidden text-xs font-bold text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 text-center">
+                        Usuário ou senha incorretos!
+                    </div>
+                </div>
+
+                <button onclick="confirmarOperadorInicial()" class="w-full py-3 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Acessar Portal
+                </button>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 text-[11px] font-medium text-slate-400">
+                Emerson de França - 2026
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER DO PORTAL -->
+    <header id="mainHeader" class="hidden bg-farmassim-600 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white p-1.5 sm:p-2 rounded-xl shadow-md flex items-center justify-center">
+                        <span class="text-xs font-black text-farmassim-900 px-1">FARMASSIM</span>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
+                        <p class="text-xs text-farmassim-100 font-medium">Portal Central de Sistemas</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="bg-farmassim-700 px-3 py-1.5 rounded-xl border border-farmassim-500/50 text-xs font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-doctor text-farmassimYellow-400"></i>
+                        <span id="labelOperadorLogado">Operador</span>
+                    </div>
+                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL: GRADE DE SISTEMAS / PÁGINAS -->
+    <main id="mainContent" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        <div class="text-center space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-800">Escolha o Sistema Desejado</h2>
+            <p class="text-sm text-slate-500 font-medium">Selecione abaixo qual ferramenta da farmácia você deseja acessar neste momento.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+            
+            <!-- Cartão 1: Sistema de Entregas -->
+            <a href="entrega.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-farmassim-100 rounded-2xl flex items-center justify-center text-farmassim-600 text-2xl group-hover:bg-farmassim-600 group-hover:text-white transition-all shadow-inner">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 group-hover:text-farmassim-700 transition-colors">Sistema de Entregas</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Controle e gestão de pedidos e motoboys em tempo real.</p>
+                    </div>
+                </div>
+                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-farmassim-600">
+                    <span>Acessar Módulo</span>
+                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- Cartão 2: Fechamento de Caixa -->
+            <a href="fechamento.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 group-hover:text-emerald-700 transition-colors">Fechamento de Caixa</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Controle de sangrias, suprimentos, contagem inteligente e balanço de gaveta.</p>
+                    </div>
+                </div>
+                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+                    <span>Acessar Módulo</span>
+                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+            <!-- Cartão 3: Consulta Código Rápido -->
+            <a href="codigos.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-2xl group-hover:bg-amber-600 group-hover:text-white transition-all shadow-inner">
+                        <i class="fa-solid fa-barcode"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 group-hover:text-amber-700 transition-colors">Consulta Código Rápido</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Consulta ágil de códigos, produtos e referências rápidas.</p>
+                    </div>
+                </div>
+                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600">
+                    <span>Acessar Módulo</span>
+                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
+        <p class="font-medium">Emerson de França - 2026</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        let supabaseClient = null;
+
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Erro ao inicializar Supabase:", e);
+        }
+
+        window.onload = function() {
+            const operadorSalvo = sessionStorage.getItem('farmassim_operador_logado');
+            if (operadorSalvo) {
+                liberarPortal(operadorSalvo);
+            } else {
+                document.getElementById('modalSelecaoOperadorInicial').classList.remove('hidden');
+                document.getElementById('inputUsuarioID').focus();
+            }
+        };
+
+        async function confirmarOperadorInicial() {
+            const usuarioId = document.getElementById('inputUsuarioID').value.trim();
+            const senhaDigitada = document.getElementById('inputSenha').value.trim();
+            const errorMsg = document.getElementById('loginErrorMsg');
+
+            if (!usuarioId) {
+                errorMsg.innerText = "Informe o Número do Usuário.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            if (!supabaseClient) {
+                errorMsg.innerText = "Erro de conexão com o banco de dados.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('caixas')
+                    .select('*')
+                    .eq('usuario_id', usuarioId)
+                    .maybeSingle();
+
+                if (error || !data) {
+                    errorMsg.innerText = "Usuário não encontrado!";
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
+
+                const senhaHashSHA256 = CryptoJS.SHA256(senhaDigitada).toString();
+                const senhaHashMD5 = CryptoJS.MD5(senhaDigitada).toString();
+                const senhaBanco = (data.senha || '').toString().trim();
+
+                const senhaValida = (senhaBanco === senhaDigitada) || 
+                                    (senhaBanco.toLowerCase() === senhaHashSHA256.toLowerCase()) ||
+                                    (senhaBanco.toLowerCase() === senhaHashMD5.toLowerCase()) ||
+                                    (senhaBanco === '' && senhaDigitada === '');
+
+                if (!senhaValida) {
+                    errorMsg.innerText = "Senha incorreta!";
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
+
+                sessionStorage.setItem('farmassim_operador_logado', data.nome);
+                liberarPortal(data.nome);
+
+            } catch (e) {
+                console.error("Erro na autenticação:", e);
+                errorMsg.innerText = "Erro ao validar credenciais.";
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function liberarPortal(nomeOperador) {
+            document.getElementById('modalSelecaoOperadorInicial').classList.add('hidden');
+            document.getElementById('labelOperadorLogado').innerText = nomeOperador;
+            document.getElementById('mainHeader').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        function sairDoSistema() {
+            sessionStorage.removeItem('farmassim_operador_logado');
+            document.getElementById('mainHeader').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('inputUsuarioID').value = '';
+            document.getElementById('inputSenha').value = '';
+            document.getElementById('loginErrorMsg').classList.add('hidden');
+            document.getElementById('modalSelecaoOperadorInicial').classList.remove('hidden');
+            document.getElementById('inputUsuarioID').focus();
+        }
+    </script>
+</body>
+</html>

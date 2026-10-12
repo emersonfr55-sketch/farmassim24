@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmassim 24hrs - Gerenciamento e Consulta de Códigos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7',
+                            400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857',
+                            800: '#065f46', 900: '#064e3b', 950: '#022c22',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .animate-fade-in { animation: fadeIn 0.2s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+    <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/20 shadow-inner">
+                    <i class="fa-solid fa-barcode text-2xl text-emerald-200"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Consulta de Códigos Rápidos</h1>
+                    <p class="text-xs sm:text-sm text-emerald-100/80">Busque e copie códigos instantaneamente</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+                <button onclick="app.abrirPainelAdmin()" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-gear"></i> Painel de Gestão
+                </button>
+                <a href="index.html" class="bg-emerald-900 hover:bg-emerald-950 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-emerald-600/50 shadow-xs">
+                    <i class="fa-solid fa-house text-emerald-300"></i> Portal
+                </a>
+                <a href="fechamento.html" class="bg-emerald-900 hover:bg-emerald-950 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-emerald-600/50 shadow-xs">
+                    <i class="fa-solid fa-cash-register text-emerald-300"></i> Fechamento
+                </a>
+                <a href="entrega.html" class="bg-emerald-900 hover:bg-emerald-950 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition border border-emerald-600/50 shadow-xs">
+                    <i class="fa-solid fa-motorcycle text-emerald-300"></i> Entregas
+                </a>
+                <button onclick="app.resetFilters()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl transition border border-white/10 text-xs sm:text-sm flex items-center gap-1.5" title="Limpar Filtros">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 transition-all">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-emerald-600"></i>
+                <span>Categorias de Acesso Rápido</span>
+            </div>
+            <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin" id="categoryFilters"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 transition-all">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div class="relative w-full lg:w-96">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="searchInput" 
+                        placeholder="Pesquisar por nome ou código do produto..." 
+                        class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-inner">
+                    <button id="clearSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 hidden">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 self-end lg:self-auto shrink-0">
+                    <button onclick="app.setViewMode('grid')" id="gridBtn" 
+                        class="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs" title="Visualização em Grade (Cards)">
+                        <i class="fa-solid fa-grip"></i>
+                        <span>Cards</span>
+                    </button>
+                    <button onclick="app.setViewMode('list')" id="listBtn" 
+                        class="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all" title="Visualização em Tabela Compacta">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Tabela</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-slate-500">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-slate-700" id="productCount">0</span> produtos encontrados <span id="statusDb" class="text-emerald-700 font-bold"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="productContainer"></div>
+
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center p-12 text-center bg-white rounded-2xl border border-slate-200/80 my-auto">
+            <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-2xl mb-4 border border-emerald-100">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700 mb-1">Nenhum produto encontrado</h3>
+            <p class="text-sm text-slate-500 max-w-sm mb-4">Não encontramos nenhum item correspondente à sua busca.</p>
+            <button onclick="app.resetFilters()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition shadow-sm">
+                Ver todos os produtos
+            </button>
+        </div>
+
+    </main>
+
+    <!-- PAINEL DE GESTÃO (MODAL ADMIN PARA PRODUTOS E CATEGORIAS) -->
+    <div id="modalAdmin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-emerald-800 text-white shrink-0">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-amber-300"></i> Painel de Gestão: Produtos e Categorias
+                </h3>
+                <button onclick="app.fecharPainelAdmin()" class="text-white/80 hover:text-white rounded-lg p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- Seção 1: Cadastrar / Editar Produto -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <h4 class="text-xs font-black uppercase text-emerald-800 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus-circle"></i> <span id="tituloFormProduto">Cadastrar Novo Produto</span>
+                    </h4>
+                    <form id="formProduto" onsubmit="app.salvarProduto(event)" class="space-y-3">
+                        <input type="hidden" id="adminProdId">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Nome do Produto *</label>
+                                <input type="text" id="adminNome" required placeholder="Ex: ESMALTE..." class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold focus:ring-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Código de Barras *</label>
+                                <input type="text" id="adminCodigo" required placeholder="Ex: 014562" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-mono font-bold focus:ring-emerald-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Categoria *</label>
+                            <select id="adminCategoria" required class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold focus:ring-emerald-500">
+                                <!-- Preenchido dinamicamente -->
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" onclick="app.limparFormProduto()" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Limpar</button>
+                            <button type="submit" class="px-4 py-1.5 text-xs font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-500 rounded-xl shadow-sm">Salvar Produto</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Seção 2: Criar Nova Categoria -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <h4 class="text-xs font-black uppercase text-emerald-800 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-folder-plus"></i> Criar Nova Categoria
+                    </h4>
+                    <form onsubmit="app.criarCategoria(event)" class="flex gap-2">
+                        <input type="text" id="novaCategoriaNome" required placeholder="Ex: PERFUMARIA" class="flex-1 bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold uppercase focus:ring-emerald-500">
+                        <button type="submit" class="px-4 py-2 text-xs font-extrabold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm">Adicionar Categoria</button>
+                    </form>
+                </div>
+
+                <!-- Seção 3: Listagem Completa para Gerir (Editar/Excluir) -->
+                <div>
+                    <h4 class="text-xs font-black uppercase text-slate-700 mb-2">Lista de Produtos Cadastrados</h4>
+                    <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl bg-white divide-y divide-slate-100 text-xs">
+                        <div id="adminListaProdutos" class="divide-y divide-slate-100">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
+                <button type="button" onclick="app.fecharPainelAdmin()" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-200 rounded-xl">Fechar Painel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-600 shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 font-semibold tracking-wide">
+            Desenvolvido por Emerson de França - 2026
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 ease-in-out">
+        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 border border-slate-800">
+            <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm shadow-sm">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-slate-400">Notificação</p>
+                <p id="toastMessage" class="text-sm font-semibold text-slate-100">Operação realizada com sucesso!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        let supabaseClient = null;
+
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Erro Supabase:", e);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
+            if (!operadorAtivo) {
+                window.location.href = 'index.html';
+                return;
+            }
+            window.app = new ProductApp();
+        });
+
+        const CATEGORY_CONFIG_DEFAULT = {
+            'TODOS': { emoji: '✨', bg: 'bg-emerald-500 text-white' },
+            'UNHAS': { emoji: '💅', bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200' },
+            'SOBRANCELHA': { emoji: '👁️', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
+            'DOCES': { emoji: '🍬', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+            'MEDICAMENTOS': { emoji: '💊', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+            'DIVERSOS': { emoji: '📦', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200' }
+        };
+
+        class ProductApp {
+            constructor() {
+                this.products = [];
+                this.categories = JSON.parse(localStorage.getItem('farmassim_categorias')) || ['UNHAS', 'SOBRANCELHA', 'DOCES', 'MEDICAMENTOS', 'DIVERSOS'];
+                this.currentCategory = 'TODOS';
+                this.searchQuery = '';
+                this.viewMode = localStorage.getItem('pdv_view_mode') || 'grid';
+                this.toastTimeout = null;
+
+                this.initElements();
+                this.initCategoriesUI();
+                this.initListeners();
+                this.updateViewModeUI();
+                this.carregarProdutosSupabase();
+            }
+
+            initElements() {
+                this.searchInput = document.getElementById('searchInput');
+                this.clearSearchBtn = document.getElementById('clearSearch');
+                this.productContainer = document.getElementById('productContainer');
+                this.emptyState = document.getElementById('emptyState');
+                this.productCount = document.getElementById('productCount');
+                this.categoryFiltersContainer = document.getElementById('categoryFilters');
+                this.toast = document.getElementById('toast');
+                this.toastMessage = document.getElementById('toastMessage');
+                this.gridBtn = document.getElementById('gridBtn');
+                this.listBtn = document.getElementById('listBtn');
+                this.statusDb = document.getElementById('statusDb');
+            }
+
+            async carregarProdutosSupabase() {
+                if (!supabaseClient) {
+                    this.statusDb.innerText = "(Sem conexão)";
+                    return;
+                }
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('produtos_farmassim')
+                        .select('*')
+                        .order('name', { ascending: true });
+
+                    if (error) throw error;
+                    this.products = data || [];
+                    this.statusDb.innerText = "(Conectado Supabase)";
+                    this.render();
+                    this.renderAdminLista();
+                } catch (e) {
+                    console.error("Erro ao carregar produtos:", e);
+                    this.statusDb.innerText = "(Erro ao conectar)";
+                    this.showToast("Erro ao carregar banco de dados", true);
+                }
+            }
+
+            abrirPainelAdmin() {
+                this.atualizarSelectCategorias();
+                this.renderAdminLista();
+                document.getElementById('modalAdmin').classList.remove('hidden');
+            }
+
+            fecharPainelAdmin() {
+                document.getElementById('modalAdmin').classList.add('hidden');
+                this.limparFormProduto();
+            }
+
+            atualizarSelectCategorias() {
+                const select = document.getElementById('adminCategoria');
+                select.innerHTML = this.categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            }
+
+            limparFormProduto() {
+                document.getElementById('adminProdId').value = '';
+                document.getElementById('adminNome').value = '';
+                document.getElementById('adminCodigo').value = '';
+                document.getElementById('tituloFormProduto').innerText = "Cadastrar Novo Produto";
+            }
+
+            async salvarProduto(e) {
+                e.preventDefault();
+                const id = document.getElementById('adminProdId').value;
+                const nome = document.getElementById('adminNome').value.trim().toUpperCase();
+                const codigo = document.getElementById('adminCodigo').value.trim();
+                const categoria = document.getElementById('adminCategoria').value;
+
+                if (!nome || !codigo) return;
+
+                if (id) {
+                    const { error } = await supabaseClient.from('produtos_farmassim').update({ name: nome, code: codigo, category: categoria }).eq('id', id);
+                    if (error) { alert("Erro ao atualizar: " + error.message); return; }
+                    this.showToast("Produto atualizado com sucesso!");
+                } else {
+                    const { error } = await supabaseClient.from('produtos_farmassim').insert([{ name: nome, code: codigo, category: categoria }]);
+                    if (error) { alert("Erro ao cadastrar: " + error.message); return; }
+                    this.showToast("Produto cadastrado com sucesso!");
+                }
+
+                this.limparFormProduto();
+                await this.carregarProdutosSupabase();
+            }
+
+            preencherEdicao(id, name, code, category) {
+                document.getElementById('adminProdId').value = id;
+                document.getElementById('adminNome').value = name;
+                document.getElementById('adminCodigo').value = code;
+                document.getElementById('adminCategoria').value = category;
+                document.getElementById('tituloFormProduto').innerText = `Editando: ${name}`;
+                document.getElementById('adminNome').focus();
+            }
+
+            async excluirProduto(id, name) {
+                if (!confirm(`Deseja excluir o produto "${name}"?`)) return;
+                const { error } = await supabaseClient.from('produtos_farmassim').delete().eq('id', id);
+                if (error) { alert("Erro ao excluir: " + error.message); return; }
+                this.showToast("Produto excluído com sucesso!");
+                await this.carregarProdutosSupabase();
+            }
+
+            criarCategoria(e) {
+                e.preventDefault();
+                const novaCat = document.getElementById('novaCategoriaNome').value.trim().toUpperCase();
+                if (!novaCat) return;
+                if (this.categories.includes(novaCat)) {
+                    alert("Esta categoria já existe!");
+                    return;
+                }
+                this.categories.push(novaCat);
+                localStorage.setItem('farmassim_categorias', JSON.stringify(this.categories));
+                document.getElementById('novaCategoriaNome').value = '';
+                this.initCategoriesUI();
+                this.atualizarSelectCategorias();
+                this.showToast(`Categoria <b>${novaCat}</b> criada!`);
+            }
+
+            renderAdminLista() {
+                const container = document.getElementById('adminListaProdutos');
+                if (this.products.length === 0) {
+                    container.innerHTML = `<div class="p-3 text-center text-slate-400">Nenhum produto cadastrado.</div>`;
+                    return;
+                }
+                container.innerHTML = this.products.map(p => `
+                    <div class="p-2.5 flex items-center justify-between hover:bg-slate-50">
+                        <div>
+                            <span class="font-bold text-slate-800">${p.name}</span>
+                            <div class="text-[10px] text-slate-500 font-mono">Cód: ${p.code} • <span class="uppercase font-bold text-emerald-700">${p.category}</span></div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="app.preencherEdicao('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.code}', '${p.category}')" class="px-2.5 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg font-bold" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" onclick="app.excluirProduto('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg font-bold" title="Excluir">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            initCategoriesUI() {
+                const list = ['TODOS', ...this.categories];
+                this.categoryFiltersContainer.innerHTML = list.map(cat => {
+                    const cfg = CATEGORY_CONFIG_DEFAULT[cat] || { emoji: '🏷️', bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' };
+                    const isSelected = this.currentCategory === cat;
+                    let btnClasses = isSelected ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-105" : `${cfg.bg || 'bg-slate-50'} ${cfg.text || 'text-slate-700'} ${cfg.border || 'border-slate-200'} hover:shadow-sm`;
+                    return `
+                        <button onclick="app.setCategory('${cat}')" 
+                            class="category-btn whitespace-nowrap px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 border flex items-center gap-2.5 shrink-0 cursor-pointer ${btnClasses}" data-category="${cat}">
+                            <span class="text-base sm:text-lg">${cfg.emoji || '🏷️'}</span>
+                            <span>${cat}</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            initListeners() {
+                this.searchInput.addEventListener('input', (e) => {
+                    this.searchQuery = e.target.value.trim().toLowerCase();
+                    this.clearSearchBtn.classList.toggle('hidden', this.searchQuery.length === 0);
+                    this.render();
+                });
+
+                this.clearSearchBtn.addEventListener('click', () => {
+                    this.searchInput.value = '';
+                    this.searchQuery = '';
+                    this.clearSearchBtn.classList.add('hidden');
+                    this.searchInput.focus();
+                    this.render();
+                });
+            }
+
+            setCategory(category) {
+                this.currentCategory = category;
+                this.initCategoriesUI();
+                this.render();
+            }
+
+            setViewMode(mode) {
+                this.viewMode = mode;
+                localStorage.setItem('pdv_view_mode', mode);
+                this.updateViewModeUI();
+                this.render();
+            }
+
+            updateViewModeUI() {
+                if (this.viewMode === 'grid') {
+                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white text-emerald-800 border border-slate-200 shadow-sm";
+                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 hover:text-slate-700";
+                } else {
+                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white text-emerald-800 border border-slate-200 shadow-sm";
+                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 hover:text-slate-700";
+                }
+            }
+
+            resetFilters() {
+                this.currentCategory = 'TODOS';
+                this.searchQuery = '';
+                this.searchInput.value = '';
+                this.clearSearchBtn.classList.add('hidden');
+                this.initCategoriesUI();
+                this.render();
+            }
+
+            filterProducts() {
+                return this.products.filter(p => {
+                    const matchesCategory = this.currentCategory === 'TODOS' || p.category === this.currentCategory;
+                    const matchesSearch = p.name.toLowerCase().includes(this.searchQuery) || p.code.toLowerCase().includes(this.searchQuery);
+                    return matchesCategory && matchesSearch;
+                });
+            }
+
+            copyToClipboard(code, name, btnElement) {
+                const textArea = document.createElement("textarea");
+                textArea.value = code;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        this.showToast(`Código <b>${code}</b> copiado!`);
+                        this.triggerButtonAnimation(btnElement);
+                    } else {
+                        this.showToast("Erro ao copiar código", true);
+                    }
+                } catch (err) {
+                    this.showToast("Erro ao copiar código", true);
+                }
+                document.body.removeChild(textArea);
+            }
+
+            triggerButtonAnimation(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = `<i class="fa-solid fa-check text-white"></i><span>Copiado!</span>`;
+                btn.className = "px-3.5 py-2 bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm scale-95 shrink-0";
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.className = "px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs shrink-0";
+                }, 1200);
+            }
+
+            showToast(message, isError = false) {
+                clearTimeout(this.toastTimeout);
+                this.toastMessage.innerHTML = message;
+                const toastInner = this.toast.querySelector('div');
+                if (isError) {
+                    toastInner.classList.remove('bg-slate-900', 'border-slate-800');
+                    toastInner.classList.add('bg-rose-900', 'border-rose-800');
+                } else {
+                    toastInner.classList.remove('bg-rose-900', 'border-rose-800');
+                    toastInner.classList.add('bg-slate-900', 'border-slate-800');
+                }
+                this.toast.classList.remove('translate-y-24', 'opacity-0');
+                this.toastTimeout = setTimeout(() => {
+                    this.toast.classList.add('translate-y-24', 'opacity-0');
+                }, 2500);
+            }
+
+            render() {
+                const filtered = this.filterProducts();
+                this.productCount.textContent = filtered.length;
+
+                if (filtered.length === 0) {
+                    this.productContainer.innerHTML = '';
+                    this.emptyState.classList.remove('hidden');
+                    return;
+                }
+                this.emptyState.classList.add('hidden');
+
+                if (this.viewMode === 'grid') {
+                    this.productContainer.innerHTML = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            ${filtered.map((p, index) => {
+                                const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
+                                return `
+                                    <div class="group bg-white rounded-2xl p-4 border border-slate-200/80 hover:border-emerald-500/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-3 animate-fade-in" style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
+                                        <div>
+                                            <div class="flex items-center justify-between gap-2 mb-2">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-semibold rounded-full border border-emerald-100 tracking-wide uppercase">
+                                                    <span>${cfg.emoji}</span>
+                                                    <span>${p.category}</span>
+                                                </span>
+                                                <span class="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                                                    #${p.code}
+                                                </span>
+                                            </div>
+                                            <h3 class="font-semibold text-slate-800 text-sm leading-snug group-hover:text-emerald-700 transition line-clamp-2">
+                                                ${p.name}
+                                            </h3>
+                                        </div>
+                                        
+                                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                                            <div class="font-mono font-bold text-emerald-800 text-sm bg-slate-50 px-2.5 py-1 rounded border border-slate-200/60 select-all">
+                                                ${p.code}
+                                            </div>
+                                            <button onclick="app.copyCode('${p.code}', '${p.name}', this)" 
+                                                class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600">
+                                                <i class="fa-regular fa-copy"></i>
+                                                <span>Copiar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    this.productContainer.innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden animate-fade-in">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                                            <th class="py-3 px-4">Produto</th>
+                                            <th class="py-3 px-4">Categoria</th>
+                                            <th class="py-3 px-4 font-mono">Código</th>
+                                            <th class="py-3 px-4 text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        ${filtered.map((p) => {
+                                            const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
+                                            return `
+                                                <tr class="hover:bg-emerald-50/40 transition-colors">
+                                                    <td class="py-3 px-4 font-medium text-slate-800">${p.name}</td>
+                                                    <td class="py-3 px-4">
+                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-medium rounded-full border border-emerald-100 uppercase">
+                                                            <span>${cfg.emoji}</span>
+                                                            <span>${p.category}</span>
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-3 px-4 font-mono font-bold text-emerald-800 select-all">${p.code}</td>
+                                                    <td class="py-3 px-4 text-right">
+                                                        <button onclick="app.copyCode('${p.code}', '${p.name}', this)" 
+                                                            class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs">
+                                                            <i class="fa-regular fa-copy"></i>
+                                                            <span>Copiar</span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            copyCode(code, name, btn) {
+                this.copyToClipboard(code, name, btn);
+            }
+        }
+    </script>
+</body>
+</html>
