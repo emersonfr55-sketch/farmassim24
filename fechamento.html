@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-100">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmassim 24hrs - Fechamento Rápido de Caixa & Malote</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], },
+          colors: {
+            farmassim: {
+              50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 500: '#16a34a',
+              600: '#00802b', 700: '#006622', 800: '#004d1a', 900: '#003311',
+              dark: '#022c22', yellow: '#FFD700', yellowHover: '#e6c200'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    @keyframes flash-emerald {
+      0% { background-color: rgba(16, 185, 129, 0.3); transform: scale(1.01); }
+      100% { background-color: transparent; transform: scale(1); }
+    }
+    .flash-success { animation: flash-emerald 0.35s ease-out; }
+    
+    /* Esconde o cupom na tela normal */
+    #comprovante-termico { display: none; }
+
+    /* REGRAS DE IMPRESSÃO TÉRMICA CENTRALIZADA */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      body, html {
+        background-color: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #comprovante-termico, #comprovante-termico * {
+        visibility: visible !important;
+      }
+      #comprovante-termico {
+        display: block !important;
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        top: 0 !important;
+        width: 72mm !important;
+        margin: 0 !important;
+        padding: 2mm !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+        color: #000 !important;
+        background: #fff !important;
+      }
+      @page {
+        size: 80mm auto;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-farmassim-500 selection:text-white">
+
+  <div class="no-print">
+    <header class="bg-gradient-to-r from-farmassim-dark via-farmassim-800 to-farmassim-900 text-white shadow-lg sticky top-0 z-30 border-b-2 border-farmassim-yellow">
+      <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-col md:flex-row justify-between items-center gap-3">
+        
+        <div class="flex items-center gap-3">
+          <div class="bg-white/90 p-1 rounded-xl shadow border border-farmassim-yellow flex items-center justify-center">
+            <span class="text-xs font-black text-farmassim-900 px-2">FARMASSIM</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-black tracking-tight text-white">FARMASSIM <span class="text-farmassim-yellow">24HRS</span></h1>
+              <span class="bg-farmassim-yellow text-farmassim-900 font-black text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-wider">Caixa Rápido</span>
+            </div>
+            <p class="text-[11px] text-emerald-200 font-medium">Conferência & Lançamento Express de Malote</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center bg-black/30 p-1 rounded-xl border border-white/10 text-xs font-bold gap-1">
+            <a href="index.html" class="px-3 py-1 rounded-lg text-emerald-100 hover:text-white hover:bg-white/10 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-house"></i> Portal
+            </a>
+            <a href="entrega.html" class="px-3 py-1 rounded-lg text-emerald-100 hover:text-white hover:bg-white/10 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-motorcycle"></i> Entregas
+            </a>
+            <a href="codigos.html" class="px-3 py-1 rounded-lg text-emerald-100 hover:text-white hover:bg-white/10 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-barcode"></i> Códigos
+            </a>
+          </div>
+
+          <div id="status-db-badge" title="Status Conexão Supabase" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/40 border border-white/10 text-[11px] font-semibold text-emerald-200">
+            <span id="db-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="db-text">Conectando...</span>
+          </div>
+
+          <div class="flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-xl border border-white/10 text-right">
+            <i class="fa-regular fa-clock text-farmassim-yellow text-xs"></i>
+            <div class="leading-none">
+              <div id="clock-date" class="text-[9px] text-emerald-200 font-semibold">--/--/----</div>
+              <div id="clock-time" class="text-xs font-black text-farmassim-yellow">--:--:--</div>
+            </div>
+          </div>
+
+          <button onclick="sairParaIndex()" class="bg-rose-600/90 hover:bg-rose-600 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1 transition" title="Sair do Sistema">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-8">
+      
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white p-3 sm:p-4 rounded-2xl shadow-xs border border-slate-200/80">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-farmassim-700 text-farmassim-yellow flex items-center justify-center font-black text-lg shadow-xs">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-extrabold text-slate-800">Contagem de Caixa Inteligente</h2>
+            <p class="text-xs text-slate-500 font-medium">Use <kbd class="px-1 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold">ENTER</kbd> p/ avançar • <kbd class="px-1 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold">F2</kbd> Salvar • <kbd class="px-1 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold">F8</kbd> Imprimir</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="imprimirCupomTermico()" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
+            <i class="fa-solid fa-print text-sm"></i> Imprimir Comprovante (F8)
+          </button>
+          <button onclick="carregarExemplo()" class="flex-1 sm:flex-none px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i> Exemplo
+          </button>
+          <button onclick="zerarTudo()" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i> Zerar
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Column 1: Moedas -->
+        <section class="lg:col-span-4 bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col justify-between">
+          <div>
+            <div class="bg-farmassim-800 text-white px-4 py-3 flex justify-between items-center border-b-2 border-farmassim-yellow">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <i class="fa-solid fa-coins text-farmassim-yellow"></i>
+                <h3>1. Moedas (Quantidade)</h3>
+              </div>
+              <span id="badge-moedas-total" class="bg-farmassim-yellow text-farmassim-900 text-xs font-black px-2.5 py-0.5 rounded-lg">R$ 0,00</span>
+            </div>
+            <div id="container-moedas" class="p-3.5 space-y-2"></div>
+          </div>
+          <div class="bg-emerald-50/80 px-4 py-2.5 border-t border-slate-200 flex justify-between items-center text-xs font-semibold text-slate-700">
+            <span class="flex items-center gap-1.5 font-bold"><i class="fa-solid fa-calculator text-farmassim-600"></i> Subtotal Moedas:</span>
+            <span id="subtotal-moedas" class="text-farmassim-800 text-base font-black">R$ 0,00</span>
+          </div>
+        </section>
+
+        <!-- Column 2: Cédulas & Entradas -->
+        <section class="lg:col-span-5 bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col justify-between">
+          <div>
+            <div class="bg-farmassim-800 text-white px-4 py-3 flex justify-between items-center border-b-2 border-farmassim-yellow">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <i class="fa-solid fa-money-bill-wave text-farmassim-yellow"></i>
+                <h3>2. Cédulas (Qtd ou Valor R$)</h3>
+              </div>
+              <span id="badge-cedulas-qtd" class="bg-farmassim-yellow text-farmassim-900 text-xs font-black px-2.5 py-0.5 rounded-lg">R$ 0,00</span>
+            </div>
+            <div class="p-3.5 space-y-3">
+              <div id="container-cedulas-fixas" class="space-y-2"></div>
+              <div class="pt-2 border-t border-slate-200 space-y-1.5">
+                <label for="input-extras" class="block text-xs font-bold text-farmassim-800 uppercase tracking-wider flex items-center justify-between">
+                  <span class="flex items-center gap-1"><i class="fa-solid fa-circle-plus text-farmassim-600"></i> Extras / Outros Lançamentos</span>
+                  <span class="text-[10px] text-slate-400 font-normal lowercase">(soma)</span>
+                </label>
+                <div class="flex gap-2">
+                  <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-farmassim-700 font-bold text-xs">R$</span>
+                    <input type="number" id="input-extras" step="0.01" min="0" placeholder="0,00"
+                           onkeydown="navegarExtra(event)"
+                           class="w-full pl-8 pr-2 py-1.5 bg-emerald-50/40 border border-emerald-200 rounded-xl text-sm font-black text-farmassim-900 focus:outline-none focus:ring-2 focus:ring-farmassim-600 focus:bg-white" />
+                  </div>
+                  <button onclick="adicionarExtra()" class="px-3 py-1.5 bg-farmassim-600 hover:bg-farmassim-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-1 shadow-xs">
+                    <i class="fa-solid fa-plus text-farmassim-yellow"></i> Add
+                  </button>
+                </div>
+                <div id="lista-extras" class="max-h-20 overflow-y-auto space-y-1 border border-slate-200 rounded-xl p-1.5 bg-slate-50/60 text-xs">
+                  <div class="text-center py-1 text-slate-400 italic">Nenhum valor extra.</div>
+                </div>
+              </div>
+
+              <div class="pt-1.5 border-t border-slate-200 space-y-1">
+                <label for="input-sangria" class="block text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center justify-between">
+                  <span class="flex items-center gap-1"><i class="fa-solid fa-hand-holding-dollar"></i> Sangria / Retirada do Caixa</span>
+                  <span class="text-[10px] text-slate-400 font-normal lowercase">(subtrai)</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-rose-600 font-bold text-xs">R$</span>
+                  <input type="number" id="input-sangria" step="0.01" min="0" placeholder="0,00" value="0"
+                         oninput="atualizarCalculos()"
+                         onkeydown="navegarSangria(event)"
+                         onfocus="this.select()"
+                         class="w-full pl-8 pr-2 py-1.5 bg-rose-50/40 border border-rose-200 rounded-xl text-sm font-black text-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-emerald-50/80 px-4 py-2.5 border-t border-slate-200 flex justify-between items-center text-xs font-semibold text-slate-700">
+            <span class="flex items-center gap-1.5 font-bold"><i class="fa-solid fa-calculator text-farmassim-600"></i> Subtotal Cédulas:</span>
+            <span id="subtotal-cedulas" class="text-farmassim-800 text-base font-black">R$ 0,00</span>
+          </div>
+        </section>
+
+        <!-- Column 3: Resumo & Validação -->
+        <section class="lg:col-span-3 space-y-4">
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+            <div class="bg-farmassim-900 text-white px-4 py-3 font-bold flex items-center justify-between border-b-2 border-farmassim-yellow">
+              <span class="flex items-center gap-1.5 text-sm">
+                <i class="fa-solid fa-vault text-farmassim-yellow"></i> Validação Malote
+              </span>
+              <span class="text-[11px] bg-farmassim-700 px-2 py-0.5 rounded-lg text-emerald-200 font-black">Alvo R$ 400</span>
+            </div>
+
+            <div class="p-4 space-y-3">
+              <div class="space-y-1">
+                <div class="flex justify-between items-center text-[11px] font-bold">
+                  <span class="text-slate-600">Alvo do Malote (R$ 400)</span>
+                  <span id="progress-percent" class="text-farmassim-700">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200 p-0.5">
+                  <div id="progress-bar" class="bg-gradient-to-r from-farmassim-500 to-farmassim-yellow h-1.5 rounded-full transition-all duration-300 w-0"></div>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div class="flex justify-between text-slate-600"><span>Moedas:</span><span id="resumo-moedas" class="font-bold text-slate-800">R$ 0,00</span></div>
+                <div class="flex justify-between text-slate-600"><span>Cédulas:</span><span id="resumo-cedulas" class="font-bold text-slate-800">R$ 0,00</span></div>
+                <div class="flex justify-between text-farmassim-700 font-medium"><span>(+) Extras:</span><span id="resumo-extras" class="font-bold">+ R$ 0,00</span></div>
+                <div class="flex justify-between text-rose-600 font-medium"><span>(-) Sangria:</span><span id="resumo-sangria" class="font-bold">- R$ 0,00</span></div>
+                
+                <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center">
+                  <span class="font-bold text-slate-800">Total Líquido:</span>
+                  <span id="resumo-total-geral" class="text-lg font-black text-farmassim-700">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-slate-500">Diferença p/ Alvo:</span>
+                  <span id="resumo-diferenca" class="font-bold px-2 py-0.5 rounded text-slate-700 bg-slate-200">R$ -400,00</span>
+                </div>
+              </div>
+
+              <div id="status-malote-card" class="p-3 rounded-xl border-2 transition-all text-center flex flex-col items-center justify-center gap-1 shadow-xs">
+                <div id="status-icon" class="text-2xl"><i class="fa-solid fa-circle-xmark text-rose-500"></i></div>
+                <div>
+                  <div id="status-texto" class="font-black text-xs tracking-wide">FECHOU O MALOTE? NÃO</div>
+                  <div id="status-subtexto" class="text-[10px] font-medium opacity-90">Aceito entre R$ 395,00 e R$ 405,00</div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label for="input-operador" class="block text-xs font-bold text-slate-600">Operador / Caixa:</label>
+                <input type="text" id="input-operador" placeholder="Nome do Responsável" 
+                       onkeydown="navegarOperador(event)"
+                       class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-farmassim-600 bg-slate-50 focus:bg-white transition">
+              </div>
+
+              <button onclick="salvarFechamento()" class="w-full py-3 px-4 bg-gradient-to-r from-farmassim-600 to-farmassim-800 hover:from-farmassim-700 hover:to-farmassim-900 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-2 border border-farmassim-yellow/30">
+                <i class="fa-solid fa-floppy-disk text-farmassim-yellow text-sm"></i>
+                <span>Salvar Fechamento (F2)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-farmassim-600"></i> Histórico Recente
+              </h4>
+              <button onclick="imprimirCupomTermico()" class="text-xs text-slate-500 hover:text-farmassim-700" title="Imprimir"><i class="fa-solid fa-print"></i></button>
+            </div>
+            <div id="historico-lista" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <footer class="no-print bg-farmassim-dark text-white text-center py-3 text-xs font-medium border-t-2 border-farmassim-yellow">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-1">
+      <span>Farmassim Drugstore 24hrs &copy; 2026</span>
+      <span class="text-emerald-300 font-mono">Emerson de França - 2026</span>
+    </div>
+  </footer>
+
+  <div id="comprovante-termico"></div>
+
+  <script>
+    const supabaseUrl = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    const MOEDAS = [
+      { valor: 0.05, label: '5¢' },
+      { valor: 0.10, label: '10¢' },
+      { valor: 0.25, label: '25¢' },
+      { valor: 0.50, label: '50¢' },
+      { valor: 1.00, label: 'R$1' }
+    ];
+
+    const CEDULAS = [
+      { valor: 2 }, { valor: 5 }, { valor: 10 }, { valor: 20 }, { valor: 50 }, { valor: 100 }, { valor: 200 }
+    ];
+
+    let qtdMoedas = {};
+    let valoresCedulas = {};
+    let listaExtras = [];
+    let audioCtx = null;
+    let operadorLogado = '';
+
+    function sairParaIndex() {
+      sessionStorage.removeItem('farmassim_operador_logado');
+      window.location.href = 'index.html';
+    }
+
+    async function verificarConexaoBanco() {
+      const dbDot = document.getElementById('db-dot');
+      const dbText = document.getElementById('db-text');
+      try {
+        const { error } = await supabaseClient.from('fechamentos_caixa').select('id', { count: 'exact', head: true });
+        if (error) throw error;
+        dbDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        dbText.innerText = "BD Conectado";
+      } catch (err) {
+        dbDot.className = "w-2 h-2 rounded-full bg-rose-500";
+        dbText.innerText = "Erro BD";
+      }
+    }
+
+    function tocarSomAdicao() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    function dispararFeedbackVisual(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.classList.remove('flash-success');
+        void el.offsetWidth;
+        el.classList.add('flash-success');
+      }
+    }
+
+    function formatarBRL(valor) {
+      return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderizarMoedas() {
+      const container = document.getElementById('container-moedas');
+      container.innerHTML = MOEDAS.map((item, idx) => {
+        const key = item.valor.toString();
+        const qtd = qtdMoedas[key] || 0;
+        const total = qtd * item.valor;
+        return `
+          <div id="row-moeda-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 transition">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-full bg-amber-500 text-white font-black flex items-center justify-center text-xs shadow-xs">${item.label}</span>
+              <span class="text-xs font-black text-slate-800">R$ ${item.valor.toFixed(2)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="number" id="input-moeda-${idx}" min="0" value="${qtd > 0 ? qtd : ''}" placeholder="Qtd"
+                     oninput="definirQtdMoeda('${key}', this.value, ${idx})"
+                     onkeydown="navegarMoeda(event, ${idx})"
+                     onfocus="this.select()"
+                     class="w-16 text-center font-bold text-slate-800 text-xs focus:outline-none border border-slate-300 rounded-lg py-1 bg-white focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+              <span id="subtotal-row-moeda-${idx}" class="w-20 text-right font-black text-xs text-slate-700">${formatarBRL(total)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      atualizarCalculos();
+    }
+
+    function navegarMoeda(e, idxAtual) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tocarSomAdicao();
+        dispararFeedbackVisual(`row-moeda-${idxAtual}`);
+        const proximo = document.getElementById(`input-moeda-${idxAtual + 1}`);
+        if (proximo) {
+          proximo.focus(); proximo.select();
+        } else {
+          const primCedQtd = document.getElementById('input-cedula-qtd-0');
+          if (primCedQtd) { primCedQtd.focus(); primCedQtd.select(); }
+        }
+      }
+    }
+
+    function definirQtdMoeda(chave, valor, idx) {
+      const parsed = parseInt(valor) || 0;
+      qtdMoedas[chave] = Math.max(0, parsed);
+      const item = MOEDAS[idx];
+      if (item) {
+        const subtotalEl = document.getElementById(`subtotal-row-moeda-${idx}`);
+        if (subtotalEl) subtotalEl.innerText = formatarBRL(qtdMoedas[chave] * item.valor);
+      }
+      atualizarCalculos();
+    }
+
+    function renderizarCedulasFixas() {
+      const container = document.getElementById('container-cedulas-fixas');
+      container.innerHTML = CEDULAS.map((ced, idx) => {
+        const valTotal = valoresCedulas[ced.valor] || 0;
+        const qtdSugerida = valTotal > 0 ? (valTotal / ced.valor) : '';
+        return `
+          <div id="row-cedula-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 transition gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-12 h-7 bg-emerald-700 text-white font-black text-xs rounded flex items-center justify-center shadow-xs">R$ ${ced.valor}</span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-1 justify-end">
+              <input type="number" id="input-cedula-qtd-${idx}" min="0" placeholder="Qtd" value="${qtdSugerida}"
+                     oninput="alterarCedulaPorQtd(${ced.valor}, this.value, ${idx})"
+                     onkeydown="navegarCedula(event, ${idx})"
+                     onfocus="this.select()"
+                     class="w-14 text-center font-bold text-slate-700 text-xs focus:outline-none border border-slate-300 rounded-lg py-1 bg-white focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+              <span class="text-[10px] text-slate-400 font-bold">=</span>
+              <div class="relative max-w-[110px]">
+                <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 font-bold text-[10px]">R$</span>
+                <input type="number" id="input-cedula-val-${idx}" step="0.01" min="0" placeholder="0,00" value="${valTotal > 0 ? valTotal : ''}"
+                       oninput="alterarCedulaPorValor(${ced.valor}, this.value, ${idx})"
+                       onfocus="this.select()"
+                       class="w-full pl-6 pr-2 py-1 bg-white border border-slate-300 rounded-lg text-xs font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      atualizarCalculos();
+    }
+
+    function alterarCedulaPorQtd(valorNota, qtdInput, idx) {
+      const qtd = parseInt(qtdInput) || 0;
+      const total = qtd * valorNota;
+      if (total > 0) valoresCedulas[valorNota] = total;
+      else delete valoresCedulas[valorNota];
+      const inputVal = document.getElementById(`input-cedula-val-${idx}`);
+      if (inputVal) inputVal.value = total > 0 ? total : '';
+      atualizarCalculos();
+    }
+
+    function alterarCedulaPorValor(valorNota, totalInput, idx) {
+      const total = parseFloat(totalInput) || 0;
+      if (total > 0) valoresCedulas[valorNota] = total;
+      else delete valoresCedulas[valorNota];
+      const inputQtd = document.getElementById(`input-cedula-qtd-${idx}`);
+      if (inputQtd) inputQtd.value = total > 0 ? (total / valorNota) : '';
+      atualizarCalculos();
+    }
+
+    function navegarCedula(e, idxAtual) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tocarSomAdicao();
+        dispararFeedbackVisual(`row-cedula-${idxAtual}`);
+        const proximoQtd = document.getElementById(`input-cedula-qtd-${idxAtual + 1}`);
+        if (proximoQtd) {
+          proximoQtd.focus(); proximoQtd.select();
+        } else {
+          const extrasInput = document.getElementById('input-extras');
+          if (extrasInput) { extrasInput.focus(); extrasInput.select(); }
+        }
+      }
+    }
+
+    function navegarExtra(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const input = document.getElementById('input-extras');
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val > 0) { adicionarExtra(); }
+        else {
+          const sangriaInput = document.getElementById('input-sangria');
+          if (sangriaInput) { sangriaInput.focus(); sangriaInput.select(); }
+        }
+      }
+    }
+
+    function navegarSangria(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tocarSomAdicao();
+        const opInput = document.getElementById('input-operador');
+        if (opInput) { opInput.focus(); opInput.select(); }
+      }
+    }
+
+    function navegarOperador(e) {
+      if (e.key === 'Enter') { e.preventDefault(); salvarFechamento(); }
+    }
+
+    function adicionarExtra() {
+      const input = document.getElementById('input-extras');
+      const val = parseFloat(input.value);
+      if (!isNaN(val) && val > 0) {
+        listaExtras.push(val);
+        input.value = '';
+        input.focus();
+        tocarSomAdicao();
+        renderizarExtras();
+      }
+    }
+
+    function removerExtra(index) {
+      listaExtras.splice(index, 1);
+      renderizarExtras();
+    }
+
+    function renderizarExtras() {
+      const container = document.getElementById('lista-extras');
+      if (listaExtras.length === 0) {
+        container.innerHTML = `<div class="text-center py-1 text-slate-400 italic">Nenhum valor extra.</div>`;
+      } else {
+        container.innerHTML = listaExtras.map((val, idx) => `
+          <div class="flex items-center justify-between p-1 bg-white rounded-lg border border-slate-200 text-xs">
+            <span class="font-bold text-slate-500">Extra #${idx + 1}</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-black text-farmassim-700">${formatarBRL(val)}</span>
+              <button onclick="removerExtra(${idx})" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+        `).join('');
+      }
+      atualizarCalculos();
+    }
+
+    function atualizarCalculos() {
+      let totalMoedas = 0;
+      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0;
+      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+
+      const totalExtras = listaExtras.reduce((acc, curr) => acc + curr, 0);
+      const sangriaInput = parseFloat(document.getElementById('input-sangria').value) || 0;
+      const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangriaInput);
+      const diferenca = totalGeral - 400.00;
+
+      document.getElementById('subtotal-moedas').innerText = formatarBRL(totalMoedas);
+      document.getElementById('badge-moedas-total').innerText = formatarBRL(totalMoedas);
+      document.getElementById('subtotal-cedulas').innerText = formatarBRL(totalCedulas);
+      document.getElementById('badge-cedulas-qtd').innerText = formatarBRL(totalCedulas);
+      
+      document.getElementById('resumo-moedas').innerText = formatarBRL(totalMoedas);
+      document.getElementById('resumo-cedulas').innerText = formatarBRL(totalCedulas);
+      document.getElementById('resumo-extras').innerText = `+ ${formatarBRL(totalExtras)}`;
+      document.getElementById('resumo-sangria').innerText = `- ${formatarBRL(sangriaInput)}`;
+      document.getElementById('resumo-total-geral').innerText = formatarBRL(totalGeral);
+
+      const pct = Math.min(100, Math.round((totalGeral / 400) * 100));
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-percent').innerText = pct + '%';
+
+      const elDif = document.getElementById('resumo-diferenca');
+      elDif.innerText = formatarBRL(diferenca);
+      if (diferenca === 0) elDif.className = "font-black px-2 py-0.5 rounded text-emerald-800 bg-emerald-100 border border-emerald-300";
+      else if (diferenca > 0) elDif.className = "font-black px-2 py-0.5 rounded text-indigo-800 bg-indigo-100 border border-indigo-300";
+      else elDif.className = "font-black px-2 py-0.5 rounded text-rose-800 bg-rose-100 border border-rose-300";
+
+      const statusCard = document.getElementById('status-malote-card');
+      const statusIcon = document.getElementById('status-icon');
+      const statusTexto = document.getElementById('status-texto');
+      const fechou = totalGeral >= 395.00 && totalGeral <= 405.00;
+
+      if (fechou) {
+        statusCard.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 text-center flex flex-col items-center justify-center gap-0.5 shadow-xs";
+        statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+        statusTexto.innerText = "FECHOU O MALOTE? SIM";
+        statusTexto.className = "font-black text-xs tracking-wide text-emerald-800";
+      } else {
+        statusCard.className = "p-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 text-center flex flex-col items-center justify-center gap-0.5 shadow-xs";
+        statusIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i>`;
+        statusTexto.innerText = "FECHOU O MALOTE? NÃO";
+        statusTexto.className = "font-black text-xs tracking-wide text-rose-800";
+      }
+    }
+
+    function imprimirCupomTermico() {
+      let totalMoedas = 0;
+      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0;
+      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+      const totalExtras = listaExtras.reduce((a, b) => a + b, 0);
+      const sangria = parseFloat(document.getElementById('input-sangria').value) || 0;
+      const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangria);
+      const operador = document.getElementById('input-operador').value.trim() || operadorLogado;
+      const fechou = totalGeral >= 395.00 && totalGeral <= 405.00;
+      const dataHoraAtual = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
+
+      // Parâmetros para a página de detalhes
+      let params = new URLSearchParams();
+      params.append('op', operador);
+      params.append('dh', dataHoraAtual);
+      params.append('tg', totalGeral.toFixed(2));
+      params.append('san', sangria.toFixed(2));
+      params.append('ext', totalExtras.toFixed(2));
+      params.append('ok', fechou ? 'SIM' : 'NAO');
+
+      MOEDAS.forEach(m => {
+        const q = qtdMoedas[m.valor.toString()] || 0;
+        params.append(`m_${m.valor}`, q);
+      });
+
+      CEDULAS.forEach(c => {
+        const val = valoresCedulas[c.valor] || 0;
+        const q = val > 0 ? (val / c.valor) : 0;
+        params.append(`c_${c.valor}`, q);
+      });
+
+      // URL fixa apontando para o ambiente online na Vercel
+      const baseUrl = 'https://farmassim-24hrs.vercel.app/detalhes.html';
+      const urlDestino = baseUrl + '?' + params.toString();
+      const urlQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlDestino)}`;
+
+      const cupomContainer = document.getElementById('comprovante-termico');
+      cupomContainer.innerHTML = `
+        <div style="text-align: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; font-weight: 950; text-transform: uppercase;">FARMASSIM 24HRS</strong><br>
+          <span style="font-size: 10px; font-weight: 900;">FECHAMENTO DE CAIXA E MALOTE</span><br>
+          <span>--------------------------------</span>
+        </div>
+        <div style="font-size: 10px; font-weight: 900; margin-bottom: 6px;">
+          <b>DATA/HORA:</b> ${dataHoraAtual}<br>
+          <b>OPERADOR:</b> ${operador}<br>
+          <span>--------------------------------</span>
+        </div>
+        <div style="font-size: 10px; font-weight: 900; margin-bottom: 6px;">
+          <b>DISCRIMINAÇÃO:</b><br>
+          Subtotal Moedas: ${formatarBRL(totalMoedas)}<br>
+          Subtotal Cédulas: ${formatarBRL(totalCedulas)}<br>
+          (+) Extras: ${formatarBRL(totalExtras)}<br>
+          (-) Sangria: ${formatarBRL(sangria)}<br>
+        </div>
+        <div style="font-size: 11px; font-weight: 950; margin-bottom: 10px;">
+          <span>--------------------------------</span><br>
+          <strong>TOTAL GERAL: ${formatarBRL(totalGeral)}</strong><br>
+          <strong>FECHOU MALOTE? ${fechou ? 'SIM (OK)' : 'NÃO'}</strong><br>
+          <span>--------------------------------</span>
+        </div>
+        <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+          <img id="img-qrcode-cupom" src="${urlQRCode}" alt="QR Code Detalhes" style="width: 32mm; height: 32mm; display: inline-block;" />
+        </div>
+        <div style="text-align: center; font-size: 10px; font-weight: 900; margin-top: 15px;">
+          ____________________________________<br>Assinatura do Responsável
+        </div>
+        <div style="text-align: center; font-size: 9px; font-weight: 900; margin-top: 15px; border-top: 1px dashed #000; padding-top: 4px;">
+          Emerson de França - 2026
+        </div>
+      `;
+
+      const imgQR = document.getElementById('img-qrcode-cupom');
+      if (imgQR) {
+        imgQR.onload = function() { window.print(); };
+        imgQR.onerror = function() { window.print(); };
+      } else {
+        window.print();
+      }
+    }
+
+    function zerarTudo() {
+      qtdMoedas = {};
+      valoresCedulas = {};
+      listaExtras = [];
+      document.getElementById('input-extras').value = '';
+      document.getElementById('input-sangria').value = '0';
+      renderizarMoedas();
+      renderizarCedulasFixas();
+      renderizarExtras();
+      focarPrimeiroCampo();
+    }
+
+    function carregarExemplo() {
+      qtdMoedas = { "0.25": 44 }; 
+      valoresCedulas = { 2: 2, 5: 5, 10: 10, 20: 20, 50: 50, 100: 300, 200: 0 };
+      listaExtras = [11.00];
+      document.getElementById('input-sangria').value = '0';
+      renderizarMoedas();
+      renderizarCedulasFixas();
+      renderizarExtras();
+    }
+
+    function atualizarRelogio() {
+      const agora = new Date();
+      document.getElementById('clock-date').innerText = agora.toLocaleDateString('pt-BR');
+      document.getElementById('clock-time').innerText = agora.toLocaleTimeString('pt-BR');
+    }
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    async function salvarFechamento() {
+      let totalMoedas = 0;
+      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0;
+      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+      const totalExtras = listaExtras.reduce((a, b) => a + b, 0);
+      const sangria = parseFloat(document.getElementById('input-sangria').value) || 0;
+      const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangria);
+
+      if (totalGeral === 0 && sangria === 0 && totalExtras === 0) {
+        alert("Informe os valores de fechamento antes de salvar.");
+        return;
+      }
+
+      const operador = document.getElementById('input-operador').value.trim() || operadorLogado;
+      const fechou = totalGeral >= 395.00 && totalGeral <= 405.00;
+
+      const { data, error } = await supabaseClient
+        .from('fechamentos_caixa')
+        .insert([{ total_geral: totalGeral, sangria: sangria, operador: operador, fechou: fechou }]);
+
+      if (error) {
+        console.error("Erro do Supabase:", error);
+        alert("Erro ao salvar no banco de dados: " + error.message);
+      } else {
+        const desejaImprimir = confirm("Fechamento salvo com sucesso no banco de dados!\n\nDeseja imprimir o fechamento do caixa?");
+        if (desejaImprimir) {
+          imprimirCupomTermico();
+        }
+
+        zerarTudo();
+        carregarHistorico();
+      }
+    }
+
+    async function carregarHistorico() {
+      const container = document.getElementById('historico-lista');
+      container.innerHTML = '<p class="text-slate-400 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>';
+
+      const { data: historico, error } = await supabaseClient
+        .from('fechamentos_caixa')
+        .select('*')
+        .order('data_hora', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        container.innerHTML = `<p class="text-rose-500 text-center py-2">Erro ao carregar histórico.</p>`;
+        return;
+      }
+
+      if (!historico || historico.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-center py-2 italic">Nenhum registro encontrado.</p>`;
+        return;
+      }
+
+      container.innerHTML = historico.map(item => {
+        const dataObj = new Date(item.data_hora);
+        const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR');
+        return `
+          <div class="p-2 bg-slate-50 border border-slate-200/80 rounded-xl flex justify-between items-center shadow-xs">
+            <div>
+              <div class="font-extrabold text-slate-800">${formatarBRL(Number(item.total_geral))}</div>
+              <div class="text-[10px] text-slate-500 font-medium">${dataFormatada} • <span class="font-bold">${item.operador}</span></div>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-black rounded border ${item.fechou ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300'}">
+              ${item.fechou ? 'OK' : 'NÃO OK'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function focarPrimeiroCampo() {
+      setTimeout(() => {
+        const p = document.getElementById('input-moeda-0');
+        if (p) { p.focus(); p.select(); }
+      }, 100);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F2' || (e.ctrlKey && e.key.toLowerCase() === 's')) {
+        e.preventDefault(); salvarFechamento();
+      }
+      if (e.key === 'F8' || (e.ctrlKey && e.key.toLowerCase() === 'p')) {
+        e.preventDefault(); imprimirCupomTermico();
+      }
+      if (e.key === 'Escape') {
+        if (confirm("Deseja zerar todos os campos da tela?")) { zerarTudo(); }
+      }
+    });
+
+    window.onload = function() {
+      operadorLogado = sessionStorage.getItem('farmassim_operador_logado');
+      if (!operadorLogado) {
+        window.location.href = 'index.html';
+        return;
+      }
+      document.getElementById('input-operador').value = operadorLogado;
+
+      renderizarMoedas();
+      renderizarCedulasFixas();
+      renderizarExtras();
+      carregarHistorico();
+      verificarConexaoBanco();
+      focarPrimeiroCampo();
+    };
+  </script>
+</body>
+</html>
