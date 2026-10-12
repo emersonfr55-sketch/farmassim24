@@ -36,6 +36,31 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        #comprovante-wifi-termico { display: none; }
+
+        @media print {
+            body * { visibility: hidden !important; }
+            body, html { background-color: #fff !important; margin: 0 !important; padding: 0 !important; }
+            #comprovante-wifi-termico, #comprovante-wifi-termico * { visibility: visible !important; }
+            #comprovante-wifi-termico {
+                display: block !important;
+                position: absolute !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                top: 0 !important;
+                width: 72mm !important;
+                margin: 0 !important;
+                padding: 2mm !important;
+                font-family: 'Courier New', Courier, monospace !important;
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                line-height: 1.25 !important;
+                color: #000 !important;
+                background: #fff !important;
+            }
+            @page { size: 80mm auto; margin: 0; }
+        }
     </style>
 </head>
 <body class="font-sans antialiased h-full text-slate-800 flex flex-col min-h-screen">
@@ -81,6 +106,38 @@
         </div>
     </div>
 
+    <!-- MODAL DO QR CODE DA WIFI -->
+    <div id="modalWifi" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-4 text-center">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-wifi text-farmassim-600"></i> Wi-Fi Farmácia
+                </h3>
+                <button onclick="fecharModalWifi()" class="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-left">
+                <div><span class="text-slate-500 font-bold">Rede:</span> <span class="font-black text-slate-800">Farmassim 24hrs</span></div>
+                <div><span class="text-slate-500 font-bold">Senha:</span> <span class="font-black text-emerald-700 font-mono select-all">Farmassim24hrs@</span></div>
+            </div>
+
+            <div class="flex justify-center p-2 bg-white rounded-xl border border-slate-200">
+                <img id="imgQrcodeWifiModal" src="" alt="QR Code Wi-Fi" class="w-40 h-40 object-contain" />
+            </div>
+
+            <p class="text-[11px] text-slate-500">Aponte a câmara do telemóvel para conectar automaticamente à rede.</p>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="imprimirWifiTermico()" class="flex-1 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-print"></i> Imprimir Senha
+                </button>
+                <button onclick="fecharModalWifi()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER DO PORTAL -->
     <header id="mainHeader" class="hidden bg-farmassim-600 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -115,7 +172,7 @@
             <p class="text-sm text-slate-500 font-medium">Selecione abaixo qual ferramenta da farmácia você deseja acessar neste momento.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
             
             <!-- Cartão 1: Sistema de Entregas -->
             <a href="entrega.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
@@ -168,6 +225,23 @@
                 </div>
             </a>
 
+            <!-- Cartão 4: Wi-Fi da Farmácia -->
+            <div onclick="abrirModalWifi()" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-sky-500 hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer">
+                <div class="space-y-4">
+                    <div class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-sky-600 text-2xl group-hover:bg-sky-600 group-hover:text-white transition-all shadow-inner">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 group-hover:text-sky-700 transition-colors">Wi-Fi da Farmácia</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Gere o QR Code para conectar clientes e equipe na rede Wi-Fi.</p>
+                    </div>
+                </div>
+                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-600">
+                    <span>Gerar QR Code Wi-Fi</span>
+                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -175,10 +249,15 @@
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
+    <div id="comprovante-wifi-termico"></div>
+
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         let supabaseClient = null;
+
+        const wifiString = "WIFI:S:Farmassim 24hrs;T:WPA;P:Farmassim24hrs@;;";
+        const urlQrcodeWifi = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(wifiString)}`;
 
         try {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -195,6 +274,41 @@
                 document.getElementById('inputUsuarioID').focus();
             }
         };
+
+        function abrirModalWifi() {
+            document.getElementById('imgQrcodeWifiModal').src = urlQrcodeWifi;
+            document.getElementById('modalWifi').classList.remove('hidden');
+        }
+
+        function fecharModalWifi() {
+            document.getElementById('modalWifi').classList.add('hidden');
+        }
+
+        function imprimirWifiTermico() {
+            const container = document.getElementById('comprovante-wifi-termico');
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 6px;">
+                  <strong style="font-size: 13px; font-weight: 950; text-transform: uppercase;">FARMASSIM 24HRS</strong><br>
+                  <span style="font-size: 10px; font-weight: 900;">ACESSO À REDE WI-FI</span><br>
+                  <span>--------------------------------</span>
+                </div>
+                <div style="font-size: 11px; font-weight: 900; margin-bottom: 6px; text-align: left;">
+                  <b>REDE:</b> Farmassim 24hrs<br>
+                  <b>SENHA:</b> Farmassim24hrs@<br>
+                  <span>--------------------------------</span>
+                </div>
+                <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+                  <img src="${urlQrcodeWifi}" alt="QR Code Wi-Fi" style="width: 38mm; height: 38mm; display: inline-block;" />
+                </div>
+                <div style="text-align: center; font-size: 10px; font-weight: 900; margin-top: 10px;">
+                  Aponte a câmara para conectar!
+                </div>
+                <div style="text-align: center; font-size: 9px; font-weight: 900; margin-top: 15px; border-top: 1px dashed #000; padding-top: 4px;">
+                  Emerson de França - 2026
+                </div>
+            `;
+            window.print();
+        }
 
         async function confirmarOperadorInicial() {
             const usuarioId = document.getElementById('inputUsuarioID').value.trim();
