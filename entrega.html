@@ -81,6 +81,9 @@
                         </span>
                     </div>
 
+                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all" title="Consultar Entregas do Dia do Usuário Logado">
+                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Entregas Hoje
+                    </button>
                     <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
                         <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
                     </button>
@@ -930,6 +933,13 @@
             atualizarSelectsConsulta();
             executarConsultaHistorico();
             openModal('modalConsultaHistorico');
+        }
+
+        function abrirMinhasEntregasHoje() {
+            document.getElementById('histDataInicio').value = dataAtualFormatted;
+            document.getElementById('histDataFim').value = dataAtualFormatted;
+            document.getElementById('histMotoboy').value = 'TODOS';
+            abrirConsultaHistorico();
         }
 
         function atualizarSelectsConsulta() {
