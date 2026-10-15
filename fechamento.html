@@ -460,9 +460,9 @@
               <span class="w-12 h-7 bg-emerald-700 text-white font-black text-xs rounded flex items-center justify-center shadow-xs">R$ ${ced.valor}</span>
             </div>
             <div class="flex items-center gap-1.5 flex-1 justify-end">
-              <input type="number" id="input-cedula-qtd-${idx}" min="0" placeholder="Qtd" value="${qtdSugerida}"
+              <input type="number" id="input-cedula-qtd-${idx}" min="0" placeholder="Qtd" value="${qtdSugerida > 0 ? qtdSugerida : ''}"
                      oninput="alterarCedulaPorQtd(${ced.valor}, this.value, ${idx})"
-                     onkeydown="navegarCedula(event, ${idx})"
+                     onkeydown="navegarCedulaQtd(event, ${idx})"
                      onfocus="this.select()"
                      class="w-14 text-center font-bold text-slate-700 dark:text-white text-xs focus:outline-none border border-slate-300 dark:border-slate-600 rounded-lg py-1 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
               <span class="text-[10px] text-slate-400 font-bold">=</span>
@@ -470,6 +470,7 @@
                 <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 font-bold text-[10px]">R$</span>
                 <input type="number" id="input-cedula-val-${idx}" step="0.01" min="0" placeholder="0,00" value="${valTotal > 0 ? valTotal : ''}"
                        oninput="alterarCedulaPorValor(${ced.valor}, this.value, ${idx})"
+                       onkeydown="navegarCedulaVal(event, ${idx})"
                        onfocus="this.select()"
                        class="w-full pl-6 pr-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-xs font-black text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
               </div>
@@ -481,12 +482,14 @@
     }
 
     function alterarCedulaPorQtd(valorNota, qtdInput, idx) {
-      const qtd = parseInt(qtdInput) || 0;
+      const qtd = parseFloat(qtdInput) || 0;
       const total = qtd * valorNota;
       if (total > 0) valoresCedulas[valorNota] = total;
       else delete valoresCedulas[valorNota];
       const inputVal = document.getElementById(`input-cedula-val-${idx}`);
-      if (inputVal) inputVal.value = total > 0 ? total : '';
+      if (inputVal && document.activeElement !== inputVal) {
+        inputVal.value = total > 0 ? total : '';
+      }
       atualizarCalculos();
     }
 
@@ -495,18 +498,34 @@
       if (total > 0) valoresCedulas[valorNota] = total;
       else delete valoresCedulas[valorNota];
       const inputQtd = document.getElementById(`input-cedula-qtd-${idx}`);
-      if (inputQtd) inputQtd.value = total > 0 ? (total / valorNota) : '';
+      if (inputQtd && document.activeElement !== inputQtd) {
+        inputQtd.value = total > 0 ? (total / valorNota) : '';
+      }
       atualizarCalculos();
     }
 
-    function navegarCedula(e, idxAtual) {
+    function navegarCedulaQtd(e, idxAtual) {
       if (e.key === 'Enter') {
         e.preventDefault();
         tocarSomAdicao();
         dispararFeedbackVisual(`row-cedula-${idxAtual}`);
-        const proximoQtd = document.getElementById(`input-cedula-qtd-${idxAtual + 1}`);
-        if (proximoQtd) {
-          proximoQtd.focus(); proximoQtd.select();
+        // Pula para o campo de VALOR da mesma linha (ou para o Qtd da próxima)
+        const proximoVal = document.getElementById(`input-cedula-val-${idxAtual}`);
+        if (proximoVal) {
+          proximoVal.focus(); proximoVal.select();
+        }
+      }
+    }
+
+    function navegarCedulaVal(e, idxAtual) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tocarSomAdicao();
+        dispararFeedbackVisual(`row-cedula-${idxAtual}`);
+        // Pula para o campo de QTD da PRÓXIMA cédula logo abaixo
+        const proximaQtd = document.getElementById(`input-cedula-qtd-${idxAtual + 1}`);
+        if (proximaQtd) {
+          proximaQtd.focus(); proximaQtd.select();
         } else {
           const extrasInput = document.getElementById('input-extras');
           if (extrasInput) { extrasInput.focus(); extrasInput.select(); }
@@ -756,8 +775,7 @@
         if (desejaImprimir) {
           imprimirCupomTermico();
         }
-
-        zerarTudo();
+        // Mantém os valores preenchidos na tela conforme solicitado, atualizando apenas o histórico
         carregarHistorico();
       }
     }
