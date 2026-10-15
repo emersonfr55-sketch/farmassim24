@@ -356,7 +356,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CADASTROS COM OPÇÃO DE TROCO NAS FORMAS DE PAGAMENTO -->
+    <!-- MODAL DE CADASTROS -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
@@ -379,7 +379,7 @@
                     <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1"></div>
                 </div>
 
-                <!-- Conteúdo Formas de Pagamento com opção de Aceita Troco -->
+                <!-- Conteúdo Formas de Pagamento -->
                 <div id="abaFormas" class="space-y-3 hidden">
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
                         <div class="flex gap-2">
@@ -421,7 +421,6 @@
             }
         } catch(e) { console.error("Erro init supabase", e); }
 
-        let caixas = [];
         let motoboys = [
             { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
             { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
@@ -476,15 +475,13 @@
                 const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
                 
                 const fetchDb = Promise.all([
-                    supabaseClient.from('caixas').select('*'),
                     supabaseClient.from('motoboys').select('*'),
                     supabaseClient.from('formas_pagamento').select('*'),
                     supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
                 ]);
 
-                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
+                const [resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
-                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
                 if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
                 if (resPag.data && resPag.data.length > 0) {
                     formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
@@ -694,15 +691,25 @@
             showToast("Registro excluído!");
         }
 
-        function abrirConsultaHistorico() {
+        async function abrirConsultaHistorico() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            let opcoesCaixas = `<option value="TODOS">Todos</option>`;
-            if (caixas.length > 0) {
-                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
-            } else {
-                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            // Busca operadores únicos diretamente do banco ou do histórico para popular o select de Operadores
+            let operadoresSet = new Set([operadorAtivo]);
+            if (supabaseClient) {
+                try {
+                    const { data } = await supabaseClient.from('entregas_farmassim').select('caixa');
+                    if (data) {
+                        data.forEach(item => { if(item.caixa) operadoresSet.add(item.caixa); });
+                    }
+                } catch(e) {}
             }
+            historico.forEach(r => { if(r.caixa) operadoresSet.add(r.caixa); });
+
+            let opcoesCaixas = `<option value="TODOS">Todos</option>`;
+            Array.from(operadoresSet).sort().forEach(opName => {
+                opcoesCaixas += `<option value="${opName}" ${opName === operadorAtivo ? 'selected' : ''}>${opName}</option>`;
+            });
             document.getElementById('histOperador').innerHTML = opcoesCaixas;
 
             executarConsultaHistorico();
