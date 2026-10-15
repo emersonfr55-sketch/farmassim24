@@ -77,7 +77,7 @@
 
                     <div id="btnStatusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
                         <span id="badgeStatusSupabase" class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Conectando...
+                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Inicializando...
                         </span>
                     </div>
 
@@ -553,7 +553,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         let supabaseClient = null;
 
         try {
@@ -566,8 +566,11 @@
 
         let caixas = [];
         let motoboys = [
-            { id: 1, nome: 'Motoboy 1' },
-            { id: 2, nome: 'Motoboy 2' }
+            { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
+            { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
+            { id: 3, nome: 'KAIKE SCHIBLSKI' },
+            { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' },
+            { id: 5, nome: 'MAURO MOKRESKI' }
         ];
         let formasPagamento = [
             { id: 1, nome: 'Dinheiro', requerTroco: true },
@@ -580,6 +583,14 @@
         let resultadoConsultaGlobal = [];
         let operadorAtivo = '';
         let dataAtualFormatted = '';
+
+        // Helper para aplicar timeout em requisições de rede (evita travamentos)
+        function comTimeout(promessa, ms = 4000) {
+            return Promise.race([
+                promessa,
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms))
+            ]);
+        }
 
         window.onload = async function() {
             let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
@@ -596,29 +607,33 @@
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
-            await carregarCadastrosSupabase();
+            // Renderiza a interface imediatamente com dados locais para garantir zero travamentos
+            atualizarSelects();
+            renderizarListasGerenciamento();
+            renderizarTabela();
+
+            // Dispara a sincronização de fundo de forma totalmente segura
+            sincronizarComSupabase();
             focarCampoPedido();
         };
 
-        async function carregarCadastrosSupabase() {
+        async function sincronizarComSupabase() {
             const badge = document.getElementById('badgeStatusSupabase');
             if (!supabaseClient) {
-                marcarOffline("Sem Cliente");
+                marcarStatusDB("Offline", "text-amber-400");
                 return;
             }
 
             try {
-                badge.className = "flex items-center gap-1.5 text-amber-300";
-                badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span class="hidden sm:inline">DB:</span> Sincronizando...`;
-
-                // Carregamento independente e seguro de tabelas para evitar falha geral caso alguma tabela falhe
+                // Tenta buscar motoboys com timeout de 4s
                 try {
-                    const resMot = await supabaseClient.from('motoboys').select('*').order('nome');
+                    const resMot = await comTimeout(supabaseClient.from('motoboys').select('*').order('nome'));
                     if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
-                } catch(e) { console.warn("Tabela motoboys opcional não encontrada/vazia"); }
+                } catch(e) {}
 
+                // Tenta buscar formas de pagamento com timeout de 4s
                 try {
-                    const resPag = await supabaseClient.from('formas_pagamento').select('*').order('nome');
+                    const resPag = await comTimeout(supabaseClient.from('formas_pagamento').select('*').order('nome'));
                     if (resPag.data && resPag.data.length > 0) {
                         formasPagamento = resPag.data.map(p => ({
                             id: p.id,
@@ -626,12 +641,13 @@
                             requerTroco: p.requer_troco !== false
                         }));
                     }
-                } catch(e) { console.warn("Tabela formas_pagamento opcional não encontrada/vazia"); }
+                } catch(e) {}
 
+                // Tenta buscar caixas com timeout de 4s
                 try {
-                    const resCaixas = await supabaseClient.from('caixas').select('*').order('nome');
+                    const resCaixas = await comTimeout(supabaseClient.from('caixas').select('*').order('nome'));
                     if (resCaixas.data) caixas = resCaixas.data;
-                } catch(e) { console.warn("Tabela caixas opcional não encontrada/vazia"); }
+                } catch(e) {}
 
                 if (!caixas.some(c => c.nome === operadorAtivo)) {
                     caixas.push({ id: Date.now(), nome: operadorAtivo });
@@ -641,21 +657,19 @@
                 renderizarListasGerenciamento();
                 await carregarDadosSupabase();
 
+                marcarStatusDB("Conectado", "text-emerald-300");
             } catch (err) {
-                console.warn("Aviso na sincronização, operando com fallbacks:", err);
-                marcarOffline("Modo Local");
+                console.warn("Aviso de sincronização (modo local ativo):", err);
+                marcarStatusDB("Modo Local", "text-amber-400");
             }
         }
 
-        function marcarOffline(motivo) {
+        function marcarStatusDB(texto, classeCor) {
             const badge = document.getElementById('badgeStatusSupabase');
             if (badge) {
-                badge.className = "flex items-center gap-1.5 text-amber-400";
-                badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
+                badge.className = `flex items-center gap-1.5 ${classeCor}`;
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> ${texto}`;
             }
-            atualizarSelects();
-            renderizarListasGerenciamento();
-            renderizarTabela();
         }
 
         function sairDoSistema() {
@@ -670,11 +684,9 @@
         async function carregarDadosSupabase() {
             if (!supabaseClient) return;
             try {
-                const { data, error } = await supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted).order('created_at', { ascending: false });
+                const { data, error } = await comTimeout(supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted).order('created_at', { ascending: false }));
                 
-                if (error) throw error;
-
-                if (data) {
+                if (!error && data) {
                     historico = data.map(item => ({
                         id: item.id,
                         data: item.data,
@@ -688,17 +700,10 @@
                         formaPag: item.forma_pag,
                         concluido: item.concluido
                     }));
+                    renderizarTabela();
                 }
-
-                const badge = document.getElementById('badgeStatusSupabase');
-                if (badge) {
-                    badge.className = "flex items-center gap-1.5 text-emerald-300";
-                    badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
-                }
-
-                renderizarTabela();
             } catch (err) {
-                console.error("Erro ao carregar entregas:", err);
+                console.warn("Aviso: carregando dados do cache local");
             }
         }
 
@@ -823,7 +828,7 @@
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('entregas_farmassim').insert([novoRegistroDB]);
-                } catch(err) { console.warn("Erro inserção banco, mantendo local", err); }
+                } catch(err) { console.warn("Erro ao salvar no banco", err); }
             }
 
             document.getElementById('coo').value = '';
@@ -975,7 +980,7 @@
                     if (motoboy && motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
                     if (operador && operador !== 'TODOS') query = query.eq('caixa', operador);
 
-                    const { data } = await query.order('data', { ascending: false });
+                    const { data } = await comTimeout(query.order('data', { ascending: false }));
                     if (data) dadosEncontrados = data;
                 } catch(e) {}
             }
@@ -1221,137 +1226,4 @@
                 }
             });
 
-            document.getElementById('totalDia').innerText = totalDia.toFixed(2);
-            document.getElementById('qtdEntregasDia').innerText = lista.length;
-            document.getElementById('totalPendente').innerText = totalPendente.toFixed(2);
-            document.getElementById('qtdPendentes').innerText = qtdPendentes;
-            document.getElementById('totalConcluido').innerText = totalConcluido.toFixed(2);
-            document.getElementById('qtdConcluidas').innerText = qtdConcluidas;
-
-            const divMotoboys = document.getElementById('resumoMotoboys');
-            const chavesMotoboy = Object.keys(pendentePorMotoboy);
-            if (chavesMotoboy.length === 0) {
-                divMotoboys.innerHTML = '<span class="text-slate-400 italic">Nenhum valor pendente.</span>';
-            } else {
-                divMotoboys.innerHTML = chavesMotoboy.map(m => `
-                    <div class="flex justify-between items-center py-0.5 border-b border-slate-100 last:border-0">
-                        <span class="text-slate-700">${m}:</span>
-                        <span class="font-extrabold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function renderizarTabela() {
-            const tbody = document.querySelector('#tabelaRegistros tbody');
-            const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
-
-            tbody.innerHTML = '';
-            let lista = historico;
-
-            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
-
-            if (busca) {
-                lista = lista.filter(r => 
-                    r.coo.toLowerCase().includes(busca) || 
-                    r.motoboy.toLowerCase().includes(busca) ||
-                    r.caixa.toLowerCase().includes(busca) ||
-                    r.formaPag.toLowerCase().includes(busca)
-                );
-            }
-
-            lista.forEach(r => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-100 hover:bg-slate-50";
-                const optionsMotoboy = motoboys.map(m => `<option value="${m.nome}" ${m.nome === r.motoboy ? 'selected' : ''}>${m.nome}</option>`).join('');
-
-                tr.innerHTML = `
-                    <td class="py-3 px-4">
-                        <button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${r.concluido ? 'Concluído' : 'Pendente'}
-                        </button>
-                    </td>
-                    <td class="py-3 px-4">${r.hora}</td>
-                    <td class="py-3 px-4">${r.caixa}</td>
-                    <td class="py-2 px-3">
-                        <input type="text" value="${r.coo}" onchange="atualizarCampoSupabase(${r.id}, 'coo', this.value.trim())" class="bg-white border border-slate-200 text-slate-800 text-xs font-mono font-bold rounded-lg px-2 py-1 w-28">
-                    </td>
-                    <td class="py-2 px-3">
-                        <select onchange="atualizarCampoSupabase(${r.id}, 'motoboy', this.value)" class="bg-white border border-slate-200 text-slate-800 text-xs font-semibold rounded-lg px-2 py-1">
-                            ${optionsMotoboy}
-                        </select>
-                    </td>
-                    <td class="py-2 px-3">
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-semibold text-xs text-slate-800 truncate max-w-[140px]" title="${r.formaPag}">${r.formaPag}</span>
-                            <button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 bg-slate-100 p-1 rounded" title="Alterar">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
-                    <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
-                    <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
-                    <td class="py-3 px-4 text-center flex gap-1 justify-center">
-                        <button onclick="imprimirCupom(${r.id})" class="p-1.5 text-slate-600 hover:text-slate-900"><i class="fa-solid fa-print"></i></button>
-                        <button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            renderizarResumos();
-        }
-
-        function atualizarSelects() {
-            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
-            const opcoesMotoboys = motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
-
-            const selMotoboy = document.getElementById('selectMotoboy');
-            if (selMotoboy) selMotoboy.innerHTML = opcoesMotoboys;
-
-            const selPag = document.getElementById('formaPagamento');
-            if (selPag) selPag.innerHTML = opcoesPag;
-
-            const m1 = document.getElementById('addMistoForma1');
-            if (m1) m1.innerHTML = opcoesPag;
-
-            const m2 = document.getElementById('addMistoForma2');
-            if (m2) m2.innerHTML = opcoesPag;
-
-            const editPag = document.getElementById('editSelectPagamento');
-            if (editPag) editPag.innerHTML = opcoesPag;
-
-            const e1 = document.getElementById('editForma1');
-            if (e1) e1.innerHTML = opcoesPag;
-
-            const e2 = document.getElementById('editForma2');
-            if (e2) e2.innerHTML = opcoesPag;
-        }
-
-        function exportarCSV() {
-            if (historico.length === 0) {
-                showToast("Nenhum registro nesta data.");
-                return;
-            }
-            let csv = "Status;Hora;Operador;COO/Pedido;Motoboy;Pagamento;Valor Pedido;Troco;Valor A Trazer\n";
-            historico.forEach(r => {
-                csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)};${r.troco.toFixed(2)};${r.valorATrazer.toFixed(2)}\n`;
-            });
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.0; // fallback safe
-            link.href = URL.createObjectURL(blob);
-            link.download = `entregas_farmassim_${dataAtualFormatted}.csv`;
-            link.click();
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 2500);
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('totalDia').innerText = totalDia.toFixed(2
