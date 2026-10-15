@@ -409,13 +409,8 @@
         } catch(e) { console.error("Erro init supabase", e); }
 
         let caixas = [];
-        let motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
-        let formasPagamento = [
-            { id: 1, nome: 'Dinheiro', requerTroco: true },
-            { id: 2, nome: 'Pix', requerTroco: false },
-            { id: 3, nome: 'Cartão Débito', requerTroco: false },
-            { id: 4, nome: 'Cartão Crédito', requerTroco: false }
-        ];
+        let motoboys = [];
+        let formasPagamento = [];
         let historico = [];
         let exibirConcluidas = true;
         let resultadoConsultaGlobal = [];
@@ -435,6 +430,16 @@
             dataAtualFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
+
+            // Inicializa com padrões locais caso demore a sincronizar
+            motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
+            formasPagamento = [
+                { id: 1, nome: 'Dinheiro', requerTroco: true },
+                { id: 2, nome: 'Pix', requerTroco: false },
+                { id: 3, nome: 'Cartão Débito', requerTroco: false },
+                { id: 4, nome: 'Cartão Crédito', requerTroco: false }
+            ];
+            caixas = [{ id: 1, nome: operadorAtivo }];
 
             atualizarSelects();
             renderizarListasGerenciamento();
@@ -464,8 +469,12 @@
 
                 const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
-                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
-                if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
+                if (resCaixas.data && resCaixas.data.length > 0) {
+                    caixas = resCaixas.data;
+                }
+                if (resMot.data && resMot.data.length > 0) {
+                    motoboys = resMot.data;
+                }
                 if (resPag.data && resPag.data.length > 0) {
                     formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
                 }
