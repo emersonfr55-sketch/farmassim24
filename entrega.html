@@ -398,7 +398,6 @@
         let operadorAtivo = 'Operador';
         let dataAtualFormatted = '';
 
-        // INICIALIZAÇÃO IMEDIATA (NUNCA TRAVA A TELA)
         window.onload = function() {
             let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
             if (!op || op.trim() === '') {
@@ -432,13 +431,15 @@
                 const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
                 
                 const fetchDb = Promise.all([
+                    supabaseClient.from('caixas').select('*'),
                     supabaseClient.from('motoboys').select('*'),
                     supabaseClient.from('formas_pagamento').select('*'),
                     supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
                 ]);
 
-                const [resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
+                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
+                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
                 if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
                 if (resPag.data && resPag.data.length > 0) {
                     formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
@@ -629,7 +630,16 @@
 
         function abrirConsultaHistorico() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
-            document.getElementById('histOperador').innerHTML = `<option value="TODOS">Todos</option><option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            
+            // Popula o seletor de operadores com a lista completa da tabela 'caixas'
+            let opcoesCaixas = `<option value="TODOS">Todos</option>`;
+            if (caixas.length > 0) {
+                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
+            } else {
+                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            }
+            document.getElementById('histOperador').innerHTML = opcoesCaixas;
+
             executarConsultaHistorico();
             openModal('modalConsultaHistorico');
         }
@@ -639,9 +649,26 @@
         }
 
         function executarConsultaHistorico() {
-            resultadoConsultaGlobal = historico;
+            const dInicio = document.getElementById('histDataInicio').value;
+            const dFim = document.getElementById('histDataFim').value;
+            const motoboy = document.getElementById('histMotoboy').value;
+            const operador = document.getElementById('histOperador').value;
+
+            resultadoConsultaGlobal = historico.filter(r => {
+                let match = true;
+                if (motoboy !== 'TODOS' && r.motoboy !== motoboy) match = false;
+                if (operador !== 'TODOS' && r.caixa !== operador) match = false;
+                return match;
+            });
+
             const tbody = document.getElementById('tbodyConsultaHistorico');
             tbody.innerHTML = '';
+            
+            if (resultadoConsultaGlobal.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Nenhum registro encontrado.</td></tr>`;
+                return;
+            }
+
             resultadoConsultaGlobal.forEach(r => {
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-slate-50">
