@@ -483,7 +483,7 @@
         </div>
     </div>
 
-    <!-- MODAL CADASTROS -->
+    <!-- MODAL CADASTROS COMPLETO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
@@ -613,7 +613,6 @@
                     }));
                 }
 
-                // Garantir operador ativo nas caixas locais se não vier do banco
                 if (!caixas.some(c => c.nome === operadorAtivo)) {
                     caixas.push({ id: Date.now(), nome: operadorAtivo });
                 }
@@ -938,7 +937,6 @@
         function atualizarSelectsConsulta() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            // Listar todas as caixas disponíveis cadastradas no Supabase + operador ativo
             let listaCaixasOpcoes = `<option value="TODOS">🌐 Todos os Operadores</option>`;
             caixas.forEach(c => {
                 listaCaixasOpcoes += `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`;
