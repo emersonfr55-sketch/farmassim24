@@ -45,8 +45,8 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 dark:text-zinc-100 bg-slate-100 dark:bg-black flex flex-col min-h-screen transition-colors duration-200">
 
-    <!-- CABEÇALHO -->
-    <header class="bg-farmassim-600 dark:bg-zinc-950 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
+    <!-- CABEÇALHO DINÂMICO & GLASSMORPHISM -->
+    <header class="bg-farmassim-600/95 dark:bg-zinc-950/95 backdrop-blur-md text-white shadow-xl sticky top-0 z-40 border-b border-farmassim-500/30 dark:border-zinc-800 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
                 <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
@@ -55,8 +55,8 @@
                             <div class="flex items-center gap-2">
                                 <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
                             </div>
-                            <p class="text-xs text-farmassim-100 dark:text-zinc-400 font-medium flex items-center gap-1.5">
-                                <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Sistema de Entregas
+                            <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-zinc-400 font-medium flex items-center gap-1.5">
+                                <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Carregando...
                             </p>
                         </div>
                     </div>
@@ -64,17 +64,17 @@
 
                 <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
                     <!-- BOTÃO ALTERAR MODO CLARO/ESCURO -->
-                    <button onclick="toggleDarkMode()" id="btnThemeToggle" title="Alternar Modo Claro/Escuro" class="bg-farmassim-700/80 hover:bg-farmassim-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white p-2 rounded-xl text-xs flex items-center justify-center shadow-md border border-farmassim-500/50 dark:border-zinc-700 transition-all">
+                    <button onclick="toggleDarkMode()" id="btnThemeToggle" title="Alternar Modo Claro/Escuro" class="bg-farmassim-700/80 hover:bg-farmassim-800 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-white p-2 rounded-xl text-xs flex items-center justify-center shadow-md border border-farmassim-500/50 dark:border-zinc-700 transition-all hover:scale-105 active:scale-95">
                         <i id="themeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
                     </button>
 
-                    <a href="index.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all">
+                    <a href="index.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-house text-farmassimYellow-400"></i> Portal
                     </a>
-                    <a href="fechamento.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all">
+                    <a href="fechamento.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> Fechamento
                     </a>
-                    <a href="codigos.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all">
+                    <a href="codigos.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Códigos
                     </a>
 
@@ -84,16 +84,16 @@
                         </span>
                     </div>
 
-                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all">
+                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Entregas Hoje
                     </button>
-                    <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all">
+                    <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
                     </button>
-                    <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all">
+                    <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-gear"></i> Cadastros
                     </button>
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all">
+                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all hover:scale-[1.02] active:scale-95">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
@@ -459,6 +459,16 @@
             operadorAtivo = op.trim();
             document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
 
+            // Saudação Dinâmica baseada na hora atual
+            const horaAtual = new Date().getHours();
+            let saudacao = "Bom dia";
+            if (horaAtual >= 12 && horaAtual < 18) saudacao = "Boa tarde";
+            else if (horaAtual >= 18 || horaAtual < 5) saudacao = "Boa noite";
+            
+            document.getElementById('saudacaoOperador').innerHTML = `
+                <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> ${saudacao}, <span class="font-bold text-white">${operadorAtivo}</span>
+            `;
+
             const today = new Date();
             dataAtualFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             document.getElementById('histDataInicio').value = dataAtualFormatted;
@@ -550,7 +560,13 @@
                 tratarMudancaFormaPagamento('formaPagamento', 'troco');
 
                 badge.className = "flex items-center gap-1.5 text-emerald-300";
-                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+                badge.innerHTML = `
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span> 
+                    <span class="hidden sm:inline">DB:</span> Conectado
+                `;
 
             } catch (err) {
                 console.warn("Supabase indisponível, usando modo local:", err);
@@ -613,7 +629,6 @@
             document.getElementById('badgePagamentoMistoAtivo').classList.remove('hidden');
             closeModal('modalAddMisto');
             
-            // Reexibe os campos caso o pagamento misto envolva troco
             document.getElementById('blocoNotaCliente').classList.remove('hidden');
             document.getElementById('blocoTrocoLevar').classList.remove('hidden');
             document.getElementById('blocoValorATrazer').classList.remove('hidden');
@@ -643,7 +658,6 @@
             const selectElement = document.getElementById(selectId);
             const inputTroco = document.getElementById(inputTrocoId);
             const inputNotaCliente = document.getElementById('notaCliente');
-            const inputValorATrazer = document.getElementById('valorATrazer');
             
             const blocoNotaCliente = document.getElementById('blocoNotaCliente');
             const blocoTrocoLevar = document.getElementById('blocoTrocoLevar');
@@ -655,12 +669,10 @@
                 inputTroco.value = '0.00';
                 inputNotaCliente.value = '';
                 
-                // Oculta completamente os campos desnecessários
                 blocoNotaCliente.classList.add('hidden');
                 blocoTrocoLevar.classList.add('hidden');
                 blocoValorATrazer.classList.add('hidden');
             } else {
-                // Exibe os campos caso precise de troco
                 blocoNotaCliente.classList.remove('hidden');
                 blocoTrocoLevar.classList.remove('hidden');
                 blocoValorATrazer.classList.remove('hidden');
@@ -680,7 +692,6 @@
             const objPag = formasPagamento.find(p => p.nome === document.getElementById('formaPagamento').value);
             const isMisto = document.getElementById('pagamentoMistoAtivo').value === "true";
             
-            // Se for forma sem troco, o valor a trazer é o valor exato do pedido
             const valorATrazerFinal = (!isMisto && objPag && !objPag.requerTroco) ? valPedido : (parseFloat(document.getElementById('valorATrazer').value) || valPedido);
             const trocoFinal = (!isMisto && objPag && !objPag.requerTroco) ? 0 : (parseFloat(document.getElementById('troco').value) || 0);
 
