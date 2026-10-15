@@ -463,7 +463,6 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                // Busca simultânea das tabelas no Supabase com tratamento individual para não travar
                 const [resCaixas, resMot, resPag, resEnt] = await Promise.all([
                     supabaseClient.from('caixas').select('*').order('nome'),
                     supabaseClient.from('motoboys').select('*').order('nome'),
@@ -471,6 +470,7 @@
                     supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
                 ]);
 
+                // Operadores: se o banco retornar vazio, extraímos das entregas ou usamos o operador ativo
                 if (resCaixas.data && resCaixas.data.length > 0) {
                     caixas = resCaixas.data;
                 } else {
@@ -480,7 +480,13 @@
                 if (resMot.data && resMot.data.length > 0) {
                     motoboys = resMot.data;
                 } else {
-                    motoboys = [{ id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' }, { id: 2, nome: 'FERNANDO GOMES DA MOTA' }, { id: 3, nome: 'KAIKE SCHIBLSKI' }, { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' }, { id: 5, nome: 'MAURO MOKRESKI' }];
+                    motoboys = [
+                        { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
+                        { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
+                        { id: 3, nome: 'KAIKE SCHIBLSKI' },
+                        { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' },
+                        { id: 5, nome: 'MAURO MOKRESKI' }
+                    ];
                 }
 
                 if (resPag.data && resPag.data.length > 0) {
@@ -503,6 +509,17 @@
                     }));
                 }
 
+                // Garantir que operadores que já registraram entregas apareçam na lista de caixas
+                historico.forEach(h => {
+                    if (h.caixa && !caixas.some(c => c.nome === h.caixa)) {
+                        caixas.push({ id: Date.now() + Math.random(), nome: h.caixa });
+                    }
+                });
+
+                if (!caixas.some(c => c.nome === operadorAtivo)) {
+                    caixas.push({ id: Date.now(), nome: operadorAtivo });
+                }
+
                 atualizarSelects();
                 renderizarListasGerenciamento();
                 renderizarTabela();
@@ -523,7 +540,13 @@
                 badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
             }
             if (motoboys.length === 0) {
-                motoboys = [{ id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' }, { id: 2, nome: 'FERNANDO GOMES DA MOTA' }, { id: 3, nome: 'KAIKE SCHIBLSKI' }, { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' }, { id: 5, nome: 'MAURO MOKRESKI' }];
+                motoboys = [
+                    { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
+                    { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
+                    { id: 3, nome: 'KAIKE SCHIBLSKI' },
+                    { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' },
+                    { id: 5, nome: 'MAURO MOKRESKI' }
+                ];
             }
             if (caixas.length === 0) {
                 caixas = [{ id: 1, nome: operadorAtivo }];
@@ -635,6 +658,11 @@
 
             historico.unshift(novoObj);
 
+            // Se o operador atual não estiver na lista de caixas local, adiciona
+            if (!caixas.some(c => c.nome === operadorAtivo)) {
+                caixas.push({ id: Date.now(), nome: operadorAtivo });
+            }
+
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('entregas_farmassim').insert([{
@@ -682,7 +710,6 @@
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
             let operadoresUnicos = caixas.length > 0 ? caixas : [{ nome: operadorAtivo }];
-            // Garantir que o operador logado apareça nas opções caso não esteja na tabela do banco
             if (!operadoresUnicos.some(c => c.nome === operadorAtivo)) {
                 operadoresUnicos.push({ nome: operadorAtivo });
             }
@@ -849,6 +876,11 @@
                     pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
                 }
 
+                // Coletar caixas dinamicamente se surgirem novas nas entregas
+                if (r.caixa && !caixas.some(c => c.nome === r.caixa)) {
+                    caixas.push({ id: Date.now() + Math.random(), nome: r.caixa });
+                }
+
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
@@ -874,11 +906,13 @@
             const divMotoboys = document.getElementById('resumoMotoboys');
             const chaves = Object.keys(pendentePorMotoboy);
             divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
+            
+            renderizarListasGerenciamento();
         }
 
         function exportarCSV() {
             let csv = "Status;Hora;Operador;COO;Motoboy;Pagamento;Valor\n";
-            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caissuer || r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
+            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
