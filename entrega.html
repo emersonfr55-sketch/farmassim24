@@ -345,6 +345,17 @@
         </div>
     </div>
 
+    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
+                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 border text-xs p-2 font-bold"></select></div>
+                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 border text-xs p-2 font-bold"></div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
+        </div>
+    </div>
+
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -362,7 +373,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -402,11 +413,7 @@
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
             atualizarSelects();
-            renderizarListasGerenciamento();
-            renderizarTabela();
             focarCampoPedido();
-            
-            // Executa a sincronização de forma segura e totalmente independente
             sincronizarComSupabase();
         };
 
@@ -421,42 +428,38 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                // Carregamento independente com try/catch isolado por tabela para evitar travamento geral
-                try {
-                    const resCaixas = await supabaseClient.from('caixas').select('*');
-                    if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
-                } catch(e) {}
+                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
+                
+                const fetchDb = Promise.all([
+                    supabaseClient.from('caixas').select('*'),
+                    supabaseClient.from('motoboys').select('*'),
+                    supabaseClient.from('formas_pagamento').select('*'),
+                    supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
+                ]);
 
-                try {
-                    const resMot = await supabaseClient.from('motoboys').select('*');
-                    if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
-                } catch(e) {}
+                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
-                try {
-                    const resPag = await supabaseClient.from('formas_pagamento').select('*');
-                    if (resPag.data && resPag.data.length > 0) {
-                        formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
-                    }
-                } catch(e) {}
+                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
+                if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
+                if (resPag.data && resPag.data.length > 0) {
+                    formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
+                }
 
-                try {
-                    const resEnt = await supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted);
-                    if (resEnt.data) {
-                        historico = resEnt.data.map(item => ({
-                            id: item.id,
-                            data: item.data,
-                            hora: item.hora,
-                            caixa: item.caixa,
-                            coo: item.coo,
-                            valor: parseFloat(item.valor) || 0,
-                            troco: parseFloat(item.troco) || 0,
-                            valorATrazer: parseFloat(item.valor_a_trazer) || 0,
-                            motoboy: item.motoboy,
-                            formaPag: item.forma_pag,
-                            concluido: item.concluido
-                        }));
-                    }
-                } catch(e) {}
+                if (resEnt.data) {
+                    historico = resEnt.data.map(item => ({
+                        id: item.id,
+                        data: item.data,
+                        hora: item.hora,
+                        caixa: item.caixa,
+                        coo: item.coo,
+                        valor: parseFloat(item.valor) || 0,
+                        troco: parseFloat(item.troco) || 0,
+                        valorATrazer: parseFloat(item.valor_a_trazer) || 0,
+                        motoboy: item.motoboy,
+                        formaPag: item.forma_pag,
+                        concluido: item.concluido
+                    }));
+                }
 
                 atualizarSelects();
                 renderizarListasGerenciamento();
@@ -665,7 +668,7 @@
                     if (motoboy && motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
                     if (operador && operador !== 'TODOS') query = query.eq('caixa', operador);
 
-                    const { data, error } = await query.order('id', { ascending: false });
+                    const { data, error } = await query.order('created_at', { ascending: false });
                     if (!error && data) {
                         dadosEncontrados = data.map(item => ({
                             id: item.id,
@@ -682,6 +685,7 @@
                 } catch(e) { console.warn("Erro ao consultar histórico:", e); }
             }
 
+            // Fallback para os dados locais caso não traga resultados do banco
             if (dadosEncontrados.length === 0) {
                 dadosEncontrados = historico.filter(r => {
                     let match = true;
