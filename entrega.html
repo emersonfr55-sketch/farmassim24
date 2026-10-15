@@ -379,8 +379,12 @@
                 <!-- Seção Formas de Pagamento -->
                 <div>
                     <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Formas de Pagamento</h4>
-                    <div class="flex gap-2 mb-3">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-3">
                         <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <label class="inline-flex items-center cursor-pointer bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 select-none">
+                            <input type="checkbox" id="novaFormaAceitaTroco" checked class="rounded border-slate-300 text-farmassim-600 focus:ring-farmassim-500 mr-2">
+                            Aceita Troco
+                        </label>
                         <button onclick="cadastrarFormaPagamento()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
                     <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
@@ -796,14 +800,16 @@
 
         async function cadastrarFormaPagamento() {
             const nome = document.getElementById('novaFormaNome').value.trim();
+            const aceitaTroco = document.getElementById('novaFormaAceitaTroco').checked;
             if (nome) {
-                const novaF = { id: Date.now(), nome, requerTroco: true };
+                const novaF = { id: Date.now(), nome, requerTroco: aceitaTroco };
                 formasPagamento.push(novaF);
                 document.getElementById('novaFormaNome').value = '';
+                document.getElementById('novaFormaAceitaTroco').checked = true;
                 atualizarSelects();
                 renderizarListasGerenciamento();
                 if (supabaseClient) {
-                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: true }]); } catch(e){}
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: aceitaTroco }]); } catch(e){}
                 }
                 showToast("Forma de pagamento cadastrada!");
             }
@@ -858,7 +864,7 @@
             if (divFormas) {
                 divFormas.innerHTML = formasPagamento.map(f => `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
-                        ${f.nome} 
+                        ${f.nome} <span class="text-[10px] font-normal text-slate-500">(${f.requerTroco ? 'com troco' : 'sem troco'})</span>
                         <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
             }
