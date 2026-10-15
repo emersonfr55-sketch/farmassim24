@@ -15,7 +15,6 @@
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -43,14 +42,17 @@
         }
     </style>
 </head>
-<body class="font-sans antialiased h-full text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-900 flex flex-col min-h-screen transition-colors duration-200">
+<body class="font-sans antialiased h-full text-slate-800 bg-slate-100 flex flex-col min-h-screen">
 
     <!-- CABEÇALHO -->
-    <header class="bg-farmassim-600 dark:bg-slate-950 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
+    <header class="bg-farmassim-600 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
                 <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
                     <div class="flex items-center space-x-3">
+                        <div class="bg-white p-1.5 sm:p-2 rounded-xl shadow-md flex items-center justify-center">
+                            <span class="text-xs font-black text-farmassim-900 px-1">FARMASSIM</span>
+                        </div>
                         <div>
                             <div class="flex items-center gap-2">
                                 <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
@@ -88,12 +90,6 @@
                     <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all">
                         <i class="fa-solid fa-gear"></i> Cadastros
                     </button>
-                    
-                    <!-- Botão Discreto de Alternância Claro / Escuro -->
-                    <button id="btnToggleTema" onclick="alternarTema()" title="Alternar Modo Escuro / Claro" class="bg-farmassim-700 hover:bg-farmassim-800 text-white p-2 rounded-xl text-xs flex items-center justify-center shadow-md border border-farmassim-500/50 transition-all">
-                        <i id="iconeTema" class="fa-solid fa-moon text-farmassimYellow-400"></i>
-                    </button>
-
                     <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
@@ -104,21 +100,21 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        <div id="toast" class="hidden fixed bottom-5 right-5 z-50 flex items-center p-4 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border-l-4 border-farmassim-600 transition-all transform duration-300">
-            <div id="toastIcon" class="inline-flex items-center justify-center flex-shrink-0 w-9 h-9 rounded-lg bg-farmassim-100 dark:bg-farmassim-900 text-farmassim-600 dark:text-farmassim-300">
+        <div id="toast" class="hidden fixed bottom-5 right-5 z-50 flex items-center p-4 text-slate-800 bg-white rounded-xl shadow-2xl border-l-4 border-farmassim-600 transition-all transform duration-300">
+            <div id="toastIcon" class="inline-flex items-center justify-center flex-shrink-0 w-9 h-9 rounded-lg bg-farmassim-100 text-farmassim-600">
                 <i class="fa-solid fa-circle-check text-lg"></i>
             </div>
-            <div id="toastMessage" class="ml-3 text-sm font-bold text-slate-700 dark:text-slate-200">Operação realizada com sucesso!</div>
+            <div id="toastMessage" class="ml-3 text-sm font-bold text-slate-700">Operação realizada com sucesso!</div>
         </div>
 
         <!-- FORMULÁRIO DE LANÇAMENTO RÁPIDO -->
-        <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 relative overflow-hidden">
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1.5 h-full bg-farmassim-600"></div>
-            <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
-                <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento
                 </h2>
-                <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 dark:bg-farmassim-950 text-farmassim-800 dark:text-farmassim-200 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200 dark:border-farmassim-800">
+                <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 text-farmassim-800 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200">
                     Operador: ...
                 </span>
             </div>
@@ -129,27 +125,27 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label for="coo" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nº COO / Pedido *</label>
-                        <input type="text" id="coo" required placeholder="Ex: 5041" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                        <label for="coo" class="block text-xs font-bold text-slate-600 mb-1.5">Nº COO / Pedido *</label>
+                        <input type="text" id="coo" required placeholder="Ex: 5041" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
                     </div>
 
                     <div>
-                        <label for="valor" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Valor Total Pedido (R$) *</label>
-                        <input type="number" step="0.01" min="0" id="valor" oninput="calcularTrocoAvançado()" required placeholder="0,00" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                        <label for="valor" class="block text-xs font-bold text-slate-600 mb-1.5">Valor Total Pedido (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="valor" oninput="calcularTrocoAvançado()" required placeholder="0,00" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
                     </div>
 
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label for="formaPagamento" class="block text-xs font-bold text-slate-600 dark:text-slate-300">Forma de Pagamento</label>
-                            <button type="button" onclick="abrirModalAddMisto()" class="text-[11px] text-farmassim-700 dark:text-farmassim-300 hover:text-farmassim-900 font-extrabold flex items-center gap-1 bg-farmassim-50 dark:bg-farmassim-950 px-2 py-0.5 rounded-md border border-farmassim-200 dark:border-farmassim-800 transition-all">
+                            <label for="formaPagamento" class="block text-xs font-bold text-slate-600">Forma de Pagamento</label>
+                            <button type="button" onclick="abrirModalAddMisto()" class="text-[11px] text-farmassim-700 hover:text-farmassim-900 font-extrabold flex items-center gap-1 bg-farmassim-50 px-2 py-0.5 rounded-md border border-farmassim-200 transition-all">
                                 <i class="fa-solid fa-plus-circle"></i> Múltiplos
                             </button>
                         </div>
                         
                         <div class="relative">
-                            <select id="formaPagamento" onchange="tratarMudancaFormaPagamento('formaPagamento', 'troco')" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                            <select id="formaPagamento" onchange="tratarMudancaFormaPagamento('formaPagamento', 'troco')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
                             </select>
-                            <div id="badgePagamentoMistoAtivo" class="hidden absolute inset-0 bg-farmassim-100 dark:bg-farmassim-900 border border-farmassim-400 rounded-xl px-3 flex items-center justify-between text-xs font-extrabold text-farmassim-900 dark:text-farmassim-100 z-10">
+                            <div id="badgePagamentoMistoAtivo" class="hidden absolute inset-0 bg-farmassim-100 border border-farmassim-400 rounded-xl px-3 flex items-center justify-between text-xs font-extrabold text-farmassim-900 z-10">
                                 <span id="labelPagamentoMistoAtivo" class="truncate">Misto: ...</span>
                                 <button type="button" onclick="cancelarPagamentoMisto()" class="text-rose-600 hover:text-rose-800 ml-2">
                                     <i class="fa-solid fa-xmark"></i>
@@ -159,37 +155,37 @@
                     </div>
 
                     <div>
-                        <label for="notaCliente" class="block text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1.5">Nota Cliente (Troco Para R$)</label>
-                        <input type="number" step="0.01" min="0" id="notaCliente" oninput="calcularTrocoAvançado()" placeholder="Ex: 50,00" class="w-full bg-emerald-50/50 dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-emerald-500 block p-2.5 font-bold">
+                        <label for="notaCliente" class="block text-xs font-bold text-emerald-700 mb-1.5">Nota Cliente (Troco Para R$)</label>
+                        <input type="number" step="0.01" min="0" id="notaCliente" oninput="calcularTrocoAvançado()" placeholder="Ex: 50,00" class="w-full bg-emerald-50/50 border border-emerald-200 text-slate-800 text-sm rounded-xl focus:ring-emerald-500 block p-2.5 font-bold">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label for="troco" class="block text-xs font-bold text-amber-700 dark:text-amber-400">Troco a Levar (R$)</label>
-                            <span id="trocoStatusBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">Com Troco</span>
+                            <label for="troco" class="block text-xs font-bold text-amber-700">Troco a Levar (R$)</label>
+                            <span id="trocoStatusBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">Com Troco</span>
                         </div>
-                        <input type="number" step="0.01" min="0" id="troco" oninput="calcularValorATrazer()" placeholder="0,00" class="w-full bg-amber-50/50 dark:bg-slate-900 border border-amber-200 dark:border-amber-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-amber-500 block p-2.5 font-bold">
+                        <input type="number" step="0.01" min="0" id="troco" oninput="calcularValorATrazer()" placeholder="0,00" class="w-full bg-amber-50/50 border border-amber-200 text-slate-800 text-sm rounded-xl focus:ring-amber-500 block p-2.5 font-bold">
                     </div>
 
                     <div>
-                        <label for="valorATrazer" class="block text-xs font-bold text-farmassim-700 dark:text-farmassim-400 mb-1.5">Valor a Trazer em Mãos (R$)</label>
-                        <input type="number" step="0.01" min="0" id="valorATrazer" required placeholder="0,00" class="w-full bg-farmassim-50 dark:bg-slate-900 border border-farmassim-300 dark:border-farmassim-700 text-farmassim-900 dark:text-farmassim-100 text-sm rounded-xl block p-2.5 font-extrabold">
+                        <label for="valorATrazer" class="block text-xs font-bold text-farmassim-700 mb-1.5">Valor a Trazer em Mãos (R$)</label>
+                        <input type="number" step="0.01" min="0" id="valorATrazer" required placeholder="0,00" class="w-full bg-farmassim-50 border border-farmassim-300 text-farmassim-900 text-sm rounded-xl block p-2.5 font-extrabold">
                     </div>
 
                     <div>
-                        <label for="selectMotoboy" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Entregador / Motoboy *</label>
-                        <select id="selectMotoboy" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                        <label for="selectMotoboy" class="block text-xs font-bold text-slate-600 mb-1.5">Entregador / Motoboy *</label>
+                        <select id="selectMotoboy" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
                         </select>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700 flex-wrap gap-3">
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-3">
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="statusInicial" class="sr-only peer">
-                        <div class="w-11 h-6 bg-amber-200 dark:bg-amber-900 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-farmassim-600 relative"></div>
-                        <span id="statusInicialLabel" class="ml-2 text-xs font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                        <div class="w-11 h-6 bg-amber-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-farmassim-600 relative"></div>
+                        <span id="statusInicialLabel" class="ml-2 text-xs font-bold text-amber-700 flex items-center gap-1">
                             <i class="fa-solid fa-clock"></i> Marcar como Pendente no lançamento
                         </span>
                     </label>
@@ -203,44 +199,44 @@
 
         <!-- CARDS DE RESUMO -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                 <div>
-                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-slate-500 flex items-center gap-1.5">
                         <i class="fa-solid fa-cash-register text-farmassim-600"></i> Total Pedidos
                     </span>
-                    <div class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-2">R$ <span id="totalDia">0,00</span></div>
+                    <div class="text-2xl font-black text-slate-800 mt-2">R$ <span id="totalDia">0,00</span></div>
                 </div>
-                <div class="mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <div class="mt-3 text-xs font-semibold text-slate-500">
                     <span id="qtdEntregasDia">0</span> entregas no total
                 </div>
             </div>
 
-            <div class="bg-amber-50/70 dark:bg-amber-950/40 p-5 rounded-2xl shadow-sm border border-amber-200/80 dark:border-amber-800 flex flex-col justify-between">
+            <div class="bg-amber-50/70 p-5 rounded-2xl shadow-sm border border-amber-200/80 flex flex-col justify-between">
                 <div>
-                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-amber-800 flex items-center gap-1.5">
                         <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> Pendente (Rua)
                     </span>
-                    <div class="text-2xl font-black text-amber-700 dark:text-amber-300 mt-2">R$ <span id="totalPendente">0,00</span></div>
+                    <div class="text-2xl font-black text-amber-700 mt-2">R$ <span id="totalPendente">0,00</span></div>
                 </div>
-                <div class="mt-3 text-xs font-bold text-amber-800 dark:text-amber-400">
+                <div class="mt-3 text-xs font-bold text-amber-800">
                     <span id="qtdPendentes">0</span> pendentes
                 </div>
             </div>
 
-            <div class="bg-farmassim-50/80 dark:bg-farmassim-950/40 p-5 rounded-2xl shadow-sm border border-farmassim-200/80 dark:border-farmassim-800 flex flex-col justify-between">
+            <div class="bg-farmassim-50/80 p-5 rounded-2xl shadow-sm border border-farmassim-200/80 flex flex-col justify-between">
                 <div>
-                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-farmassim-800 dark:text-farmassim-300 flex items-center gap-1.5">
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-farmassim-800 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-check text-farmassim-600"></i> Concluído / Em Caixa
                     </span>
-                    <div class="text-2xl font-black text-farmassim-700 dark:text-farmassim-300 mt-2">R$ <span id="totalConcluido">0,00</span></div>
+                    <div class="text-2xl font-black text-farmassim-700 mt-2">R$ <span id="totalConcluido">0,00</span></div>
                 </div>
-                <div class="mt-3 text-xs font-bold text-farmassim-800 dark:text-farmassim-300">
+                <div class="mt-3 text-xs font-bold text-farmassim-800">
                     <span id="qtdConcluidas">0</span> concluídas
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between">
-                <h3 class="text-xs font-bold text-farmassim-700 dark:text-farmassim-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                <h3 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <i class="fa-solid fa-helmet-safety text-farmassim-600"></i> Pendente por Motoboy
                 </h3>
                 <div id="resumoMotoboys" class="space-y-1 text-xs max-h-24 overflow-y-auto pr-1 font-semibold">
@@ -250,25 +246,25 @@
         </section>
 
         <!-- TABELA -->
-        <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 overflow-hidden flex flex-col">
-            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas de Hoje
                 </h2>
 
                 <div class="flex-1 max-w-md flex items-center gap-2">
                     <div class="relative flex-1">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" id="campoBusca" oninput="renderizarTabela()" placeholder="Busca por Pedido, Motoboy..." class="pl-8 w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-2.5 font-semibold focus:ring-farmassim-500">
+                        <input type="text" id="campoBusca" oninput="renderizarTabela()" placeholder="Busca por Pedido, Motoboy..." class="pl-8 w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-semibold focus:ring-farmassim-500">
                     </div>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="toggleMostrarConcluidas()" id="btnToggleConcluidas" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all flex items-center gap-2 shadow-xs">
+                    <button onclick="toggleMostrarConcluidas()" id="btnToggleConcluidas" class="px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-all flex items-center gap-2 shadow-xs">
                         <i id="iconeToggleConcluidas" class="fa-solid fa-eye text-farmassim-600"></i>
                         <span id="txtToggleConcluidas">Ocultar Concluídas</span>
                     </button>
-                    <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 dark:text-farmassim-300 bg-farmassim-50 dark:bg-farmassim-950 hover:bg-farmassim-100 border border-farmassim-200 dark:border-farmassim-800 rounded-xl transition-all">
+                    <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 bg-farmassim-50 hover:bg-farmassim-100 border border-farmassim-200 rounded-xl transition-all">
                         <i class="fa-solid fa-file-excel"></i> Exportar
                     </button>
                 </div>
@@ -277,7 +273,7 @@
             <div class="overflow-x-auto">
                 <table id="tabelaRegistros" class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-100/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-400 uppercase text-[11px] font-extrabold border-b border-slate-200 dark:border-slate-700">
+                        <tr class="bg-slate-100/70 text-slate-600 uppercase text-[11px] font-extrabold border-b border-slate-200">
                             <th class="py-3.5 px-4">Status</th>
                             <th class="py-3.5 px-4">Hora</th>
                             <th class="py-3.5 px-4">Operador</th>
@@ -286,83 +282,83 @@
                             <th class="py-3.5 px-4">Pagamento</th>
                             <th class="py-3.5 px-4 text-right">Pedido</th>
                             <th class="py-3.5 px-4 text-right">Troco</th>
-                            <th class="py-3.5 px-4 text-right bg-slate-200/50 dark:bg-slate-900/50">A Trazer</th>
+                            <th class="py-3.5 px-4 text-right bg-slate-200/50">A Trazer</th>
                             <th class="py-3.5 px-4 text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200"></tbody>
+                    <tbody class="divide-y divide-slate-100 text-xs font-semibold text-slate-700"></tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
     <!-- MODAIS -->
     <div id="modalAddMisto" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 my-8">
-            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-farmassim-600 text-white">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
                 <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Misto</h3>
                 <button onclick="closeModal('modalAddMisto')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-5 space-y-3">
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">1ª Forma</label><select id="addMistoForma1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Valor 1 (R$)</label><input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label><select id="addMistoForma1" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label><input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">2ª Forma</label><select id="addMistoForma2" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Valor 2 (R$)</label><input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-black"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label><select id="addMistoForma2" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label><input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black"></div>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
-                <button onclick="closeModal('modalAddMisto')" class="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-xl">Cancelar</button>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal('modalAddMisto')" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Cancelar</button>
                 <button onclick="confirmarPagamentoMisto()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 rounded-xl">Confirmar</button>
             </div>
         </div>
     </div>
 
     <div id="modalConsultaHistorico" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 my-8 flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-farmassim-600 text-white">
+        <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
                 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico de Entregas</h3>
                 <button onclick="closeModal('modalConsultaHistorico')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-6 space-y-4 overflow-y-auto flex-1">
-                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Data Inicial</label><input type="date" id="histDataInicio" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Data Final</label><input type="date" id="histDataFim" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Motoboy</label><select id="histMotoboy" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Operador</label><select id="histOperador" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-lg p-2 font-bold"></select></div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Inicial</label><input type="date" id="histDataInicio" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Final</label><input type="date" id="histDataFim" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Motoboy</label><select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label><select id="histOperador" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
                     <div><button onclick="executarConsultaHistorico()" class="w-full py-2 bg-farmassim-600 text-white font-extrabold text-xs rounded-lg">Filtrar</button></div>
                 </div>
-                <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
                     <table class="w-full text-left border-collapse text-xs">
-                        <thead><tr class="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 uppercase text-[10px] font-extrabold"><th class="py-2.5 px-3">Data/Hora</th><th class="py-2.5 px-3">COO</th><th class="py-2.5 px-3">Operador</th><th class="py-2.5 px-3">Motoboy</th><th class="py-2.5 px-3">Pagamento</th><th class="py-2.5 px-3 text-right">Valor</th><th class="py-2.5 px-3 text-center">Status</th></tr></thead>
-                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Clique em Filtrar para carregar os registros.</td></tr></tbody>
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase text-[10px] font-extrabold"><th class="py-2.5 px-3">Data/Hora</th><th class="py-2.5 px-3">COO</th><th class="py-2.5 px-3">Operador</th><th class="py-2.5 px-3">Motoboy</th><th class="py-2.5 px-3">Pagamento</th><th class="py-2.5 px-3 text-right">Valor</th><th class="py-2.5 px-3 text-center">Status</th></tr></thead>
+                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Clique em Filtrar para carregar os registros.</td></tr></tbody>
                     </table>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex justify-end"><button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-xl">Fechar</button></div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Fechar</button></div>
         </div>
     </div>
 
     <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 my-8">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-4 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
             <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
-                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs p-2 font-bold"></select></div>
-                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs p-2 font-bold"></div>
+                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 border text-xs p-2 font-bold"></select></div>
+                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 border text-xs p-2 font-bold"></div>
             </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 dark:bg-slate-700 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
         </div>
     </div>
 
     <!-- MODAL DE CADASTROS COMPLETO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 my-8">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
                 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-gear"></i> Gerenciar Cadastros</h3>
                 <button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -370,22 +366,22 @@
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
                 <!-- Seção Motoboys -->
                 <div>
-                    <h4 class="text-xs font-bold text-farmassim-700 dark:text-farmassim-400 uppercase tracking-wider mb-2">Entregadores / Motoboys</h4>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Entregadores / Motoboys</h4>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-2.5 font-bold">
+                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarMotoboy()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
                     <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
 
-                <hr class="border-slate-100 dark:border-slate-700">
+                <hr class="border-slate-100">
 
                 <!-- Seção Formas de Pagamento -->
                 <div>
-                    <h4 class="text-xs font-bold text-farmassim-700 dark:text-farmassim-400 uppercase tracking-wider mb-2">Formas de Pagamento</h4>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Formas de Pagamento</h4>
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-3">
-                        <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-2.5 font-bold">
-                        <label class="inline-flex items-center cursor-pointer bg-slate-50 dark:bg-slate-900 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
+                        <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <label class="inline-flex items-center cursor-pointer bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 select-none">
                             <input type="checkbox" id="novaFormaAceitaTroco" checked class="rounded border-slate-300 text-farmassim-600 focus:ring-farmassim-500 mr-2">
                             Aceita Troco
                         </label>
@@ -394,20 +390,20 @@
                     <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
 
-                <hr class="border-slate-100 dark:border-slate-700">
+                <hr class="border-slate-100">
 
                 <!-- Seção Caixas/Operadores -->
                 <div>
-                    <h4 class="text-xs font-bold text-farmassim-700 dark:text-farmassim-400 uppercase tracking-wider mb-2">Caixas / Operadores</h4>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Caixas / Operadores</h4>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" id="novoCaixaNome" placeholder="Nome do Operador..." class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-2.5 font-bold">
+                        <input type="text" id="novoCaixaNome" placeholder="Nome do Operador..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarCaixa()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
                     <div id="listaCaixas" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-xl">Fechar</button>
+            <div class="p-4 bg-slate-50 border-t flex justify-end">
+                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Fechar</button>
             </div>
         </div>
     </div>
@@ -419,7 +415,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjE0Njc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -451,8 +447,6 @@
         let dataAtualFormatted = '';
 
         window.onload = function() {
-            inicializarTema();
-
             let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
             if (!op || op.trim() === '') {
                 op = prompt("Digite o nome do Operador:") || "Operador";
@@ -472,34 +466,6 @@
             focarCampoPedido();
             sincronizarComSupabase();
         };
-
-        function inicializarTema() {
-            const temaSalvo = localStorage.getItem('farmassim_tema');
-            if (temaSalvo === 'dark' || (!temaSalvo && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                atualizarIconeTema(true);
-            } else {
-                document.documentElement.classList.remove('dark');
-                atualizarIconeTema(false);
-            }
-        }
-
-        function alternarTema() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('farmassim_tema', isDark ? 'dark' : 'light');
-            atualizarIconeTema(isDark);
-        }
-
-        function atualizarIconeTema(isDark) {
-            const icone = document.getElementById('iconeTema');
-            if (icone) {
-                if (isDark) {
-                    icone.className = 'fa-solid fa-sun text-farmassimYellow-400';
-                } else {
-                    icone.className = 'fa-solid fa-moon text-farmassimYellow-400';
-                }
-            }
-        }
 
         async function sincronizarComSupabase() {
             const badge = document.getElementById('badgeStatusSupabase');
@@ -794,14 +760,14 @@
 
             dadosEncontrados.forEach(r => {
                 tbody.innerHTML += `
-                    <tr class="border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                    <tr class="border-b hover:bg-slate-50">
                         <td class="py-2.5 px-3">${r.data} ${r.hora}</td>
                         <td class="py-2.5 px-3 font-bold">${r.coo}</td>
                         <td class="py-2.5 px-3">${r.caixa}</td>
                         <td class="py-2.5 px-3">${r.motoboy}</td>
                         <td class="py-2.5 px-3">${r.formaPag}</td>
                         <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
-                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.concluido ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200' : 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200'}">${r.concluido ? 'Concluído' : 'Pendente'}</span></td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</span></td>
                     </tr>`;
             });
         }
@@ -888,7 +854,7 @@
             const divMotoboys = document.getElementById('listaMotoboys');
             if (divMotoboys) {
                 divMotoboys.innerHTML = motoboys.map(m => `
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 dark:bg-farmassim-950 text-farmassim-800 dark:text-farmassim-200 border border-farmassim-200 dark:border-farmassim-800">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
                         ${m.nome} 
                         <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
@@ -897,8 +863,8 @@
             const divFormas = document.getElementById('listaFormasPagamento');
             if (divFormas) {
                 divFormas.innerHTML = formasPagamento.map(f => `
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 dark:bg-farmassim-950 text-farmassim-800 dark:text-farmassim-200 border border-farmassim-200 dark:border-farmassim-800">
-                        ${f.nome} <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(${f.requerTroco ? 'com troco' : 'sem troco'})</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${f.nome} <span class="text-[10px] font-normal text-slate-500">(${f.requerTroco ? 'com troco' : 'sem troco'})</span>
                         <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
             }
@@ -906,7 +872,7 @@
             const divCaixas = document.getElementById('listaCaixas');
             if (divCaixas) {
                 divCaixas.innerHTML = caixas.length === 0 ? '<span class="text-slate-400 italic text-xs">Nenhum caixa extra cadastrado.</span>' : caixas.map(c => `
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 dark:bg-farmassim-950 text-farmassim-800 dark:text-farmassim-200 border border-farmassim-200 dark:border-farmassim-800">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
                         ${c.nome} 
                         <button onclick="excluirCaixa(${c.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
@@ -948,15 +914,15 @@
                 }
 
                 tbody.innerHTML += `
-                    <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                        <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200' : 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
                         <td class="py-3 px-4">${r.hora}</td>
                         <td class="py-3 px-4">${r.caixa}</td>
                         <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
                         <td class="py-3 px-4 font-bold">${r.motoboy}</td>
                         <td class="py-3 px-4">${r.formaPag}</td>
                         <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-right text-amber-700 dark:text-amber-400 font-semibold">R$ ${r.troco.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
                         <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
                         <td class="py-3 px-4 text-center flex gap-1 justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>`;
@@ -971,7 +937,7 @@
 
             const divMotoboys = document.getElementById('resumoMotoboys');
             const chaves = Object.keys(pendentePorMotoboy);
-            divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700 dark:text-amber-400">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
+            divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
         }
 
         function exportarCSV() {
