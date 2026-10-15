@@ -356,21 +356,46 @@
         </div>
     </div>
 
-    <!-- MODAL DE CADASTROS CORRIGIDO -->
+    <!-- MODAL DE CADASTROS COMPLETO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
                 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-gear"></i> Gerenciar Cadastros</h3>
                 <button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <!-- Seção Motoboys -->
                 <div>
                     <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Entregadores / Motoboys</h4>
                     <div class="flex gap-2 mb-3">
                         <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarMotoboy()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
-                    <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1"></div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Seção Formas de Pagamento -->
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Formas de Pagamento</h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <button onclick="cadastrarFormaPagamento()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
+                    </div>
+                    <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Seção Caixas/Operadores -->
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Caixas / Operadores</h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="novoCaixaNome" placeholder="Nome do Operador..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <button onclick="cadastrarCaixa()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
+                    </div>
+                    <div id="listaCaixas" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
             </div>
             <div class="p-4 bg-slate-50 border-t flex justify-end">
@@ -509,7 +534,12 @@
             window.location.href = 'index.html';
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function openModal(id) { 
+            if(id === 'modalCadastros') {
+                renderizarListasGerenciamento();
+            }
+            document.getElementById(id).classList.remove('hidden'); 
+        }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function focarCampoPedido() { document.getElementById('coo').focus(); }
 
@@ -754,7 +784,7 @@
         }
 
         async function excluirMotoboy(id) {
-            if (!confirm("Deseja realmente remover este motoboy?")) return;
+            if (!confirm("Remover este motoboy?")) return;
             motoboys = motoboys.filter(m => m.id !== id);
             atualizarSelects();
             renderizarListasGerenciamento();
@@ -764,15 +794,81 @@
             showToast("Motoboy removido!");
         }
 
+        async function cadastrarFormaPagamento() {
+            const nome = document.getElementById('novaFormaNome').value.trim();
+            if (nome) {
+                const novaF = { id: Date.now(), nome, requerTroco: true };
+                formasPagamento.push(novaF);
+                document.getElementById('novaFormaNome').value = '';
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: true }]); } catch(e){}
+                }
+                showToast("Forma de pagamento cadastrada!");
+            }
+        }
+
+        async function excluirFormaPagamento(id) {
+            if (!confirm("Remover esta forma de pagamento?")) return;
+            formasPagamento = formasPagamento.filter(f => f.id !== id);
+            atualizarSelects();
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('formas_pagamento').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Forma de pagamento removida!");
+        }
+
+        async function cadastrarCaixa() {
+            const nome = document.getElementById('novoCaixaNome').value.trim();
+            if (nome) {
+                const novoC = { id: Date.now(), nome };
+                caixas.push(novoC);
+                document.getElementById('novoCaixaNome').value = '';
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('caixas').insert([{ nome }]); } catch(e){}
+                }
+                showToast("Caixa/Operador cadastrado!");
+            }
+        }
+
+        async function excluirCaixa(id) {
+            if (!confirm("Remover este caixa/operador?")) return;
+            caixas = caixas.filter(c => c.id !== id);
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('caixas').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Caixa removido!");
+        }
+
         function renderizarListasGerenciamento() {
-            const div = document.getElementById('listaMotoboys');
-            if (div) {
-                div.innerHTML = motoboys.map(m => `
+            const divMotoboys = document.getElementById('listaMotoboys');
+            if (divMotoboys) {
+                divMotoboys.innerHTML = motoboys.map(m => `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
                         ${m.nome} 
-                        <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600 transition-all">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('');
+            }
+
+            const divFormas = document.getElementById('listaFormasPagamento');
+            if (divFormas) {
+                divFormas.innerHTML = formasPagamento.map(f => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${f.nome} 
+                        <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('');
+            }
+
+            const divCaixas = document.getElementById('listaCaixas');
+            if (divCaixas) {
+                divCaixas.innerHTML = caixas.length === 0 ? '<span class="text-slate-400 italic text-xs">Nenhum caixa extra cadastrado.</span>' : caixas.map(c => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${c.nome} 
+                        <button onclick="excluirCaixa(${c.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
             }
         }
