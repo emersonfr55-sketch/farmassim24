@@ -233,11 +233,11 @@
     <!-- CONTEÚDO PRINCIPAL: GRADE DE SISTEMAS / PÁGINAS -->
     <main id="mainContent" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div class="text-center space-y-2">
-            <h2 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">Escolha o Sistema Desejado</h2>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">Portal Central de Sistemas</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Selecione abaixo qual ferramenta da farmácia você deseja acessar neste momento.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
             
             <!-- Cartão 1: Sistema de Entregas -->
             <a href="entrega.html" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
@@ -325,6 +325,44 @@
             </div>
 
         </div>
+
+        <!-- SEÇÃO DO BLOCO DE NOTAS RÁPIDAS DO PLANTÃO -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div>
+                    <h3 class="font-black text-slate-800 dark:text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-note-sticky text-farmassim-600 dark:text-farmassim-400"></i> Bloco de Notas Rápidas do Plantão
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Recados compartilhados entre turnos. Deixe avisos para a equipe que vai assumir.</p>
+                </div>
+                <button onclick="carregarNotas()" class="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Atualizar Notas
+                </button>
+            </div>
+
+            <!-- Formulário Nova Nota -->
+            <form onsubmit="adicionarNota(event)" class="space-y-3">
+                <div>
+                    <textarea id="inputTextoNota" rows="2" required placeholder="Digite um recado rápido para o plantão (Ex: O troco de moedas está no cofre; Avisar entregador X)..." 
+                              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-medium focus:ring-2 focus:ring-farmassim-600 outline-none resize-none"></textarea>
+                </div>
+                <div class="flex justify-between items-center">
+                    <label class="flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-400 cursor-pointer">
+                        <input type="checkbox" id="checkUrgente" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500 w-4 h-4">
+                        Marcar como Aviso Urgente (Destaque)
+                    </label>
+                    <button type="submit" class="px-4 py-2 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-xl transition shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Publicar Recado
+                    </button>
+                </div>
+            </form>
+
+            <!-- Lista de Notas Ativas -->
+            <div id="listaNotasContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                <div class="col-span-2 text-center py-6 text-slate-400 text-xs italic">Carregando notas do plantão...</div>
+            </div>
+        </div>
+
     </main>
 
     <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
@@ -378,6 +416,83 @@
                 document.getElementById('inputUsuarioID').focus();
             }
         };
+
+        async function carregarNotas() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient
+                .from('anotacoes_plantao')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('listaNotasContainer');
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center py-6 text-slate-400 text-xs italic">Nenhum recado no plantão no momento.</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(nota => {
+                const dataHora = new Date(nota.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const isUrgente = nota.urgente;
+
+                const bgCard = isUrgente 
+                    ? 'bg-rose-50/70 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900' 
+                    : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700';
+
+                return `
+                    <div class="p-3.5 rounded-xl border ${bgCard} flex flex-col justify-between space-y-2 shadow-2xs">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                <i class="fa-solid fa-user-circle text-farmassim-600"></i> ${nota.operador || 'Equipe'}
+                            </span>
+                            <div class="flex items-center gap-2">
+                                ${isUrgente ? '<span class="px-1.5 py-0.5 bg-rose-600 text-white font-black text-[9px] rounded uppercase">Urgente</span>' : ''}
+                                <span class="text-slate-400 font-mono">${dataHora}</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-800 dark:text-slate-200 font-medium whitespace-pre-wrap">${nota.texto}</p>
+                        <div class="flex justify-end pt-1">
+                            <button onclick="excluirNota('${nota.id}')" class="text-[11px] text-slate-400 hover:text-rose-600 font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-check"></i> Concluir / Remover
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function adicionarNota(e) {
+            e.preventDefault();
+            const texto = document.getElementById('inputTextoNota').value.trim();
+            const urgente = document.getElementById('checkUrgente').checked;
+            const operador = sessionStorage.getItem('farmassim_operador_logado') || 'Operador';
+
+            if (!texto) return;
+
+            const { error } = await supabaseClient
+                .from('anotacoes_plantao')
+                .insert([{ texto, urgente, operador, created_at: new Date().toISOString() }]);
+
+            if (error) {
+                alert("Erro ao publicar nota: " + error.message);
+            } else {
+                document.getElementById('inputTextoNota').value = '';
+                document.getElementById('checkUrgente').checked = false;
+                await carregarNotas();
+            }
+        }
+
+        async function excluirNota(id) {
+            const { error } = await supabaseClient
+                .from('anotacoes_plantao')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert("Erro ao remover nota.");
+            } else {
+                await carregarNotas();
+            }
+        }
 
         function abrirModalWifi() {
             document.getElementById('imgQrcodeWifiModal').src = urlQrcodeWifi;
@@ -554,6 +669,8 @@
 
             document.getElementById('mainHeader').classList.remove('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
+
+            carregarNotas();
         }
 
         function sairDoSistema() {
