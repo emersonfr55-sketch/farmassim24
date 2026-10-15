@@ -345,7 +345,18 @@
         </div>
     </div>
 
-    <!-- MODAL DE CADASTROS -->
+    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
+                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 border text-xs p-2 font-bold"></select></div>
+                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 border text-xs p-2 font-bold"></div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTROS SEM OPERADORES -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
@@ -353,7 +364,7 @@
                 <button onclick="closeModal('modalCadastros')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <!-- Abas de navegação interna -->
+                <!-- Abas de navegação interna (Apenas Motoboys e Formas) -->
                 <div class="flex border-b border-slate-200">
                     <button onclick="mudarAbaCadastros('motoboys')" id="tabBtnMotoboys" class="flex-1 pb-2 text-xs font-bold text-farmassim-600 border-b-2 border-farmassim-600 transition-all">Motoboys</button>
                     <button onclick="mudarAbaCadastros('formas')" id="tabBtnFormas" class="flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all border-b-2 border-transparent">Formas de Pagamento</button>
@@ -370,18 +381,9 @@
 
                 <!-- Conteúdo Formas de Pagamento -->
                 <div id="abaFormas" class="space-y-3 hidden">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
-                        <div class="flex gap-2">
-                            <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="novaFormaRequerTroco" checked class="sr-only peer">
-                                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-farmassim-600 relative"></div>
-                                <span class="ml-2 text-xs font-bold text-slate-700">Requer Troco / Nota do Cliente</span>
-                            </label>
-                            <button onclick="cadastrarFormaPagamento()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar Forma</button>
-                        </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <button onclick="cadastrarFormaPagamento()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
                     <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1"></div>
                 </div>
@@ -410,6 +412,7 @@
             }
         } catch(e) { console.error("Erro init supabase", e); }
 
+        let caixas = [];
         let motoboys = [
             { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
             { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
@@ -464,21 +467,18 @@
                 const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
                 
                 const fetchDb = Promise.all([
+                    supabaseClient.from('caixas').select('*'),
                     supabaseClient.from('motoboys').select('*'),
                     supabaseClient.from('formas_pagamento').select('*'),
                     supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
                 ]);
 
-                const [resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
+                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
+                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
                 if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
-                
                 if (resPag.data && resPag.data.length > 0) {
-                    formasPagamento = resPag.data.map(p => ({ 
-                        id: p.id, 
-                        nome: p.nome, 
-                        requerTroco: p.requer_troco !== false && p.requerTroco !== false 
-                    }));
+                    formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
                 }
 
                 if (resEnt.data) {
@@ -685,28 +685,15 @@
             showToast("Registro excluído!");
         }
 
-        async function abrirConsultaHistorico() {
+        function abrirConsultaHistorico() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            // Busca operadores únicos por todas as fontes possíveis (localStorage, histórico local e tabela do Supabase)
-            let operadoresSet = new Set([operadorAtivo]);
-            let opStorage = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
-            if (opStorage) operadoresSet.add(opStorage.trim());
-
-            if (supabaseClient) {
-                try {
-                    const { data } = await supabaseClient.from('entregas_farmassim').select('caixa');
-                    if (data) {
-                        data.forEach(item => { if(item.caixa) operadoresSet.add(item.caixa.trim()); });
-                    }
-                } catch(e) {}
-            }
-            historico.forEach(r => { if(r.caixa) operadoresSet.add(r.caixa.trim()); });
-
             let opcoesCaixas = `<option value="TODOS">Todos</option>`;
-            Array.from(operadoresSet).sort().forEach(opName => {
-                opcoesCaixas += `<option value="${opName}" ${opName === operadorAtivo ? 'selected' : ''}>${opName}</option>`;
-            });
+            if (caixas.length > 0) {
+                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
+            } else {
+                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            }
             document.getElementById('histOperador').innerHTML = opcoesCaixas;
 
             executarConsultaHistorico();
@@ -815,16 +802,14 @@
 
         async function cadastrarFormaPagamento() {
             const nome = document.getElementById('novaFormaNome').value.trim();
-            const requerTroco = document.getElementById('novaFormaRequerTroco').checked;
             if (nome) {
-                const novaF = { id: Date.now(), nome, requerTroco };
+                const novaF = { id: Date.now(), nome, requerTroco: true };
                 formasPagamento.push(novaF);
                 document.getElementById('novaFormaNome').value = '';
-                document.getElementById('novaFormaRequerTroco').checked = true;
                 atualizarSelects();
                 renderizarListasGerenciamento();
                 if (supabaseClient) {
-                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: requerTroco }]); } catch(e){}
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: true }]); } catch(e){}
                 }
                 showToast("Forma de pagamento cadastrada!");
             }
@@ -855,8 +840,8 @@
             if (divFormas) {
                 divFormas.innerHTML = formasPagamento.map(f => `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
-                        ${f.nome} <span class="text-[10px] font-normal text-slate-500">(${f.requerTroco ? 'Requer Troco' : 'Sem Troco'})</span>
-                        <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all ml-1"><i class="fa-solid fa-xmark"></i></button>
+                        ${f.nome} 
+                        <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
                     </span>`).join('');
             }
         }
@@ -870,7 +855,6 @@
             document.getElementById('addMistoForma1').innerHTML = opcoesPag;
             document.getElementById('addMistoForma2').innerHTML = opcoesPag;
             document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
-            tratarMudancaFormaPagamento('formaPagamento', 'troco');
         }
 
         function renderizarTabela() {
