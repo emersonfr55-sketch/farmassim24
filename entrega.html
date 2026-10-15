@@ -384,7 +384,10 @@
         } catch(e) { console.error("Erro init supabase", e); }
 
         let caixas = [];
-        let motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
+        let motoboys = [
+            { id: 1, nome: 'Motoboy 1' },
+            { id: 2, nome: 'Motoboy 2' }
+        ];
         let formasPagamento = [
             { id: 1, nome: 'Dinheiro', requerTroco: true },
             { id: 2, nome: 'Pix', requerTroco: false },
@@ -411,9 +414,12 @@
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
+            // Renderiza imediatamente com os dados locais para garantir que apareçam na hora
             atualizarSelects();
             renderizarListasGerenciamento();
             focarCampoPedido();
+            
+            // Depois tenta sincronizar com o banco
             sincronizarComSupabase();
         };
 
@@ -440,7 +446,12 @@
                 const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
 
                 if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
-                if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
+                
+                // Só substitui se vierem motoboys válidos do banco, senão mantém os locais
+                if (resMot.data && resMot.data.length > 0) {
+                    motoboys = resMot.data;
+                }
+
                 if (resPag.data && resPag.data.length > 0) {
                     formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
                 }
