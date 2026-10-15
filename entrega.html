@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmassim 24hrs - Gestão de Entregas & Supabase</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -50,7 +54,9 @@
                             <span class="text-xs font-black text-farmassim-900 px-1">FARMASSIM</span>
                         </div>
                         <div>
-                            <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
+                            <div class="flex items-center gap-2">
+                                <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
+                            </div>
                             <p class="text-xs text-farmassim-100 font-medium flex items-center gap-1.5">
                                 <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Sistema de Entregas
                             </p>
@@ -69,14 +75,14 @@
                         <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Códigos
                     </a>
 
-                    <div id="btnStatusDbDiscreto" onclick="testarConexaoManual()" title="Clique para testar conexão com o banco" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-pointer">
+                    <div id="btnStatusDbDiscreto" title="Status da Conexão" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
                         <span id="badgeStatusSupabase" class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> A testar...
+                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Iniciando...
                         </span>
                     </div>
 
                     <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
-                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Hoje
+                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Entregas Hoje
                     </button>
                     <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
                         <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
@@ -101,8 +107,653 @@
             <div id="toastMessage" class="ml-3 text-sm font-bold text-slate-700">Operação realizada com sucesso!</div>
         </div>
 
-        <!-- FORMULÁRIO -->
+        <!-- FORMULÁRIO DE LANÇAMENTO RÁPIDO -->
         <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1.5 h-full bg-farmassim-600"></div>
             <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
-                <h2 class="text-base font-bold
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento
+                </h2>
+                <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 text-farmassim-800 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200">
+                    Operador: ...
+                </span>
+            </div>
+
+            <form id="formRegistro" onsubmit="adicionarRegistro(event)" class="space-y-4">
+                <input type="hidden" id="pagamentoMistoAtivo" value="false">
+                <input type="hidden" id="textoPagamentoMisto" value="">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label for="coo" class="block text-xs font-bold text-slate-600 mb-1.5">Nº COO / Pedido *</label>
+                        <input type="text" id="coo" required placeholder="Ex: 5041" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                    </div>
+
+                    <div>
+                        <label for="valor" class="block text-xs font-bold text-slate-600 mb-1.5">Valor Total Pedido (R$) *</label>
+                        <input type="number" step="0.01" min="0" id="valor" oninput="calcularTrocoAvançado()" required placeholder="0,00" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="formaPagamento" class="block text-xs font-bold text-slate-600">Forma de Pagamento</label>
+                            <button type="button" onclick="abrirModalAddMisto()" class="text-[11px] text-farmassim-700 hover:text-farmassim-900 font-extrabold flex items-center gap-1 bg-farmassim-50 px-2 py-0.5 rounded-md border border-farmassim-200 transition-all">
+                                <i class="fa-solid fa-plus-circle"></i> Múltiplos
+                            </button>
+                        </div>
+                        
+                        <div class="relative">
+                            <select id="formaPagamento" onchange="tratarMudancaFormaPagamento('formaPagamento', 'troco')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                            </select>
+                            <div id="badgePagamentoMistoAtivo" class="hidden absolute inset-0 bg-farmassim-100 border border-farmassim-400 rounded-xl px-3 flex items-center justify-between text-xs font-extrabold text-farmassim-900 z-10">
+                                <span id="labelPagamentoMistoAtivo" class="truncate">Misto: ...</span>
+                                <button type="button" onclick="cancelarPagamentoMisto()" class="text-rose-600 hover:text-rose-800 ml-2">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="notaCliente" class="block text-xs font-bold text-emerald-700 mb-1.5">Nota Cliente (Troco Para R$)</label>
+                        <input type="number" step="0.01" min="0" id="notaCliente" oninput="calcularTrocoAvançado()" placeholder="Ex: 50,00" class="w-full bg-emerald-50/50 border border-emerald-200 text-slate-800 text-sm rounded-xl focus:ring-emerald-500 block p-2.5 font-bold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="troco" class="block text-xs font-bold text-amber-700">Troco a Levar (R$)</label>
+                            <span id="trocoStatusBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">Com Troco</span>
+                        </div>
+                        <input type="number" step="0.01" min="0" id="troco" oninput="calcularValorATrazer()" placeholder="0,00" class="w-full bg-amber-50/50 border border-amber-200 text-slate-800 text-sm rounded-xl focus:ring-amber-500 block p-2.5 font-bold">
+                    </div>
+
+                    <div>
+                        <label for="valorATrazer" class="block text-xs font-bold text-farmassim-700 mb-1.5">Valor a Trazer em Mãos (R$)</label>
+                        <input type="number" step="0.01" min="0" id="valorATrazer" required placeholder="0,00" class="w-full bg-farmassim-50 border border-farmassim-300 text-farmassim-900 text-sm rounded-xl block p-2.5 font-extrabold">
+                    </div>
+
+                    <div>
+                        <label for="selectMotoboy" class="block text-xs font-bold text-slate-600 mb-1.5">Entregador / Motoboy *</label>
+                        <select id="selectMotoboy" required class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-3">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="statusInicial" class="sr-only peer">
+                        <div class="w-11 h-6 bg-amber-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-farmassim-600 relative"></div>
+                        <span id="statusInicialLabel" class="ml-2 text-xs font-bold text-amber-700 flex items-center gap-1">
+                            <i class="fa-solid fa-clock"></i> Marcar como Pendente no lançamento
+                        </span>
+                    </label>
+
+                    <button type="submit" class="w-full sm:w-auto px-7 py-3 text-sm font-extrabold text-farmassim-900 bg-farmassimYellow-500 hover:bg-farmassimYellow-400 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 transform active:scale-95">
+                        <i class="fa-solid fa-plus text-base"></i> Registrar (Enter)
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- CARDS DE RESUMO -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-cash-register text-farmassim-600"></i> Total Pedidos
+                    </span>
+                    <div class="text-2xl font-black text-slate-800 mt-2">R$ <span id="totalDia">0,00</span></div>
+                </div>
+                <div class="mt-3 text-xs font-semibold text-slate-500">
+                    <span id="qtdEntregasDia">0</span> entregas no total
+                </div>
+            </div>
+
+            <div class="bg-amber-50/70 p-5 rounded-2xl shadow-sm border border-amber-200/80 flex flex-col justify-between">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-amber-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> Pendente (Rua)
+                    </span>
+                    <div class="text-2xl font-black text-amber-700 mt-2">R$ <span id="totalPendente">0,00</span></div>
+                </div>
+                <div class="mt-3 text-xs font-bold text-amber-800">
+                    <span id="qtdPendentes">0</span> pendentes
+                </div>
+            </div>
+
+            <div class="bg-farmassim-50/80 p-5 rounded-2xl shadow-sm border border-farmassim-200/80 flex flex-col justify-between">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-farmassim-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-farmassim-600"></i> Concluído / Em Caixa
+                    </span>
+                    <div class="text-2xl font-black text-farmassim-700 mt-2">R$ <span id="totalConcluido">0,00</span></div>
+                </div>
+                <div class="mt-3 text-xs font-bold text-farmassim-800">
+                    <span id="qtdConcluidas">0</span> concluídas
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                <h3 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-helmet-safety text-farmassim-600"></i> Pendente por Motoboy
+                </h3>
+                <div id="resumoMotoboys" class="space-y-1 text-xs max-h-24 overflow-y-auto pr-1 font-semibold">
+                    <span class="text-slate-400 italic">Nenhum valor pendente.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TABELA -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas de Hoje
+                </h2>
+
+                <div class="flex-1 max-w-md flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="campoBusca" oninput="renderizarTabela()" placeholder="Busca por Pedido, Motoboy..." class="pl-8 w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-semibold focus:ring-farmassim-500">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="toggleMostrarConcluidas()" id="btnToggleConcluidas" class="px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-all flex items-center gap-2 shadow-xs">
+                        <i id="iconeToggleConcluidas" class="fa-solid fa-eye text-farmassim-600"></i>
+                        <span id="txtToggleConcluidas">Ocultar Concluídas</span>
+                    </button>
+                    <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 bg-farmassim-50 hover:bg-farmassim-100 border border-farmassim-200 rounded-xl transition-all">
+                        <i class="fa-solid fa-file-excel"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table id="tabelaRegistros" class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100/70 text-slate-600 uppercase text-[11px] font-extrabold border-b border-slate-200">
+                            <th class="py-3.5 px-4">Status</th>
+                            <th class="py-3.5 px-4">Hora</th>
+                            <th class="py-3.5 px-4">Operador</th>
+                            <th class="py-3.5 px-4">COO / Pedido</th>
+                            <th class="py-3.5 px-4">Motoboy</th>
+                            <th class="py-3.5 px-4">Pagamento</th>
+                            <th class="py-3.5 px-4 text-right">Pedido</th>
+                            <th class="py-3.5 px-4 text-right">Troco</th>
+                            <th class="py-3.5 px-4 text-right bg-slate-200/50">A Trazer</th>
+                            <th class="py-3.5 px-4 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs font-semibold text-slate-700"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
+        <p class="font-medium">Emerson de França - 2026</p>
+    </footer>
+
+    <!-- MODAIS -->
+    <div id="modalAddMisto" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Misto</h3>
+                <button onclick="closeModal('modalAddMisto')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label><select id="addMistoForma1" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label><input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label><select id="addMistoForma2" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label><input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black"></div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal('modalAddMisto')" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Cancelar</button>
+                <button onclick="confirmarPagamentoMisto()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 rounded-xl">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalConsultaHistorico" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
+                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico de Entregas</h3>
+                <button onclick="closeModal('modalConsultaHistorico')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Inicial</label><input type="date" id="histDataInicio" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Final</label><input type="date" id="histDataFim" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Motoboy</label><select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label><select id="histOperador" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><button onclick="executarConsultaHistorico()" class="w-full py-2 bg-farmassim-600 text-white font-extrabold text-xs rounded-lg">Filtrar</button></div>
+                </div>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase text-[10px] font-extrabold"><th class="py-2.5 px-3">Data/Hora</th><th class="py-2.5 px-3">COO</th><th class="py-2.5 px-3">Operador</th><th class="py-2.5 px-3">Motoboy</th><th class="py-2.5 px-3">Pagamento</th><th class="py-2.5 px-3 text-right">Valor</th><th class="py-2.5 px-3 text-center">Status</th></tr></thead>
+                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Filtrar histórico.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Fechar</button></div>
+        </div>
+    </div>
+
+    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
+                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 border text-xs p-2 font-bold"></select></div>
+                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 border text-xs p-2 font-bold"></div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
+        </div>
+    </div>
+
+    <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <div><h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2">Motoboys</h4><div class="flex gap-2 mb-2"><input type="text" id="novoMotoboyNome" placeholder="Nome..." class="flex-1 border text-xs p-2 font-bold rounded-xl"><button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button></div><div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div></div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs bg-slate-200 rounded-xl">Fechar</button></div>
+        </div>
+    </div>
+
+    <div id="areaImpressao" class="hidden p-4 font-mono text-black">
+        <div class="text-center border-b pb-2 mb-2"><h2 class="font-bold text-lg">FARMASSIM 24HRS</h2><p class="text-xs">COMPROVANTE</p></div>
+        <div id="conteudoCupom" class="text-xs space-y-1"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        
+        let supabaseClient = null;
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: { persistSession: false, autoRefreshToken: false }
+                });
+            }
+        } catch(e) { console.error("Erro init supabase", e); }
+
+        let caixas = [];
+        let motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
+        let formasPagamento = [
+            { id: 1, nome: 'Dinheiro', requerTroco: true },
+            { id: 2, nome: 'Pix', requerTroco: false },
+            { id: 3, nome: 'Cartão Débito', requerTroco: false },
+            { id: 4, nome: 'Cartão Crédito', requerTroco: false }
+        ];
+        let historico = [];
+        let exibirConcluidas = true;
+        let resultadoConsultaGlobal = [];
+        let operadorAtivo = 'Operador';
+        let dataAtualFormatted = '';
+
+        // INICIALIZAÇÃO IMEDIATA (NUNCA TRAVA A TELA)
+        window.onload = function() {
+            let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
+            if (!op || op.trim() === '') {
+                op = prompt("Digite o nome do Operador:") || "Operador";
+                sessionStorage.setItem('farmassim_operador_logado', op);
+            }
+            operadorAtivo = op.trim();
+            document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
+
+            const today = new Date();
+            dataAtualFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('histDataInicio').value = dataAtualFormatted;
+            document.getElementById('histDataFim').value = dataAtualFormatted;
+
+            atualizarSelects();
+            focarCampoPedido();
+            sincronizarComSupabase();
+        };
+
+        async function sincronizarComSupabase() {
+            const badge = document.getElementById('badgeStatusSupabase');
+            if (!supabaseClient) {
+                marcarOffline("Sem Cliente");
+                return;
+            }
+
+            try {
+                badge.className = "flex items-center gap-1.5 text-amber-300";
+                badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
+
+                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
+                
+                const fetchDb = Promise.all([
+                    supabaseClient.from('motoboys').select('*'),
+                    supabaseClient.from('formas_pagamento').select('*'),
+                    supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
+                ]);
+
+                const [resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
+
+                if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
+                if (resPag.data && resPag.data.length > 0) {
+                    formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
+                }
+
+                if (resEnt.data) {
+                    historico = resEnt.data.map(item => ({
+                        id: item.id,
+                        data: item.data,
+                        hora: item.hora,
+                        caixa: item.caixa,
+                        coo: item.coo,
+                        valor: parseFloat(item.valor) || 0,
+                        troco: parseFloat(item.troco) || 0,
+                        valorATrazer: parseFloat(item.valor_a_trazer) || 0,
+                        motoboy: item.motoboy,
+                        formaPag: item.forma_pag,
+                        concluido: item.concluido
+                    }));
+                }
+
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                renderizarTabela();
+
+                badge.className = "flex items-center gap-1.5 text-emerald-300";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+
+            } catch (err) {
+                console.warn("Supabase indisponível, usando modo local:", err);
+                marcarOffline("Modo Local");
+            }
+        }
+
+        function marcarOffline(motivo) {
+            const badge = document.getElementById('badgeStatusSupabase');
+            if (badge) {
+                badge.className = "flex items-center gap-1.5 text-amber-400";
+                badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
+            }
+            renderizarTabela();
+        }
+
+        function sairDoSistema() {
+            sessionStorage.removeItem('farmassim_operador_logado');
+            window.location.href = 'index.html';
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function focarCampoPedido() { document.getElementById('coo').focus(); }
+
+        function toggleMostrarConcluidas() {
+            exibirConcluidas = !exibirConcluidas;
+            document.getElementById('txtToggleConcluidas').innerText = exibirConcluidas ? "Ocultar Concluídas" : "Mostrar Concluídas";
+            renderizarTabela();
+        }
+
+        function abrirModalAddMisto() {
+            const valTotal = parseFloat(document.getElementById('valor').value) || 0;
+            document.getElementById('addMistoVal1').value = (valTotal / 2).toFixed(2);
+            calcularRestanteNovoMisto();
+            openModal('modalAddMisto');
+        }
+
+        function calcularRestanteNovoMisto() {
+            const valTotal = parseFloat(document.getElementById('valor').value) || 0;
+            const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
+            document.getElementById('addMistoVal2').value = Math.max(0, valTotal - v1).toFixed(2);
+        }
+
+        function confirmarPagamentoMisto() {
+            const f1 = document.getElementById('addMistoForma1').value;
+            const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
+            const f2 = document.getElementById('addMistoForma2').value;
+            const v2 = parseFloat(document.getElementById('addMistoVal2').value) || 0;
+            const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+
+            document.getElementById('pagamentoMistoAtivo').value = "true";
+            document.getElementById('textoPagamentoMisto').value = textoMisto;
+            document.getElementById('labelPagamentoMistoAtivo').innerText = textoMisto;
+            document.getElementById('badgePagamentoMistoAtivo').classList.remove('hidden');
+            closeModal('modalAddMisto');
+            calcularValorATrazer();
+        }
+
+        function cancelarPagamentoMisto() {
+            document.getElementById('pagamentoMistoAtivo').value = "false";
+            document.getElementById('badgePagamentoMistoAtivo').classList.add('hidden');
+            calcularValorATrazer();
+        }
+
+        function calcularTrocoAvançado() {
+            const valPedido = parseFloat(document.getElementById('valor').value) || 0;
+            const notaCliente = parseFloat(document.getElementById('notaCliente').value) || 0;
+            if (notaCliente > valPedido) document.getElementById('troco').value = (notaCliente - valPedido).toFixed(2);
+            calcularValorATrazer();
+        }
+
+        function calcularValorATrazer() {
+            const valPedido = parseFloat(document.getElementById('valor').value) || 0;
+            const valTroco = parseFloat(document.getElementById('troco').value) || 0;
+            document.getElementById('valorATrazer').value = (valPedido + valTroco).toFixed(2);
+        }
+
+        function tratarMudancaFormaPagamento(selectId, inputTrocoId) {
+            const selectElement = document.getElementById(selectId);
+            const inputTroco = document.getElementById(inputTrocoId);
+            const objPag = formasPagamento.find(p => p.nome === selectElement.value);
+            if (objPag && !objPag.requerTroco) {
+                inputTroco.value = '0.00';
+                inputTroco.disabled = true;
+                document.getElementById('notaCliente').value = '';
+                document.getElementById('notaCliente').disabled = true;
+            } else {
+                inputTroco.disabled = false;
+                document.getElementById('notaCliente').disabled = false;
+            }
+            calcularValorATrazer();
+        }
+
+        async function adicionarRegistro(e) {
+            e.preventDefault();
+            const now = new Date();
+            let descricaoPag = document.getElementById('formaPagamento').value;
+            if (document.getElementById('pagamentoMistoAtivo').value === "true") {
+                descricaoPag = document.getElementById('textoPagamentoMisto').value;
+            }
+
+            const novoObj = {
+                id: Date.now(),
+                data: dataAtualFormatted,
+                hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                caixa: operadorAtivo,
+                coo: document.getElementById('coo').value.trim(),
+                valor: parseFloat(document.getElementById('valor').value) || 0,
+                troco: parseFloat(document.getElementById('troco').value) || 0,
+                valorATrazer: parseFloat(document.getElementById('valorATrazer').value) || 0,
+                motoboy: document.getElementById('selectMotoboy').value,
+                formaPag: descricaoPag,
+                concluido: document.getElementById('statusInicial').checked
+            };
+
+            historico.unshift(novoObj);
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('entregas_farmassim').insert([{
+                        data: novoObj.data, hora: novoObj.hora, caixa: novoObj.caixa,
+                        coo: novoObj.coo, valor: novoObj.valor, troco: novoObj.troco,
+                        valor_a_trazer: novoObj.valorATrazer, motoboy: novoObj.motoboy,
+                        forma_pag: novoObj.formaPag, concluido: novoObj.concluido
+                    }]);
+                } catch(err) { console.warn("Erro ao salvar no Supabase"); }
+            }
+
+            document.getElementById('coo').value = '';
+            document.getElementById('valor').value = '';
+            document.getElementById('troco').value = '';
+            document.getElementById('notaCliente').value = '';
+            document.getElementById('valorATrazer').value = '';
+            cancelarPagamentoMisto();
+
+            renderizarTabela();
+            focarCampoPedido();
+            showToast("Entrega Registrada!");
+        }
+
+        async function alternarStatus(id) {
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
+            item.concluido = !item.concluido;
+            if (supabaseClient) {
+                try { await supabaseClient.from('entregas_farmassim').update({ concluido: item.concluido }).eq('id', id); } catch(e){}
+            }
+            renderizarTabela();
+        }
+
+        async function excluirRegistro(id) {
+            if (!confirm("Excluir este registro?")) return;
+            historico = historico.filter(r => r.id !== id);
+            if (supabaseClient) {
+                try { await supabaseClient.from('entregas_farmassim').delete().eq('id', id); } catch(e){}
+            }
+            renderizarTabela();
+            showToast("Registro excluído!");
+        }
+
+        function abrirConsultaHistorico() {
+            document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+            document.getElementById('histOperador').innerHTML = `<option value="TODOS">Todos</option><option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            executarConsultaHistorico();
+            openModal('modalConsultaHistorico');
+        }
+
+        function abrirMinhasEntregasHoje() {
+            abrirConsultaHistorico();
+        }
+
+        function executarConsultaHistorico() {
+            resultadoConsultaGlobal = historico;
+            const tbody = document.getElementById('tbodyConsultaHistorico');
+            tbody.innerHTML = '';
+            resultadoConsultaGlobal.forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-2.5 px-3">${r.data} ${r.hora}</td>
+                        <td class="py-2.5 px-3 font-bold">${r.coo}</td>
+                        <td class="py-2.5 px-3">${r.caixa}</td>
+                        <td class="py-2.5 px-3">${r.motoboy}</td>
+                        <td class="py-2.5 px-3">${r.formaPag}</td>
+                        <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</span></td>
+                    </tr>`;
+            });
+        }
+
+        async function cadastrarMotoboy() {
+            const nome = document.getElementById('novoMotoboyNome').value.trim();
+            if (nome) {
+                motoboys.push({ id: Date.now(), nome });
+                document.getElementById('novoMotoboyNome').value = '';
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('motoboys').insert([{ nome }]); } catch(e){}
+                }
+                showToast("Motoboy cadastrado!");
+            }
+        }
+
+        function renderizarListasGerenciamento() {
+            const div = document.getElementById('listaMotoboys');
+            if (div) {
+                div.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+            }
+        }
+
+        function atualizarSelects() {
+            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+            const opcoesMotoboys = motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+
+            document.getElementById('selectMotoboy').innerHTML = opcoesMotoboys;
+            document.getElementById('formaPagamento').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma1').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma2').innerHTML = opcoesPag;
+            document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
+        }
+
+        function renderizarTabela() {
+            const tbody = document.querySelector('#tabelaRegistros tbody');
+            const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
+            tbody.innerHTML = '';
+
+            let lista = historico;
+            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
+            if (busca) lista = lista.filter(r => r.coo.toLowerCase().includes(busca) || r.motoboy.toLowerCase().includes(busca));
+
+            let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
+            let pendentePorMotoboy = {};
+
+            lista.forEach(r => {
+                totalDia += r.valor;
+                if (r.concluido) {
+                    totalConcluido += r.valorATrazer;
+                    qtdConcluidas++;
+                } else {
+                    totalPendente += r.valorATrazer;
+                    qtdPendentes++;
+                    pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
+                        <td class="py-3 px-4">${r.hora}</td>
+                        <td class="py-3 px-4">${r.caixa}</td>
+                        <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
+                        <td class="py-3 px-4 font-bold">${r.motoboy}</td>
+                        <td class="py-3 px-4">${r.formaPag}</td>
+                        <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-center flex gap-1 justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+
+            document.getElementById('totalDia').innerText = totalDia.toFixed(2);
+            document.getElementById('qtdEntregasDia').innerText = lista.length;
+            document.getElementById('totalPendente').innerText = totalPendente.toFixed(2);
+            document.getElementById('qtdPendentes').innerText = qtdPendentes;
+            document.getElementById('totalConcluido').innerText = totalConcluido.toFixed(2);
+            document.getElementById('qtdConcluidas').innerText = qtdConcluidas;
+
+            const divMotoboys = document.getElementById('resumoMotoboys');
+            const chaves = Object.keys(pendentePorMotoboy);
+            divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
+        }
+
+        function exportarCSV() {
+            let csv = "Status;Hora;Operador;COO;Motoboy;Pagamento;Valor\n";
+            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `entregas_${Date.now()}.csv`;
+            link.click();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2500);
+        }
+    </script>
+</body>
+</html>
