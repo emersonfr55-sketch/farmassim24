@@ -45,56 +45,61 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 dark:text-zinc-100 bg-slate-100 dark:bg-black flex flex-col min-h-screen transition-colors duration-200">
 
-    <!-- CABEÇALHO DINÂMICO & GLASSMORPHISM -->
-    <header class="bg-farmassim-600/95 dark:bg-zinc-950/95 backdrop-blur-md text-white shadow-xl sticky top-0 z-40 border-b border-farmassim-500/30 dark:border-zinc-800 transition-all duration-300">
+    <!-- CABEÇALHO LIMPO & MODERNO -->
+    <header class="bg-farmassim-600/95 dark:bg-zinc-950/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-zinc-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
-                <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
-                    <div class="flex items-center space-x-3">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h1 class="font-extrabold text-lg sm:text-2xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
-                            </div>
-                            <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-zinc-400 font-medium flex items-center gap-1.5">
-                                <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Carregando...
-                            </p>
-                        </div>
+            <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
+                
+                <!-- Lado Esquerdo: Logo e Título -->
+                <div class="flex items-center justify-between w-full lg:w-auto">
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
-                    <!-- BOTÃO ALTERAR MODO CLARO/ESCURO -->
-                    <button onclick="toggleDarkMode()" id="btnThemeToggle" title="Alternar Modo Claro/Escuro" class="bg-farmassim-700/80 hover:bg-farmassim-800 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-white p-2 rounded-xl text-xs flex items-center justify-center shadow-md border border-farmassim-500/50 dark:border-zinc-700 transition-all hover:scale-105 active:scale-95">
-                        <i id="themeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
-                    </button>
+                <!-- Centro: Saudação e Nome do Operador Ativo -->
+                <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-zinc-900/80 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-zinc-800 shadow-inner">
+                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-zinc-300 font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> Carregando...
+                    </p>
+                </div>
 
-                    <a href="index.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-house text-farmassimYellow-400"></i> Portal
+                <!-- Lado Direito: Ações e Botões Compactos -->
+                <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
+                    
+                    <a href="index.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Portal">
+                        <i class="fa-solid fa-house text-farmassimYellow-400"></i> <span class="hidden sm:inline">Portal</span>
                     </a>
-                    <a href="fechamento.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> Fechamento
+                    <a href="fechamento.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Fechamento">
+                        <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> <span class="hidden sm:inline">Fechamento</span>
                     </a>
-                    <a href="codigos.html" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Códigos
+                    <a href="codigos.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Códigos">
+                        <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> <span class="hidden sm:inline">Códigos</span>
                     </a>
 
-                    <div id="btnStatusDbDiscreto" title="Status da Conexão" class="bg-farmassim-700/60 hover:bg-farmassim-700 dark:bg-zinc-900 dark:border-zinc-800 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
+                    <div id="btnStatusDbDiscreto" title="Status da Conexão" class="bg-farmassim-700/40 dark:bg-zinc-900 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/20 dark:border-zinc-800 cursor-default">
                         <span id="badgeStatusSupabase" class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Iniciando...
+                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> Iniciando...
                         </span>
                     </div>
 
-                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Entregas Hoje
+                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Minhas Entregas Hoje">
+                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> <span class="hidden xl:inline">Minhas Entregas</span>
                     </button>
-                    <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 dark:border-zinc-800 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
+                    <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Histórico">
+                        <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> <span class="hidden sm:inline">Histórico</span>
                     </button>
-                    <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-gear"></i> Cadastros
+                    <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02] active:scale-95" title="Cadastros">
+                        <i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">Cadastros</span>
                     </button>
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all hover:scale-[1.02] active:scale-95">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+
+                    <!-- Botão Modo Escuro/Claro Discreto -->
+                    <button onclick="toggleDarkMode()" id="btnThemeToggle" title="Alternar Modo Claro/Escuro" class="bg-farmassim-700/80 hover:bg-farmassim-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white p-2 rounded-xl text-xs flex items-center justify-center border border-farmassim-500/30 dark:border-zinc-800 transition-all hover:scale-105 active:scale-95">
+                        <i id="themeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
+                    </button>
+
+                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Sair">
+                        <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
             </div>
@@ -459,7 +464,7 @@
             operadorAtivo = op.trim();
             document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
 
-            // Saudação Dinâmica baseada na hora atual
+            // Saudação Dinâmica Centralizada
             const horaAtual = new Date().getHours();
             let saudacao = "Bom dia";
             if (horaAtual >= 12 && horaAtual < 18) saudacao = "Boa tarde";
