@@ -365,7 +365,7 @@
             </div>
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
                 <div>
-                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2"><i class="fa-solid fa-user-doctor"></i> Operadores de Caixa</h4>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2"><i class="fa-solid fa-user-doctor"></i> Operadores / Caixas</h4>
                     <div id="listaCaixas" class="flex flex-wrap gap-1.5"></div>
                 </div>
 
@@ -429,7 +429,6 @@
         ];
         let historico = [];
         let exibirConcluidas = true;
-        let resultadoConsultaGlobal = [];
         let operadorAtivo = 'Operador';
         let dataAtualFormatted = '';
 
@@ -463,19 +462,13 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                const [resCaixas, resMot, resPag, resEnt] = await Promise.all([
-                    supabaseClient.from('caixas').select('*').order('nome'),
+                // Busca paralela e segura. Caso a tabela 'caixas' não exista no banco, tratamos sem quebrar as outras tabelas.
+                const [resMot, resPag, resEnt, resCaixas] = await Promise.all([
                     supabaseClient.from('motoboys').select('*').order('nome'),
                     supabaseClient.from('formas_pagamento').select('*').order('nome'),
-                    supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
+                    supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted),
+                    supabaseClient.from('caixas').select('*').order('nome').catch(() => ({ data: null }))
                 ]);
-
-                // Operadores: se o banco retornar vazio, extraímos das entregas ou usamos o operador ativo
-                if (resCaixas.data && resCaixas.data.length > 0) {
-                    caixas = resCaixas.data;
-                } else {
-                    caixas = [{ id: 1, nome: operadorAtivo }];
-                }
 
                 if (resMot.data && resMot.data.length > 0) {
                     motoboys = resMot.data;
@@ -498,7 +491,7 @@
                         id: item.id,
                         data: item.data,
                         hora: item.hora,
-                        caixa: item.caixa,
+                        caixa: item.caixa || 'Operador',
                         coo: item.coo,
                         valor: parseFloat(item.valor) || 0,
                         troco: parseFloat(item.troco) || 0,
@@ -509,7 +502,13 @@
                     }));
                 }
 
-                // Garantir que operadores que já registraram entregas apareçam na lista de caixas
+                // Coletar operadores da tabela 'caixas' ou extrair de todas as entregas do histórico geral
+                caixas = [];
+                if (resCaixas && resCaixas.data && resCaixas.data.length > 0) {
+                    caixas = resCaixas.data;
+                }
+
+                // Garantir que operadores que fizeram lançamentos apareçam na listagem de caixas
                 historico.forEach(h => {
                     if (h.caixa && !caixas.some(c => c.nome === h.caixa)) {
                         caixas.push({ id: Date.now() + Math.random(), nome: h.caixa });
@@ -528,7 +527,7 @@
                 badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
 
             } catch (err) {
-                console.warn("Supabase indisponível, usando fallback local:", err);
+                console.warn("Supabase indisponível, usando modo local:", err);
                 marcarOffline("Modo Local");
             }
         }
@@ -548,8 +547,8 @@
                     { id: 5, nome: 'MAURO MOKRESKI' }
                 ];
             }
-            if (caixas.length === 0) {
-                caixas = [{ id: 1, nome: operadorAtivo }];
+            if (!caixas.some(c => c.nome === operadorAtivo)) {
+                caixas.push({ id: 1, nome: operadorAtivo });
             }
             atualizarSelects();
             renderizarListasGerenciamento();
@@ -658,7 +657,6 @@
 
             historico.unshift(novoObj);
 
-            // Se o operador atual não estiver na lista de caixas local, adiciona
             if (!caixas.some(c => c.nome === operadorAtivo)) {
                 caixas.push({ id: Date.now(), nome: operadorAtivo });
             }
@@ -709,10 +707,17 @@
         function abrirConsultaHistorico() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            let operadoresUnicos = caixas.length > 0 ? caixas : [{ nome: operadorAtivo }];
+            let operadoresUnicos = [...caixas];
             if (!operadoresUnicos.some(c => c.nome === operadorAtivo)) {
                 operadoresUnicos.push({ nome: operadorAtivo });
             }
+            
+            // Adicionar operadores encontrados no histórico geral também
+            historico.forEach(h => {
+                if (h.caixa && !operadoresUnicos.some(c => c.nome === h.caixa)) {
+                    operadoresUnicos.push({ nome: h.caixa });
+                }
+            });
 
             document.getElementById('histOperador').innerHTML = `<option value="TODOS">🌐 Todos os Operadores</option>` + operadoresUnicos.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
 
@@ -751,7 +756,7 @@
                             id: item.id,
                             data: item.data,
                             hora: item.hora,
-                            caixa: item.caixa,
+                            caixa: item.caixa || 'Operador',
                             coo: item.coo,
                             valor: parseFloat(item.valor) || 0,
                             motoboy: item.motoboy,
@@ -876,7 +881,6 @@
                     pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
                 }
 
-                // Coletar caixas dinamicamente se surgirem novas nas entregas
                 if (r.caixa && !caixas.some(c => c.nome === r.caixa)) {
                     caixas.push({ id: Date.now() + Math.random(), nome: r.caixa });
                 }
