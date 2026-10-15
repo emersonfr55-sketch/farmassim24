@@ -348,30 +348,51 @@
         </div>
     </div>
 
-    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div class="p-4 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
-                <div><label class="block text-xs font-bold mb-1">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 border text-xs p-2 font-bold"></select></div>
-                <div><label class="block text-xs font-bold mb-1">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 border text-xs p-2 font-bold"></div>
-            </div>
-            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
-        </div>
-    </div>
-
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <div><h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2">Motoboys</h4><div class="flex gap-2 mb-2"><input type="text" id="novoMotoboyNome" placeholder="Nome..." class="flex-1 border text-xs p-2 font-bold rounded-xl"><button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button></div><div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div></div>
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-gear text-farmassimYellow-400"></i> Gerenciar Cadastros</h3>
+                <button onclick="closeModal('modalCadastros')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs bg-slate-200 rounded-xl">Fechar</button></div>
-        </div>
-    </div>
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <!-- Motoboys -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-motorcycle"></i> Motoboys</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold focus:ring-farmassim-500">
+                        <button onclick="cadastrarMotoboy()" class="px-4 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                    </div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
 
-    <div id="areaImpressao" class="hidden p-4 font-mono text-black">
-        <div class="text-center border-b pb-2 mb-2"><h2 class="font-bold text-lg">FARMASSIM 24HRS</h2><p class="text-xs">COMPROVANTE</p></div>
-        <div id="conteudoCupom" class="text-xs space-y-1"></div>
+                <hr class="border-slate-100">
+
+                <!-- Formas de Pagamento -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-wallet"></i> Formas de Pagamento</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="novaFormaNome" placeholder="Nova forma..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold focus:ring-farmassim-500">
+                        <button onclick="cadastrarFormaPagamento()" class="px-4 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                    </div>
+                    <div id="listaFormasPagamento" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Operadores / Caixas -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-user-shield"></i> Operadores / Caixas</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="novoCaixaNome" placeholder="Nome do Operador..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold focus:ring-farmassim-500">
+                        <button onclick="cadastrarCaixa()" class="px-4 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                    </div>
+                    <div id="listaCaixas" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end">
+                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 hover:bg-slate-300 rounded-xl">Fechar</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -416,6 +437,7 @@
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
             atualizarSelects();
+            renderizarListasGerenciamento();
             focarCampoPedido();
             sincronizarComSupabase();
         };
@@ -751,10 +773,45 @@
             }
         }
 
+        async function cadastrarFormaPagamento() {
+            const nome = document.getElementById('novaFormaNome').value.trim();
+            if (nome) {
+                formasPagamento.push({ id: Date.now(), nome, requerTroco: true });
+                document.getElementById('novaFormaNome').value = '';
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: true }]); } catch(e){}
+                }
+                showToast("Forma de Pagamento cadastrada!");
+            }
+        }
+
+        async function cadastrarCaixa() {
+            const nome = document.getElementById('novoCaixaNome').value.trim();
+            if (nome) {
+                caixas.push({ id: Date.now(), nome });
+                document.getElementById('novoCaixaNome').value = '';
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('caixas').insert([{ nome }]); } catch(e){}
+                }
+                showToast("Operador cadastrado!");
+            }
+        }
+
         function renderizarListasGerenciamento() {
-            const div = document.getElementById('listaMotoboys');
-            if (div) {
-                div.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+            const divMotoboys = document.getElementById('listaMotoboys');
+            if (divMotoboys) {
+                divMotoboys.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+            }
+            const divFormas = document.getElementById('listaFormasPagamento');
+            if (divFormas) {
+                divFormas.innerHTML = formasPagamento.map(f => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${f.nome}</span>`).join('');
+            }
+            const divCaixas = document.getElementById('listaCaixas');
+            if (divCaixas) {
+                divCaixas.innerHTML = caixas.map(c => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${c.nome}</span>`).join('');
             }
         }
 
@@ -766,7 +823,6 @@
             document.getElementById('formaPagamento').innerHTML = opcoesPag;
             document.getElementById('addMistoForma1').innerHTML = opcoesPag;
             document.getElementById('addMistoForma2').innerHTML = opcoesPag;
-            document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
         }
 
         function renderizarTabela() {
