@@ -337,7 +337,7 @@
                 <div class="overflow-x-auto border border-slate-200 rounded-xl">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead><tr class="bg-slate-100 text-slate-600 uppercase text-[10px] font-extrabold"><th class="py-2.5 px-3">Data/Hora</th><th class="py-2.5 px-3">COO</th><th class="py-2.5 px-3">Operador</th><th class="py-2.5 px-3">Motoboy</th><th class="py-2.5 px-3">Pagamento</th><th class="py-2.5 px-3 text-right">Valor</th><th class="py-2.5 px-3 text-center">Status</th></tr></thead>
-                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Filtrar histórico.</td></tr></tbody>
+                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Clique em Filtrar para carregar os registros.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -631,7 +631,6 @@
         function abrirConsultaHistorico() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            // Popula o seletor de operadores com a lista completa da tabela 'caixas'
             let opcoesCaixas = `<option value="TODOS">Todos</option>`;
             if (caixas.length > 0) {
                 opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
@@ -645,31 +644,67 @@
         }
 
         function abrirMinhasEntregasHoje() {
+            document.getElementById('histDataInicio').value = dataAtualFormatted;
+            document.getElementById('histDataFim').value = dataAtualFormatted;
             abrirConsultaHistorico();
         }
 
-        function executarConsultaHistorico() {
+        async function executarConsultaHistorico() {
             const dInicio = document.getElementById('histDataInicio').value;
             const dFim = document.getElementById('histDataFim').value;
             const motoboy = document.getElementById('histMotoboy').value;
             const operador = document.getElementById('histOperador').value;
 
-            resultadoConsultaGlobal = historico.filter(r => {
-                let match = true;
-                if (motoboy !== 'TODOS' && r.motoboy !== motoboy) match = false;
-                if (operador !== 'TODOS' && r.caixa !== operador) match = false;
-                return match;
-            });
-
             const tbody = document.getElementById('tbodyConsultaHistorico');
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Consultando banco...</td></tr>`;
+
+            let dadosEncontrados = [];
+
+            if (supabaseClient) {
+                try {
+                    let query = supabaseClient.from('entregas_farmassim').select('*');
+                    if (dInicio) query = query.gte('data', dInicio);
+                    if (dFim) query = query.lte('data', dFim);
+                    if (motoboy && motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
+                    if (operador && operador !== 'TODOS') query = query.eq('caixa', operador);
+
+                    const { data, error } = await query.order('created_at', { ascending: false });
+                    if (!error && data) {
+                        dadosEncontrados = data.map(item => ({
+                            id: item.id,
+                            data: item.data,
+                            hora: item.hora,
+                            caixa: item.caixa,
+                            coo: item.coo,
+                            valor: parseFloat(item.valor) || 0,
+                            motoboy: item.motoboy,
+                            formaPag: item.forma_pag,
+                            concluido: item.concluido
+                        }));
+                    }
+                } catch(e) { console.warn("Erro ao consultar histórico:", e); }
+            }
+
+            // Fallback para os dados locais caso não traga resultados do banco
+            if (dadosEncontrados.length === 0) {
+                dadosEncontrados = historico.filter(r => {
+                    let match = true;
+                    if (dInicio && r.data < dInicio) match = false;
+                    if (dFim && r.data > dFim) match = false;
+                    if (motoboy !== 'TODOS' && r.motoboy !== motoboy) match = false;
+                    if (operador !== 'TODOS' && r.caixa !== operador) match = false;
+                    return match;
+                });
+            }
+
             tbody.innerHTML = '';
             
-            if (resultadoConsultaGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Nenhum registro encontrado.</td></tr>`;
+            if (dadosEncontrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Nenhum registro encontrado no período selecionado.</td></tr>`;
                 return;
             }
 
-            resultadoConsultaGlobal.forEach(r => {
+            dadosEncontrados.forEach(r => {
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-slate-50">
                         <td class="py-2.5 px-3">${r.data} ${r.hora}</td>
