@@ -356,13 +356,26 @@
         </div>
     </div>
 
+    <!-- MODAL DE CADASTROS CORRIGIDO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <div><h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2">Motoboys</h4><div class="flex gap-2 mb-2"><input type="text" id="novoMotoboyNome" placeholder="Nome..." class="flex-1 border text-xs p-2 font-bold rounded-xl"><button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button></div><div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div></div>
+            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-gear"></i> Gerenciar Cadastros</h3>
+                <button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs bg-slate-200 rounded-xl">Fechar</button></div>
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Entregadores / Motoboys</h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <button onclick="cadastrarMotoboy()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
+                    </div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1"></div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end">
+                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -385,7 +398,13 @@
         } catch(e) { console.error("Erro init supabase", e); }
 
         let caixas = [];
-        let motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
+        let motoboys = [
+            { id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' },
+            { id: 2, nome: 'FERNANDO GOMES DA MOTA' },
+            { id: 3, nome: 'KAIKE SCHIBLSKI' },
+            { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' },
+            { id: 5, nome: 'MAURO MOKRESKI' }
+        ];
         let formasPagamento = [
             { id: 1, nome: 'Dinheiro', requerTroco: true },
             { id: 2, nome: 'Pix', requerTroco: false },
@@ -413,6 +432,8 @@
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
             atualizarSelects();
+            renderizarListasGerenciamento();
+            renderizarTabela();
             focarCampoPedido();
             sincronizarComSupabase();
         };
@@ -685,7 +706,6 @@
                 } catch(e) { console.warn("Erro ao consultar histórico:", e); }
             }
 
-            // Fallback para os dados locais caso não traga resultados do banco
             if (dadosEncontrados.length === 0) {
                 dadosEncontrados = historico.filter(r => {
                     let match = true;
@@ -721,7 +741,8 @@
         async function cadastrarMotoboy() {
             const nome = document.getElementById('novoMotoboyNome').value.trim();
             if (nome) {
-                motoboys.push({ id: Date.now(), nome });
+                const novoM = { id: Date.now(), nome };
+                motoboys.push(novoM);
                 document.getElementById('novoMotoboyNome').value = '';
                 atualizarSelects();
                 renderizarListasGerenciamento();
@@ -732,10 +753,27 @@
             }
         }
 
+        async function excluirMotoboy(id) {
+            if (!confirm("Deseja realmente remover este motoboy?")) return;
+            motoboys = motoboys.filter(m => m.id !== id);
+            atualizarSelects();
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('motoboys').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Motoboy removido!");
+        }
+
         function renderizarListasGerenciamento() {
             const div = document.getElementById('listaMotoboys');
             if (div) {
-                div.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+                div.innerHTML = motoboys.map(m => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${m.nome} 
+                        <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600 transition-all">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </span>`).join('');
             }
         }
 
