@@ -577,8 +577,8 @@
         window.onload = async function() {
             operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
             if (!operadorAtivo) {
-                window.location.href = 'index.html';
-                return;
+                operadorAtivo = prompt("Nome do operador não identificado na sessão. Por favor, digite seu nome:") || "Operador";
+                sessionStorage.setItem('farmassim_operador_logado', operadorAtivo);
             }
 
             const today = new Date();
@@ -646,7 +646,6 @@
 
             try {
                 let query = supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted);
-                if (operadorAtivo) { query = query.eq('caixa', operadorAtivo); }
 
                 const { data, error } = await query.order('created_at', { ascending: false });
                 if (error) throw error;
