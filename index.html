@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-100">
+<html lang="pt-BR" class="h-full bg-slate-100" id="htmlRoot">
 <head>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23006B2B'/><text x='50' y='68' font-family='Inter, sans-serif' font-weight='900' font-size='55' fill='%23FFFFFF' text-anchor='middle'>F</text><polygon points='65,30 72,42 58,42' fill='%23ffd700'/></svg>">
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -69,34 +70,34 @@
         }
     </style>
 </head>
-<body class="font-sans antialiased h-full text-slate-800 flex flex-col min-h-screen">
+<body class="font-sans antialiased h-full text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-950 flex flex-col min-h-screen transition-colors duration-200">
 
     <!-- MODAL DE LOGIN POR NÚMERO E SENHA INTEGRADO AO PDV -->
     <div id="modalSelecaoOperadorInicial" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-5 text-center flex flex-col justify-between">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 space-y-5 text-center flex flex-col justify-between">
             <div class="space-y-4">
-                <div class="bg-farmassim-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-farmassim-600">
+                <div class="bg-farmassim-100 dark:bg-farmassim-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-farmassim-600 dark:text-farmassim-400">
                     <i class="fa-solid fa-user-lock text-3xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-xl font-black text-slate-800">Portal Restrito Farmassim</h2>
-                    <p class="text-xs text-slate-500 mt-1">Insira suas credenciais do PDV A7Pharma para acessar o sistema.</p>
+                    <h2 class="text-xl font-black text-slate-800 dark:text-white">Portal Restrito Farmassim</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Insira suas credenciais do PDV A7Pharma para acessar o sistema.</p>
                 </div>
                 
                 <div class="space-y-3 text-left">
                     <div>
-                        <label for="inputUsuarioID" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        <label for="inputUsuarioID" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                             <i class="fa-solid fa-hashtag text-farmassim-600 mr-1"></i> Número do Usuário (PDV)
                         </label>
-                        <input type="text" id="inputUsuarioID" placeholder="Ex: 488, 4, 17" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                        <input type="text" id="inputUsuarioID" placeholder="Ex: 488, 4, 17" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
                     </div>
                     <div>
-                        <label for="inputSenha" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        <label for="inputSenha" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                             <i class="fa-solid fa-key text-farmassim-600 mr-1"></i> Senha
                         </label>
-                        <input type="password" id="inputSenha" placeholder="••••" onkeydown="if(event.key === 'Enter') confirmarOperadorInicial()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                        <input type="password" id="inputSenha" placeholder="••••" onkeydown="if(event.key === 'Enter') confirmarOperadorInicial()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
                     </div>
-                    <div id="loginErrorMsg" class="hidden text-xs font-bold text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 text-center">
+                    <div id="loginErrorMsg" class="hidden text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 p-2.5 rounded-lg border border-rose-200 dark:border-rose-900 text-center">
                         Usuário ou senha incorretos!
                     </div>
                 </div>
@@ -106,7 +107,7 @@
                 </button>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 text-[11px] font-medium text-slate-400">
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-medium text-slate-400">
                 Emerson de França - 2026
             </div>
         </div>
@@ -114,30 +115,30 @@
 
     <!-- MODAL DO QR CODE DA WIFI -->
     <div id="modalWifi" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-4 text-center">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-black text-slate-800 text-base flex items-center gap-2">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 space-y-4 text-center">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-black text-slate-800 dark:text-white text-base flex items-center gap-2">
                     <i class="fa-solid fa-wifi text-farmassim-600"></i> Wi-Fi Farmácia
                 </h3>
                 <button onclick="fecharModalWifi()" class="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-left">
-                <div><span class="text-slate-500 font-bold">Rede:</span> <span class="font-black text-slate-800">Farmassim 24hrs</span></div>
-                <div><span class="text-slate-500 font-bold">Senha:</span> <span class="font-black text-emerald-700 font-mono select-all">Farmassim24hrs@</span></div>
+            <div class="space-y-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-left">
+                <div><span class="text-slate-500 dark:text-slate-400 font-bold">Rede:</span> <span class="font-black text-slate-800 dark:text-white">Farmassim 24hrs</span></div>
+                <div><span class="text-slate-500 dark:text-slate-400 font-bold">Senha:</span> <span class="font-black text-emerald-700 dark:text-emerald-400 font-mono select-all">Farmassim24hrs@</span></div>
             </div>
 
-            <div class="flex justify-center p-2 bg-white rounded-xl border border-slate-200">
+            <div class="flex justify-center p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                 <img id="imgQrcodeWifiModal" src="" alt="QR Code Wi-Fi" class="w-40 h-40 object-contain" />
             </div>
 
-            <p class="text-[11px] text-slate-500">Aponte a câmara do telemóvel para conectar automaticamente à rede.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Aponte a câmara do telemóvel para conectar automaticamente à rede.</p>
 
             <div class="flex gap-2 pt-2">
                 <button onclick="imprimirWifiTermico()" class="flex-1 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-print"></i> Imprimir Senha
                 </button>
-                <button onclick="fecharModalWifi()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                <button onclick="fecharModalWifi()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">
                     Fechar
                 </button>
             </div>
@@ -146,9 +147,9 @@
 
     <!-- MODAL DE DIVERGÊNCIA DE PREÇO -->
     <div id="modalDivergencia" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-4 text-left">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-black text-slate-800 text-base flex items-center gap-2">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 space-y-4 text-left">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="font-black text-slate-800 dark:text-white text-base flex items-center gap-2">
                     <i class="fa-solid fa-tags text-rose-600"></i> Relatório de Divergência de Preço
                 </h3>
                 <button onclick="fecharModalDivergencia()" class="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"><i class="fa-solid fa-xmark"></i></button>
@@ -156,33 +157,33 @@
 
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Código de Barras (EAN):</label>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Código de Barras (EAN):</label>
                     <input type="text" id="divCodBarras" placeholder="Bipe ou digite o código de barras" 
-                           class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-bold">
+                           class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-bold">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nome do Produto:</label>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Nome do Produto:</label>
                     <input type="text" id="divNomeProduto" placeholder="Ex: Shampoo Pantene, etc" 
-                           class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-bold">
+                           class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-bold">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-rose-700 uppercase mb-1">Preço na Prateleira (R$):</label>
+                        <label class="block text-xs font-bold text-rose-700 dark:text-rose-400 uppercase mb-1">Preço na Prateleira (R$):</label>
                         <input type="number" id="divPrecoPrateleira" step="0.01" min="0" placeholder="0,00" oninput="calcularDivergencia()"
-                               class="w-full bg-rose-50/50 border border-rose-200 text-rose-900 text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-black">
+                               class="w-full bg-rose-50/50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-sm rounded-xl focus:ring-rose-500 focus:border-rose-500 p-2.5 font-black">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Preço no Sistema (R$):</label>
+                        <label class="block text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase mb-1">Preço no Sistema (R$):</label>
                         <input type="number" id="divPrecoSistema" step="0.01" min="0" placeholder="0,00" oninput="calcularDivergencia()"
-                               class="w-full bg-emerald-50/50 border border-emerald-200 text-emerald-900 text-sm rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-2.5 font-black">
+                               class="w-full bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-sm rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-2.5 font-black">
                     </div>
                 </div>
 
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
-                    <span class="font-bold text-slate-600">Diferença de Valor:</span>
-                    <span id="divDiferenca" class="font-black text-sm text-slate-800">R$ 0,00</span>
+                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-600 dark:text-slate-400">Diferença de Valor:</span>
+                    <span id="divDiferenca" class="font-black text-sm text-slate-800 dark:text-white">R$ 0,00</span>
                 </div>
             </div>
 
@@ -190,7 +191,7 @@
                 <button onclick="imprimirDivergenciaTermico()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-print"></i> Imprimir Comprovante de Divergência
                 </button>
-                <button onclick="fecharModalDivergencia()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                <button onclick="fecharModalDivergencia()" class="px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">
                     Fechar
                 </button>
             </div>
@@ -198,7 +199,7 @@
     </div>
 
     <!-- CABEÇALHO PADRONIZADO LIMPO COM SAUDAÇÃO CENTRALIZADA -->
-    <header id="mainHeader" class="hidden bg-farmassim-600/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20">
+    <header id="mainHeader" class="hidden bg-farmassim-600/95 dark:bg-slate-900/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
                 
@@ -210,14 +211,17 @@
                 </div>
 
                 <!-- Centro: Saudação e Nome do Operador Ativo -->
-                <div class="flex items-center justify-center bg-farmassim-700/40 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 shadow-inner">
-                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 font-medium flex items-center gap-2">
+                <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-slate-800 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-slate-700 shadow-inner">
+                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-slate-200 font-medium flex items-center gap-2">
                         <i class="fa-solid fa-user-doctor text-farmassimYellow-400"></i> Carregando...
                     </p>
                 </div>
 
-                <!-- Lado Direito: Ações e Botões Compactos -->
+                <!-- Lado Direito: Ações e Botões Compactos (Incluindo Botão Dark Mode Discreto) -->
                 <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
+                    <button onclick="alternarDarkMode()" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-farmassim-500/30 dark:border-slate-700" title="Alternar Modo Escuro">
+                        <i id="darkModeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
+                    </button>
                     <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Sair">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
@@ -229,92 +233,92 @@
     <!-- CONTEÚDO PRINCIPAL: GRADE DE SISTEMAS / PÁGINAS -->
     <main id="mainContent" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div class="text-center space-y-2">
-            <h2 class="text-2xl sm:text-3xl font-black text-slate-800">Escolha o Sistema Desejado</h2>
-            <p class="text-sm text-slate-500 font-medium">Selecione abaixo qual ferramenta da farmácia você deseja acessar neste momento.</p>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">Escolha o Sistema Desejado</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Selecione abaixo qual ferramenta da farmácia você deseja acessar neste momento.</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
             
             <!-- Cartão 1: Sistema de Entregas -->
-            <a href="entrega.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+            <a href="entrega.html" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-farmassim-100 rounded-2xl flex items-center justify-center text-farmassim-600 text-2xl group-hover:bg-farmassim-600 group-hover:text-white transition-all shadow-inner">
+                    <div class="w-14 h-14 bg-farmassim-100 dark:bg-farmassim-900/50 rounded-2xl flex items-center justify-center text-farmassim-600 dark:text-farmassim-400 text-2xl group-hover:bg-farmassim-600 group-hover:text-white transition-all shadow-inner">
                         <i class="fa-solid fa-truck-fast"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 group-hover:text-farmassim-700 transition-colors">Sistema de Entregas</h3>
-                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Controle e gestão de pedidos e motoboys em tempo real.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white group-hover:text-farmassim-700 dark:group-hover:text-farmassim-400 transition-colors">Sistema de Entregas</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">Controle e gestão de pedidos e motoboys em tempo real.</p>
                     </div>
                 </div>
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-farmassim-600">
+                <div class="pt-6 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-farmassim-600 dark:text-farmassim-400">
                     <span>Acessar Módulo</span>
                     <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
             <!-- Cartão 2: Fechamento de Caixa -->
-            <a href="fechamento.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+            <a href="fechamento.html" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
+                    <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/50 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
                         <i class="fa-solid fa-file-invoice-dollar"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 group-hover:text-emerald-700 transition-colors">Fechamento de Caixa</h3>
-                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Controle de sangrias, suprimentos, contagem inteligente e balanço de gaveta.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Fechamento de Caixa</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">Controle de sangrias, suprimentos, contagem inteligente e balanço de gaveta.</p>
                     </div>
                 </div>
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+                <div class="pt-6 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
                     <span>Acessar Módulo</span>
                     <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
             <!-- Cartão 3: Consulta Código Rápido -->
-            <a href="codigos.html" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
+            <a href="codigos.html" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-farmassim-500 hover:shadow-xl transition-all flex flex-col justify-between group">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-2xl group-hover:bg-amber-600 group-hover:text-white transition-all shadow-inner">
+                    <div class="w-14 h-14 bg-amber-100 dark:bg-amber-950/50 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400 text-2xl group-hover:bg-amber-600 group-hover:text-white transition-all shadow-inner">
                         <i class="fa-solid fa-barcode"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 group-hover:text-amber-700 transition-colors">Consulta Código Rápido</h3>
-                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Consulta ágil de códigos, produtos e referências rápidas.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">Consulta Código Rápido</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">Consulta ágil de códigos, produtos e referências rápidas.</p>
                     </div>
                 </div>
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-600">
+                <div class="pt-6 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
                     <span>Acessar Módulo</span>
                     <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
             <!-- Cartão 4: Wi-Fi da Farmácia -->
-            <div onclick="abrirModalWifi()" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-sky-500 hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer">
+            <div onclick="abrirModalWifi()" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-sky-500 hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-sky-600 text-2xl group-hover:bg-sky-600 group-hover:text-white transition-all shadow-inner">
+                    <div class="w-14 h-14 bg-sky-100 dark:bg-sky-950/50 rounded-2xl flex items-center justify-center text-sky-600 dark:text-sky-400 text-2xl group-hover:bg-sky-600 group-hover:text-white transition-all shadow-inner">
                         <i class="fa-solid fa-wifi"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 group-hover:text-sky-700 transition-colors">Wi-Fi da Farmácia</h3>
-                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Gere o QR Code para conectar clientes e equipe na rede Wi-Fi.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white group-hover:text-sky-700 dark:group-hover:text-sky-400 transition-colors">Wi-Fi da Farmácia</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">Gere o QR Code para conectar clientes e equipe na rede Wi-Fi.</p>
                     </div>
                 </div>
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-600">
+                <div class="pt-6 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-sky-600 dark:text-sky-400">
                     <span>Gerar QR Code Wi-Fi</span>
                     <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </div>
 
             <!-- Cartão 5: Divergência de Preço -->
-            <div onclick="abrirModalDivergencia()" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 hover:border-rose-500 hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer">
+            <div onclick="abrirModalDivergencia()" class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 hover:border-rose-500 hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer">
                 <div class="space-y-4">
-                    <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 text-2xl group-hover:bg-rose-600 group-hover:text-white transition-all shadow-inner">
+                    <div class="w-14 h-14 bg-rose-100 dark:bg-rose-950/50 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 text-2xl group-hover:bg-rose-600 group-hover:text-white transition-all shadow-inner">
                         <i class="fa-solid fa-tags"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 group-hover:text-rose-700 transition-colors">Divergência de Preço</h3>
-                        <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Relatório e impressão de produtos com preço divergente na gôndola.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white group-hover:text-rose-700 dark:group-hover:text-rose-400 transition-colors">Divergência de Preço</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">Relatório e impressão de produtos com preço divergente na gôndola.</p>
                     </div>
                 </div>
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-rose-600">
+                <div class="pt-6 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400">
                     <span>Registrar Divergência</span>
                     <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
                 </div>
@@ -323,7 +327,7 @@
         </div>
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
+    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
@@ -344,7 +348,28 @@
             console.error("Erro ao inicializar Supabase:", e);
         }
 
+        function aplicarDarkModeSalvo() {
+            const isDark = localStorage.getItem('farmassim_dark_mode') === 'true';
+            if (isDark) {
+                document.getElementById('htmlRoot').classList.add('dark');
+                const icon = document.getElementById('darkModeIcon');
+                if (icon) icon.className = "fa-solid fa-sun text-farmassimYellow-400";
+            }
+        }
+
+        function alternarDarkMode() {
+            const html = document.getElementById('htmlRoot');
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('farmassim_dark_mode', isDark);
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                icon.className = isDark ? "fa-solid fa-sun text-farmassimYellow-400" : "fa-solid fa-moon text-farmassimYellow-400";
+            }
+        }
+
         window.onload = function() {
+            aplicarDarkModeSalvo();
             const operadorSalvo = sessionStorage.getItem('farmassim_operador_logado');
             if (operadorSalvo) {
                 liberarPortal(operadorSalvo);
@@ -409,9 +434,9 @@
             const dif = sist - prat;
             const elDif = document.getElementById('divDiferenca');
             elDif.innerText = (dif >= 0 ? "+ " : "") + dif.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            if (dif > 0) elDif.className = "font-black text-sm text-emerald-700";
-            else if (dif < 0) elDif.className = "font-black text-sm text-rose-700";
-            else elDif.className = "font-black text-sm text-slate-800";
+            if (dif > 0) elDif.className = "font-black text-sm text-emerald-700 dark:text-emerald-400";
+            else if (dif < 0) elDif.className = "font-black text-sm text-rose-700 dark:text-rose-400";
+            else elDif.className = "font-black text-sm text-slate-800 dark:text-white";
         }
 
         function imprimirDivergenciaTermico() {

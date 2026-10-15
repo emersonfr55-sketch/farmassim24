@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full">
+<html lang="pt-BR" class="h-full" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -41,10 +42,10 @@
         }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-200">
 
     <!-- CABEÇALHO PADRONIZADO LIMPO COM SAUDAÇÃO CENTRALIZADA -->
-    <header class="bg-farmassim-600/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20">
+    <header class="bg-farmassim-600/95 dark:bg-slate-900/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
                 
@@ -56,35 +57,39 @@
                 </div>
 
                 <!-- Centro: Saudação e Nome do Operador Ativo -->
-                <div class="flex items-center justify-center bg-farmassim-700/40 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 shadow-inner">
-                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 font-medium flex items-center gap-2">
+                <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-slate-800 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-slate-700 shadow-inner">
+                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-slate-200 font-medium flex items-center gap-2">
                         <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Carregando...
                     </p>
                 </div>
 
                 <!-- Lado Direito: Ações e Botões Compactos -->
                 <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
-                    <a href="index.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Portal">
+                    <a href="index.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Portal">
                         <i class="fa-solid fa-house text-farmassimYellow-400"></i> <span class="hidden sm:inline">Portal</span>
                     </a>
-                    <a href="entrega.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Entregas">
+                    <a href="entrega.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Entregas">
                         <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> <span class="hidden sm:inline">Entregas</span>
                     </a>
-                    <a href="fechamento.html" class="bg-farmassim-700/80 hover:bg-farmassim-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Fechamento">
+                    <a href="fechamento.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Fechamento">
                         <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> <span class="hidden sm:inline">Fechamento</span>
                     </a>
 
-                    <div id="statusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/40 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/20 cursor-default">
+                    <div id="statusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/40 dark:bg-slate-800 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/20 dark:border-slate-700 cursor-default">
                         <span id="statusDb" class="flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Conectando...
                         </span>
                     </div>
 
-                    <button onclick="app.abrirPainelAdmin()" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all hover:scale-[1.02] active:scale-95" title="Painel de Gestão">
+                    <button onclick="app.abrirPainelAdmin()" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all" title="Painel de Gestão">
                         <i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">Painel</span>
                     </button>
+
+                    <button onclick="alternarDarkMode()" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-farmassim-500/30 dark:border-slate-700" title="Alternar Modo Escuro">
+                        <i id="darkModeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
+                    </button>
                     
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Sair">
+                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Sair">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -94,7 +99,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
         
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 transition-all">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 transition-all">
             <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-layer-group text-emerald-600"></i>
                 <span>Categorias de Acesso Rápido</span>
@@ -102,7 +107,7 @@
             <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin" id="categoryFilters"></div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 transition-all">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 transition-all">
             <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
                 <div class="relative w-full lg:w-96">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -110,13 +115,13 @@
                     </span>
                     <input type="text" id="searchInput"
                         placeholder="Pesquisar por nome ou código do produto..."
-                        class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-inner">
+                        class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-inner">
                     <button id="clearSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 hidden">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 self-end lg:self-auto shrink-0">
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 self-end lg:self-auto shrink-0">
                     <button onclick="app.setViewMode('grid')" id="gridBtn"
                         class="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs" title="Visualização em Grade (Cards)">
                         <i class="fa-solid fa-grip"></i>
@@ -130,21 +135,21 @@
                 </div>
             </div>
 
-            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-slate-500">
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                 <div class="flex items-center gap-2">
-                    <span class="font-semibold text-slate-700" id="productCount">0</span> produtos encontrados
+                    <span class="font-semibold text-slate-700 dark:text-white" id="productCount">0</span> produtos encontrados
                 </div>
             </div>
         </div>
 
         <div id="productContainer"></div>
 
-        <div id="emptyState" class="hidden flex flex-col items-center justify-center p-12 text-center bg-white rounded-2xl border border-slate-200/80 my-auto">
-            <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-2xl mb-4 border border-emerald-100">
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 my-auto">
+            <div class="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/50 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl mb-4 border border-emerald-100 dark:border-emerald-900">
                 <i class="fa-solid fa-box-open"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-700 mb-1">Nenhum produto encontrado</h3>
-            <p class="text-sm text-slate-500 max-w-sm mb-4">Não encontramos nenhum item correspondente à sua busca.</p>
+            <h3 class="text-lg font-bold text-slate-700 dark:text-white mb-1">Nenhum produto encontrado</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-4">Não encontramos nenhum item correspondente à sua busca.</p>
             <button onclick="app.resetFilters()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition shadow-sm">
                 Ver todos os produtos
             </button>
@@ -154,8 +159,8 @@
 
     <!-- PAINEL DE GESTÃO (MODAL ADMIN PARA PRODUTOS E CATEGORIAS) -->
     <div id="modalAdmin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-emerald-800 text-white shrink-0">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 my-8 flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-emerald-800 text-white shrink-0">
                 <h3 class="font-bold text-sm flex items-center gap-2">
                     <i class="fa-solid fa-gear text-amber-300"></i> Painel de Gestão: Produtos e Categorias
                 </h3>
@@ -166,60 +171,60 @@
 
             <div class="p-6 overflow-y-auto space-y-6">
                 <!-- Seção 1: Cadastrar / Editar Produto -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <h4 class="text-xs font-black uppercase text-emerald-800 mb-3 flex items-center gap-1.5">
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-plus-circle"></i> <span id="tituloFormProduto">Cadastrar Novo Produto</span>
                     </h4>
                     <form id="formProduto" onsubmit="app.salvarProduto(event)" class="space-y-3">
                         <input type="hidden" id="adminProdId">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Nome do Produto *</label>
-                                <input type="text" id="adminNome" required placeholder="Ex: ESMALTE..." class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold focus:ring-emerald-500">
+                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Nome do Produto *</label>
+                                <input type="text" id="adminNome" required placeholder="Ex: ESMALTE..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold focus:ring-emerald-500">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Código de Barras *</label>
-                                <input type="text" id="adminCodigo" required placeholder="Ex: 014562" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-mono font-bold focus:ring-emerald-500">
+                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Código de Barras *</label>
+                                <input type="text" id="adminCodigo" required placeholder="Ex: 014562" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-mono font-bold focus:ring-emerald-500">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Categoria *</label>
-                            <select id="adminCategoria" required class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold focus:ring-emerald-500"></select>
+                            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Categoria *</label>
+                            <select id="adminCategoria" required class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold focus:ring-emerald-500"></select>
                         </div>
                         <div class="flex justify-end gap-2 pt-2">
-                            <button type="button" onclick="app.limparFormProduto()" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Limpar</button>
+                            <button type="button" onclick="app.limparFormProduto()" class="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-xl">Limpar</button>
                             <button type="submit" class="px-4 py-1.5 text-xs font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-500 rounded-xl shadow-sm">Salvar Produto</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Seção 2: Criar Nova Categoria -->
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <h4 class="text-xs font-black uppercase text-emerald-800 mb-3 flex items-center gap-1.5">
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-folder-plus"></i> Criar Nova Categoria
                     </h4>
                     <form onsubmit="app.criarCategoria(event)" class="flex gap-2">
-                        <input type="text" id="novaCategoriaNome" required placeholder="Ex: PERFUMARIA" class="flex-1 bg-white border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-bold uppercase focus:ring-emerald-500">
+                        <input type="text" id="novaCategoriaNome" required placeholder="Ex: PERFUMARIA" class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold uppercase focus:ring-emerald-500">
                         <button type="submit" class="px-4 py-2 text-xs font-extrabold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm">Adicionar Categoria</button>
                     </form>
                 </div>
 
                 <!-- Seção 3: Listagem Completa para Gerir -->
                 <div>
-                    <h4 class="text-xs font-black uppercase text-slate-700 mb-2">Lista de Produtos Cadastrados</h4>
-                    <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-xl bg-white divide-y divide-slate-100 text-xs">
-                        <div id="adminListaProdutos" class="divide-y divide-slate-100"></div>
+                    <h4 class="text-xs font-black uppercase text-slate-700 dark:text-slate-300 mb-2">Lista de Produtos Cadastrados</h4>
+                    <div class="max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                        <div id="adminListaProdutos" class="divide-y divide-slate-100 dark:divide-slate-800"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
-                <button type="button" onclick="app.fecharPainelAdmin()" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-200 rounded-xl">Fechar Painel</button>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end shrink-0">
+                <button type="button" onclick="app.fecharPainelAdmin()" class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 rounded-xl">Fechar Painel</button>
             </div>
         </div>
     </div>
 
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-600 shadow-inner">
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 mt-auto text-center text-xs text-slate-600 dark:text-slate-400 shadow-inner">
         <div class="max-w-7xl mx-auto px-4 font-semibold tracking-wide">
             Desenvolvido por Emerson de França - 2026
         </div>
@@ -248,7 +253,28 @@
             console.error("Erro Supabase:", e);
         }
 
+        function aplicarDarkModeSalvo() {
+            const isDark = localStorage.getItem('farmassim_dark_mode') === 'true';
+            if (isDark) {
+                document.getElementById('htmlRoot').classList.add('dark');
+                const icon = document.getElementById('darkModeIcon');
+                if (icon) icon.className = "fa-solid fa-sun text-farmassimYellow-400";
+            }
+        }
+
+        function alternarDarkMode() {
+            const html = document.getElementById('htmlRoot');
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('farmassim_dark_mode', isDark);
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                icon.className = isDark ? "fa-solid fa-sun text-farmassimYellow-400" : "fa-solid fa-moon text-farmassimYellow-400";
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            aplicarDarkModeSalvo();
             const operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
             if (!operadorAtivo) {
                 window.location.href = 'index.html';
@@ -274,11 +300,12 @@
 
         const CATEGORY_CONFIG_DEFAULT = {
             'TODOS': { emoji: '✨', bg: 'bg-emerald-500 text-white' },
-            'UNHAS': { emoji: '💅', bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200' },
-            'SOBRANCELHA': { emoji: '👁️', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
-            'DOCES': { emoji: '🍬', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
-            'MEDICAMENTOS': { emoji: '💊', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
-            'DIVERSOS': { emoji: '📦', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200' }
+            'MAIS BUSCADOS': { emoji: '🔥', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-900' },
+            'UNHAS': { emoji: '💅', bg: 'bg-pink-50 dark:bg-pink-950/40', text: 'text-pink-700 dark:text-pink-300', border: 'border-pink-200 dark:border-pink-900' },
+            'SOBRANCELHA': { emoji: '👁️', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-900' },
+            'DOCES': { emoji: '🍬', bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-900' },
+            'MEDICAMENTOS': { emoji: '💊', bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-900' },
+            'DIVERSOS': { emoji: '📦', bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-800 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-900' }
         };
 
         class ProductApp {
@@ -289,6 +316,7 @@
                 this.searchQuery = '';
                 this.viewMode = localStorage.getItem('pdv_view_mode') || 'grid';
                 this.toastTimeout = null;
+                this.recentClicks = JSON.parse(localStorage.getItem('farmassim_recent_clicks')) || {};
 
                 this.initElements();
                 this.initCategoriesUI();
@@ -425,16 +453,16 @@
                     return;
                 }
                 container.innerHTML = this.products.map(p => `
-                    <div class="p-2.5 flex items-center justify-between hover:bg-slate-50">
+                    <div class="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800">
                         <div>
-                            <span class="font-bold text-slate-800">${p.name}</span>
-                            <div class="text-[10px] text-slate-500 font-mono">Cód: ${p.code} • <span class="uppercase font-bold text-emerald-700">${p.category}</span></div>
+                            <span class="font-bold text-slate-800 dark:text-white">${p.name}</span>
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Cód: ${p.code} • <span class="uppercase font-bold text-emerald-700 dark:text-emerald-400">${p.category}</span></div>
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="app.preencherEdicao('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.code}', '${p.category}')" class="px-2.5 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg font-bold" title="Editar">
+                            <button type="button" onclick="app.preencherEdicao('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.code}', '${p.category}')" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 rounded-lg font-bold" title="Editar">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button type="button" onclick="app.excluirProduto('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg font-bold" title="Excluir">
+                            <button type="button" onclick="app.excluirProduto('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 rounded-lg font-bold" title="Excluir">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
@@ -443,9 +471,9 @@
             }
 
             initCategoriesUI() {
-                const list = ['TODOS', ...this.categories];
+                const list = ['TODOS', 'MAIS BUSCADOS', ...this.categories];
                 this.categoryFiltersContainer.innerHTML = list.map(cat => {
-                    const cfg = CATEGORY_CONFIG_DEFAULT[cat] || { emoji: '🏷️', bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' };
+                    const cfg = CATEGORY_CONFIG_DEFAULT[cat] || { emoji: '🏷️', bg: 'bg-slate-50 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-700' };
                     const isSelected = this.currentCategory === cat;
                     let btnClasses = isSelected ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-105" : `${cfg.bg || 'bg-slate-50'} ${cfg.text || 'text-slate-700'} ${cfg.border || 'border-slate-200'} hover:shadow-sm`;
                     return `
@@ -489,11 +517,11 @@
 
             updateViewModeUI() {
                 if (this.viewMode === 'grid') {
-                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white text-emerald-800 border border-slate-200 shadow-sm";
-                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 hover:text-slate-700";
+                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
+                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
                 } else {
-                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white text-emerald-800 border border-slate-200 shadow-sm";
-                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 hover:text-slate-700";
+                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
+                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
                 }
             }
 
@@ -507,6 +535,16 @@
             }
 
             filterProducts() {
+                if (this.currentCategory === 'MAIS BUSCADOS') {
+                    const sortedCodes = Object.keys(this.recentClicks).sort((a, b) => this.recentClicks[b] - this.recentClicks[a]);
+                    const matched = [];
+                    sortedCodes.forEach(code => {
+                        const prod = this.products.find(p => p.code === code);
+                        if (prod && !matched.includes(prod)) matched.push(prod);
+                    });
+                    return matched.filter(p => p.name.toLowerCase().includes(this.searchQuery) || p.code.toLowerCase().includes(this.searchQuery));
+                }
+
                 return this.products.filter(p => {
                     const matchesCategory = this.currentCategory === 'TODOS' || p.category === this.currentCategory;
                     const matchesSearch = p.name.toLowerCase().includes(this.searchQuery) || p.code.toLowerCase().includes(this.searchQuery);
@@ -514,7 +552,13 @@
                 });
             }
 
+            registrarClique(code) {
+                this.recentClicks[code] = (this.recentClicks[code] || 0) + 1;
+                localStorage.setItem('farmassim_recent_clicks', JSON.stringify(this.recentClicks));
+            }
+
             copyToClipboard(code, name, btnElement) {
+                this.registrarClique(code);
                 const textArea = document.createElement("textarea");
                 textArea.value = code;
                 textArea.style.position = "fixed";
@@ -543,7 +587,7 @@
                 
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
-                    btn.className = "px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs shrink-0";
+                    btn.className = "px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs shrink-0";
                 }, 1200);
             }
 
@@ -581,28 +625,28 @@
                             ${filtered.map((p, index) => {
                                 const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
                                 return `
-                                    <div class="group bg-white rounded-2xl p-4 border border-slate-200/80 hover:border-emerald-500/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-3 animate-fade-in" style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
+                                    <div class="group bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-3 animate-fade-in" style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
                                         <div>
                                             <div class="flex items-center justify-between gap-2 mb-2">
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-semibold rounded-full border border-emerald-100 tracking-wide uppercase">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-[11px] font-semibold rounded-full border border-emerald-100 dark:border-emerald-900 tracking-wide uppercase">
                                                     <span>${cfg.emoji}</span>
                                                     <span>${p.category}</span>
                                                 </span>
-                                                <span class="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                                                <span class="text-xs font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                                                     #${p.code}
                                                 </span>
                                             </div>
-                                            <h3 class="font-semibold text-slate-800 text-sm leading-snug group-hover:text-emerald-700 transition line-clamp-2">
+                                            <h3 class="font-semibold text-slate-800 dark:text-white text-sm leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition line-clamp-2">
                                                 ${p.name}
                                             </h3>
                                         </div>
                                         
-                                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                                            <div class="font-mono font-bold text-emerald-800 text-sm bg-slate-50 px-2.5 py-1 rounded border border-slate-200/60 select-all">
+                                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                                            <div class="font-mono font-bold text-emerald-800 dark:text-emerald-400 text-sm bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded border border-slate-200/60 dark:border-slate-700 select-all">
                                                 ${p.code}
                                             </div>
-                                            <button onclick="app.copyCode('${p.code}', '${p.name}', this)" 
-                                                class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600">
+                                            <button onclick="app.copyCode('${p.code}', '${p.name.replace(/'/g, "\\'")}', this)" 
+                                                class="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600">
                                                 <i class="fa-regular fa-copy"></i>
                                                 <span>Copiar</span>
                                             </button>
@@ -614,33 +658,33 @@
                     `;
                 } else {
                     this.productContainer.innerHTML = `
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden animate-fade-in">
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden animate-fade-in">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                                        <tr class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold">
                                             <th class="py-3 px-4">Produto</th>
                                             <th class="py-3 px-4">Categoria</th>
                                             <th class="py-3 px-4 font-mono">Código</th>
                                             <th class="py-3 px-4 text-right">Ação</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                                         ${filtered.map((p) => {
                                             const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
                                             return `
-                                                <tr class="hover:bg-emerald-50/40 transition-colors">
-                                                    <td class="py-3 px-4 font-medium text-slate-800">${p.name}</td>
+                                                <tr class="hover:bg-emerald-50/40 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td class="py-3 px-4 font-medium text-slate-800 dark:text-white">${p.name}</td>
                                                     <td class="py-3 px-4">
-                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-medium rounded-full border border-emerald-100 uppercase">
+                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium rounded-full border border-emerald-100 dark:border-emerald-900 uppercase">
                                                             <span>${cfg.emoji}</span>
                                                             <span>${p.category}</span>
                                                         </span>
                                                     </td>
-                                                    <td class="py-3 px-4 font-mono font-bold text-emerald-800 select-all">${p.code}</td>
+                                                    <td class="py-3 px-4 font-mono font-bold text-emerald-800 dark:text-emerald-400 select-all">${p.code}</td>
                                                     <td class="py-3 px-4 text-right">
-                                                        <button onclick="app.copyCode('${p.code}', '${p.name}', this)" 
-                                                            class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-600 shadow-xs">
+                                                        <button onclick="app.copyCode('${p.code}', '${p.name.replace(/'/g, "\\'")}', this)" 
+                                                            class="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs">
                                                             <i class="fa-regular fa-copy"></i>
                                                             <span>Copiar</span>
                                                         </button>
