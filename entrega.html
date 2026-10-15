@@ -44,7 +44,7 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 bg-slate-100 flex flex-col min-h-screen">
 
-    <!-- CABEÇALHO -->
+    <!-- CABEÇALHO PADRONIZADO E LIMPO -->
     <header class="bg-farmassim-600 text-white shadow-lg sticky top-0 z-40 border-b-4 border-farmassimYellow-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
@@ -75,22 +75,19 @@
                         <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Códigos
                     </a>
 
-                    <div id="btnStatusDbDiscreto" title="Status da Conexão" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
+                    <div id="btnStatusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/60 hover:bg-farmassim-700 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/30 transition-all cursor-default">
                         <span id="badgeStatusSupabase" class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Iniciando...
+                            <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Conectando...
                         </span>
                     </div>
 
-                    <button onclick="abrirMinhasEntregasHoje()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
-                        <i class="fa-solid fa-calendar-day text-farmassimYellow-400"></i> Minhas Entregas Hoje
-                    </button>
                     <button onclick="abrirConsultaHistorico()" class="bg-farmassim-700 hover:bg-farmassim-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-farmassim-500/50 transition-all">
                         <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico
                     </button>
                     <button onclick="openModal('modalCadastros')" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all">
                         <i class="fa-solid fa-gear"></i> Cadastros
                     </button>
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all">
+                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md border border-rose-500/50 transition-all" title="Sair do Portal">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
@@ -115,7 +112,7 @@
                     <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento
                 </h2>
                 <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 text-farmassim-800 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200">
-                    Operador: ...
+                    Operador: Carregando...
                 </span>
             </div>
 
@@ -197,7 +194,7 @@
             </form>
         </section>
 
-        <!-- CARDS DE RESUMO -->
+        <!-- CARDS DE RESUMO DO DIA -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                 <div>
@@ -245,12 +242,14 @@
             </div>
         </section>
 
-        <!-- TABELA -->
+        <!-- TABELA DE ENTREGAS DO DIA -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50">
-                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas de Hoje
-                </h2>
+                <div class="flex items-center gap-3">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-farmassim-600"></i> Entregas de Hoje
+                    </h2>
+                </div>
 
                 <div class="flex-1 max-w-md flex items-center gap-2">
                     <div class="relative flex-1">
@@ -264,6 +263,7 @@
                         <i id="iconeToggleConcluidas" class="fa-solid fa-eye text-farmassim-600"></i>
                         <span id="txtToggleConcluidas">Ocultar Concluídas</span>
                     </button>
+
                     <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 bg-farmassim-50 hover:bg-farmassim-100 border border-farmassim-200 rounded-xl transition-all">
                         <i class="fa-solid fa-file-excel"></i> Exportar
                     </button>
@@ -296,202 +296,332 @@
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
-    <!-- MODAIS -->
+    <!-- MODAL PAGAMENTO MISTO (NOVO LANÇAMENTO) -->
     <div id="modalAddMisto" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
-                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Misto</h3>
-                <button onclick="closeModal('modalAddMisto')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Misto (2 Formas)
+                </h3>
+                <button onclick="closeModal('modalAddMisto')" class="text-white/80 hover:text-white rounded-lg p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
             <div class="p-5 space-y-3">
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label><select id="addMistoForma1" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label><input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label>
+                        <select id="addMistoForma1" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label>
+                        <input type="number" step="0.01" id="addMistoVal1" oninput="calcularRestanteNovoMisto()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label><select id="addMistoForma2" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div><label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label><input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black"></div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label>
+                        <select id="addMistoForma2" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label>
+                        <input type="number" step="0.01" id="addMistoVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black">
+                    </div>
                 </div>
             </div>
             <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
                 <button onclick="closeModal('modalAddMisto')" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Cancelar</button>
-                <button onclick="confirmarPagamentoMisto()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 rounded-xl">Confirmar</button>
+                <button onclick="confirmarPagamentoMisto()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl shadow-sm">Confirmar</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL CONSULTA / HISTÓRICO AVANÇADO -->
     <div id="modalConsultaHistorico" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
-                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Histórico de Entregas</h3>
-                <button onclick="closeModal('modalConsultaHistorico')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-farmassimYellow-400"></i> Consulta e Histórico de Entregas
+                </h3>
+                <button onclick="closeModal('modalConsultaHistorico')" class="text-white/80 hover:text-white rounded-lg p-1.5">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
+
             <div class="p-6 space-y-4 overflow-y-auto flex-1">
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row gap-3 items-end">
-                    <div class="flex-1"><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Inicial</label><input type="date" id="histDataInicio" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
-                    <div class="flex-1"><label class="block text-[11px] font-bold text-slate-600 mb-1">Data Final</label><input type="date" id="histDataFim" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></div>
-                    <div class="flex-1"><label class="block text-[11px] font-bold text-slate-600 mb-1">Motoboy</label><select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div class="flex-1"><label class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label><select id="histOperador" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select></div>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <button onclick="executarConsultaHistorico()" class="flex-1 md:flex-initial px-4 py-2 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-lg flex items-center justify-center gap-1.5"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                        <button onclick="exportarHistoricoExcel()" class="flex-1 md:flex-initial px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-lg flex items-center justify-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                    <div>
+                        <label for="histDataInicio" class="block text-[11px] font-bold text-slate-600 mb-1">Data Inicial</label>
+                        <input type="date" id="histDataInicio" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
+                    </div>
+                    <div>
+                        <label for="histDataFim" class="block text-[11px] font-bold text-slate-600 mb-1">Data Final</label>
+                        <input type="date" id="histDataFim" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
+                    </div>
+                    <div>
+                        <label for="histMotoboy" class="block text-[11px] font-bold text-slate-600 mb-1">Motoboy</label>
+                        <select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div>
+                        <label for="histOperador" class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label>
+                        <select id="histOperador" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="executarConsultaHistorico()" class="flex-1 py-2 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-lg transition-all shadow-sm">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Filtrar
+                        </button>
+                        <button onclick="exportarCSVConsulta()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-lg transition-all shadow-sm flex items-center justify-center gap-1" title="Exportar para Excel">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </button>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-farmassim-50 p-3 rounded-xl border border-farmassim-200 text-xs font-bold text-slate-700">
+                    <div>Qtd. Encontrada: <span id="histQtd" class="text-farmassim-700 font-extrabold">0</span></div>
+                    <div>Total Pedidos: <span class="text-slate-900 font-extrabold">R$ <span id="histTotalVal">0,00</span></span></div>
+                    <div>Total Troco: <span class="text-amber-700 font-extrabold">R$ <span id="histTotalTroco">0,00</span></span></div>
+                    <div>Total a Trazer: <span class="text-farmassim-700 font-extrabold">R$ <span id="histTotalTrazer">0,00</span></span></div>
+                </div>
+
                 <div class="overflow-x-auto border border-slate-200 rounded-xl">
                     <table class="w-full text-left border-collapse text-xs">
-                        <thead><tr class="bg-slate-100 text-slate-600 uppercase text-[10px] font-extrabold"><th class="py-2.5 px-3">Data/Hora</th><th class="py-2.5 px-3">COO</th><th class="py-2.5 px-3">Operador</th><th class="py-2.5 px-3">Motoboy</th><th class="py-2.5 px-3">Pagamento</th><th class="py-2.5 px-3 text-right">Valor</th><th class="py-2.5 px-3 text-center">Status</th></tr></thead>
-                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium"><tr><td colspan="7" class="text-center py-4 text-slate-400">Clique em Filtrar para carregar os registros.</td></tr></tbody>
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-[10px] font-extrabold border-b border-slate-200">
+                                <th class="py-2.5 px-3">Data/Hora</th>
+                                <th class="py-2.5 px-3">COO / Pedido</th>
+                                <th class="py-2.5 px-3">Operador</th>
+                                <th class="py-2.5 px-3">Motoboy</th>
+                                <th class="py-2.5 px-3">Forma Pagamento</th>
+                                <th class="py-2.5 px-3 text-right">Pedido</th>
+                                <th class="py-2.5 px-3 text-right">Troco</th>
+                                <th class="py-2.5 px-3 text-right">A Trazer</th>
+                                <th class="py-2.5 px-3 text-center">Status</th>
+                                <th class="py-2.5 px-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyConsultaHistorico" class="divide-y divide-slate-100 font-medium">
+                            <tr><td colspan="10" class="text-center py-4 text-slate-400">Utilize os filtros acima para consultar o histórico.</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-slate-200 rounded-xl">Fechar</button></div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                <button onclick="exportarCSVConsulta()" class="px-4 py-2 text-xs font-bold text-farmassim-700 bg-farmassim-50 hover:bg-farmassim-100 border border-farmassim-200 rounded-xl transition-all">
+                    <i class="fa-solid fa-file-excel mr-1"></i> Exportar Resultado
+                </button>
+                <button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">
+                    Fechar
+                </button>
+            </div>
         </div>
     </div>
 
-    <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+    <!-- MODAL EDITAR PAGAMENTO -->
+    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-farmassimYellow-400"></i> Alterar Forma de Pagamento
+                </h3>
+                <button onclick="closeModal('modalEditarPagamento')" class="text-white/80 hover:text-white rounded-lg p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="editRegistroId">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-500">Pedido/COO:</span> <span id="editInfoCoo" class="font-bold text-slate-800"></span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Valor Total:</span> <span id="editInfoValor" class="font-bold text-slate-800"></span></div>
+                </div>
+
                 <div>
-                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2">Motoboys</h4>
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" id="novoMotoboyNome" placeholder="Nome..." class="flex-1 border text-xs p-2 font-bold rounded-xl">
-                        <button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button>
+                    <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 mb-3 cursor-pointer">
+                        <input type="checkbox" id="editChkJiMisto" onchange="alternarModoEdicaoPagamento()" class="w-4 h-4 text-farmassim-600 rounded">
+                        <span>Dividir Pagamento em 2 Formas</span>
+                    </label>
+                </div>
+
+                <div id="editPainelSimples" class="space-y-3">
+                    <div>
+                        <label for="editSelectPagamento" class="block text-xs font-bold text-slate-600 mb-1">Forma de Pagamento</label>
+                        <select id="editSelectPagamento" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold"></select>
                     </div>
-                    <div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <div id="editPainelMisto" class="hidden space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="editForma1" class="block text-[11px] font-bold text-slate-600 mb-1">1ª Forma</label>
+                            <select id="editForma1" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                        </div>
+                        <div>
+                            <label for="editVal1" class="block text-[11px] font-bold text-slate-600 mb-1">Valor 1 (R$)</label>
+                            <input type="number" step="0.01" id="editVal1" oninput="calcularRestanteEdicao()" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="editForma2" class="block text-[11px] font-bold text-slate-600 mb-1">2ª Forma</label>
+                            <select id="editForma2" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
+                        </div>
+                        <div>
+                            <label for="editVal2" class="block text-[11px] font-bold text-slate-600 mb-1">Valor 2 (R$)</label>
+                            <input type="number" step="0.01" id="editVal2" readonly class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-black">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="editTroco" class="block text-xs font-bold text-slate-600 mb-1">Troco a Levar (R$)</label>
+                    <input type="number" step="0.01" id="editTroco" class="w-full bg-amber-50 border border-amber-200 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                 </div>
             </div>
-            <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs bg-slate-200 rounded-xl">Fechar</button></div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">Cancelar</button>
+                <button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl shadow-sm">Salvar Alterações</button>
+            </div>
         </div>
     </div>
 
+    <!-- MODAL CADASTROS -->
+    <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-farmassimYellow-400"></i> Gerenciar Cadastros do Sistema (Nuvem)
+                </h3>
+                <button onclick="closeModal('modalCadastros')" class="text-white/80 hover:text-white rounded-lg p-1.5">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-doctor text-farmassim-600"></i> Operadores de Caixa (PDV)
+                    </h4>
+                    <div id="listaCaixas" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-helmet-safety text-farmassim-600"></i> Entregadores / Motoboys
+                    </h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                        <button onclick="cadastrarMotoboy()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
+                    </div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-credit-card text-farmassim-600"></i> Formas de Pagamento
+                    </h4>
+                    <div class="space-y-2 mb-3">
+                        <div class="flex gap-2">
+                            <input type="text" id="novoPagamentoNome" placeholder="Ex: Pix, Cartão, Dinheiro..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
+                            <button onclick="cadastrarFormaPagamento()" class="px-4 py-2.5 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="novoPagamentoRequerTroco" checked class="w-4 h-4 text-farmassim-600 rounded">
+                            <span class="ml-2 text-xs font-bold text-slate-600">Requer / Aceita Troco</span>
+                        </label>
+                    </div>
+                    <div id="listaPagamentos" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-200 rounded-xl">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÁREA DE IMPRESSÃO DE CUPOM -->
     <div id="areaImpressao" class="hidden p-4 font-mono text-black">
-        <div class="text-center border-b pb-2 mb-2"><h2 class="font-bold text-lg">FARMASSIM 24HRS</h2><p class="text-xs">COMPROVANTE</p></div>
+        <div class="text-center border-b pb-2 mb-2">
+            <h2 class="font-bold text-lg">FARMASSIM 24HRS</h2>
+            <p class="text-xs">COMPROVANTE DE ENTREGA</p>
+        </div>
         <div id="conteudoCupom" class="text-xs space-y-1"></div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
-        
         let supabaseClient = null;
+
         try {
-            if (window.supabase) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: { persistSession: false, autoRefreshToken: false }
-                });
-            }
-        } catch(e) { console.error("Erro init supabase", e); }
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Erro ao inicializar Supabase:", e);
+        }
 
         let caixas = [];
-        let motoboys = [
-            { id: 1, nome: 'Motoboy 1' },
-            { id: 2, nome: 'Motoboy 2' }
-        ];
-        let formasPagamento = [
-            { id: 1, nome: 'Dinheiro', requerTroco: true },
-            { id: 2, nome: 'Pix', requerTroco: false },
-            { id: 3, nome: 'Cartão Débito', requerTroco: false },
-            { id: 4, nome: 'Cartão Crédito', requerTroco: false }
-        ];
+        let motoboys = [];
+        let formasPagamento = [];
         let historico = [];
         let exibirConcluidas = true;
         let resultadoConsultaGlobal = [];
-        let operadorAtivo = 'Operador';
+        let operadorAtivo = '';
         let dataAtualFormatted = '';
 
-        window.onload = function() {
-            let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
-            if (!op || op.trim() === '') {
-                op = prompt("Digite o nome do Operador:") || "Operador";
-                sessionStorage.setItem('farmassim_operador_logado', op);
-            }
-            operadorAtivo = op.trim();
-            document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
-
-            const today = new Date();
-            dataAtualFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-            document.getElementById('histDataInicio').value = dataAtualFormatted;
-            document.getElementById('histDataFim').value = dataAtualFormatted;
-
-            // Renderiza imediatamente com os dados locais para garantir que apareçam na hora
-            atualizarSelects();
-            renderizarListasGerenciamento();
-            focarCampoPedido();
-            
-            // Depois tenta sincronizar com o banco
-            sincronizarComSupabase();
-        };
-
-        async function sincronizarComSupabase() {
-            const badge = document.getElementById('badgeStatusSupabase');
-            if (!supabaseClient) {
-                marcarOffline("Sem Cliente");
+        window.onload = async function() {
+            operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
+            if (!operadorAtivo) {
+                window.location.href = 'index.html';
                 return;
             }
 
-            try {
-                badge.className = "flex items-center gap-1.5 text-amber-300";
-                badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
 
-                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
-                
-                const fetchDb = Promise.all([
-                    supabaseClient.from('caixas').select('*'),
-                    supabaseClient.from('motoboys').select('*'),
-                    supabaseClient.from('formas_pagamento').select('*'),
-                    supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
+            dataAtualFormatted = `${year}-${month}-${day}`;
+            
+            document.getElementById('histDataInicio').value = dataAtualFormatted;
+            document.getElementById('histDataFim').value = dataAtualFormatted;
+
+            document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
+
+            await carregarCadastrosSupabase();
+            focarCampoPedido();
+        };
+
+        async function carregarCadastrosSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const [resCaixas, resMotoboys, resPagamentos] = await Promise.all([
+                    supabaseClient.from('caixas').select('*').order('nome'),
+                    supabaseClient.from('motoboys').select('*').order('nome'),
+                    supabaseClient.from('formas_pagamento').select('*').order('nome')
                 ]);
 
-                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
-
-                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
-                
-                // Só substitui se vierem motoboys válidos do banco, senão mantém os locais
-                if (resMot.data && resMot.data.length > 0) {
-                    motoboys = resMot.data;
-                }
-
-                if (resPag.data && resPag.data.length > 0) {
-                    formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
-                }
-
-                if (resEnt.data) {
-                    historico = resEnt.data.map(item => ({
-                        id: item.id,
-                        data: item.data,
-                        hora: item.hora,
-                        caixa: item.caixa,
-                        coo: item.coo,
-                        valor: parseFloat(item.valor) || 0,
-                        troco: parseFloat(item.troco) || 0,
-                        valorATrazer: parseFloat(item.valor_a_trazer) || 0,
-                        motoboy: item.motoboy,
-                        formaPag: item.forma_pag,
-                        concluido: item.concluido
+                if (resCaixas.data) caixas = resCaixas.data;
+                if (resMotoboys.data) motoboys = resMotoboys.data;
+                if (resPagamentos.data) {
+                    formasPagamento = resPagamentos.data.map(p => ({
+                        id: p.id,
+                        nome: p.nome,
+                        requerTroco: p.requer_troco
                     }));
                 }
 
                 atualizarSelects();
                 renderizarListasGerenciamento();
-                renderizarTabela();
-
-                badge.className = "flex items-center gap-1.5 text-emerald-300";
-                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
-
-            } catch (err) {
-                console.warn("Supabase indisponível, usando modo local:", err);
-                marcarOffline("Modo Local");
+                carregarDadosSupabase();
+            } catch (e) {
+                console.error("Erro ao carregar cadastros:", e);
             }
-        }
-
-        function marcarOffline(motivo) {
-            const badge = document.getElementById('badgeStatusSupabase');
-            if (badge) {
-                badge.className = "flex items-center gap-1.5 text-amber-400";
-                badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
-            }
-            renderizarTabela();
         }
 
         function sairDoSistema() {
@@ -503,9 +633,62 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function focarCampoPedido() { document.getElementById('coo').focus(); }
 
+        async function carregarDadosSupabase() {
+            const badge = document.getElementById('badgeStatusSupabase');
+            if (!supabaseClient) {
+                badge.className = "flex items-center gap-1.5 text-rose-300";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Erro`;
+                return;
+            }
+
+            badge.className = "flex items-center gap-1.5 text-amber-300";
+            badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span class="hidden sm:inline">DB:</span> Sincronizando...`;
+
+            try {
+                let query = supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted);
+                if (operadorAtivo) { query = query.eq('caixa', operadorAtivo); }
+
+                const { data, error } = await query.order('created_at', { ascending: false });
+                if (error) throw error;
+
+                historico = (data || []).map(item => ({
+                    id: item.id,
+                    data: item.data,
+                    hora: item.hora,
+                    caixa: item.caixa,
+                    coo: item.coo,
+                    valor: parseFloat(item.valor) || 0,
+                    troco: parseFloat(item.troco) || 0,
+                    valorATrazer: parseFloat(item.valor_a_trazer) || 0,
+                    motoboy: item.motoboy,
+                    formaPag: item.forma_pag,
+                    concluido: item.concluido
+                }));
+
+                badge.className = "flex items-center gap-1.5 text-emerald-300";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+
+                renderizarTabela();
+            } catch (err) {
+                console.error("Erro ao buscar dados do Supabase:", err);
+                badge.className = "flex items-center gap-1.5 text-rose-300";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Desconectado`;
+                showToast("Erro ao sincronizar com o banco.");
+            }
+        }
+
         function toggleMostrarConcluidas() {
             exibirConcluidas = !exibirConcluidas;
-            document.getElementById('txtToggleConcluidas').innerText = exibirConcluidas ? "Ocultar Concluídas" : "Mostrar Concluídas";
+            const btnTxt = document.getElementById('txtToggleConcluidas');
+            const btnIcon = document.getElementById('iconeToggleConcluidas');
+
+            if (exibirConcluidas) {
+                btnTxt.innerText = "Ocultar Concluídas";
+                btnIcon.className = "fa-solid fa-eye text-farmassim-600";
+            } else {
+                btnTxt.innerText = "Mostrar Concluídas";
+                btnIcon.className = "fa-solid fa-eye-slash text-amber-600";
+            }
             renderizarTabela();
         }
 
@@ -519,7 +702,8 @@
         function calcularRestanteNovoMisto() {
             const valTotal = parseFloat(document.getElementById('valor').value) || 0;
             const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
-            document.getElementById('addMistoVal2').value = Math.max(0, valTotal - v1).toFixed(2);
+            const v2 = Math.max(0, valTotal - v1);
+            document.getElementById('addMistoVal2').value = v2.toFixed(2);
         }
 
         function confirmarPagamentoMisto() {
@@ -533,12 +717,14 @@
             document.getElementById('textoPagamentoMisto').value = textoMisto;
             document.getElementById('labelPagamentoMistoAtivo').innerText = textoMisto;
             document.getElementById('badgePagamentoMistoAtivo').classList.remove('hidden');
+
             closeModal('modalAddMisto');
             calcularValorATrazer();
         }
 
         function cancelarPagamentoMisto() {
             document.getElementById('pagamentoMistoAtivo').value = "false";
+            document.getElementById('textoPagamentoMisto').value = "";
             document.getElementById('badgePagamentoMistoAtivo').classList.add('hidden');
             calcularValorATrazer();
         }
@@ -546,7 +732,21 @@
         function calcularTrocoAvançado() {
             const valPedido = parseFloat(document.getElementById('valor').value) || 0;
             const notaCliente = parseFloat(document.getElementById('notaCliente').value) || 0;
-            if (notaCliente > valPedido) document.getElementById('troco').value = (notaCliente - valPedido).toFixed(2);
+            
+            if (notaCliente > valPedido) {
+                document.getElementById('troco').value = (notaCliente - valPedido).toFixed(2);
+            }
+
+            if (document.getElementById('pagamentoMistoAtivo').value === "true") {
+                calcularRestanteNovoMisto();
+                const f1 = document.getElementById('addMistoForma1').value;
+                const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
+                const f2 = document.getElementById('addMistoForma2').value;
+                const v2 = parseFloat(document.getElementById('addMistoVal2').value) || 0;
+                const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+                document.getElementById('textoPagamentoMisto').value = textoMisto;
+                document.getElementById('labelPagamentoMistoAtivo').innerText = textoMisto;
+            }
             calcularValorATrazer();
         }
 
@@ -560,6 +760,7 @@
             const selectElement = document.getElementById(selectId);
             const inputTroco = document.getElementById(inputTrocoId);
             const objPag = formasPagamento.find(p => p.nome === selectElement.value);
+
             if (objPag && !objPag.requerTroco) {
                 inputTroco.value = '0.00';
                 inputTroco.disabled = true;
@@ -575,36 +776,31 @@
         async function adicionarRegistro(e) {
             e.preventDefault();
             const now = new Date();
+            
             let descricaoPag = document.getElementById('formaPagamento').value;
             if (document.getElementById('pagamentoMistoAtivo').value === "true") {
                 descricaoPag = document.getElementById('textoPagamentoMisto').value;
             }
 
-            const novoObj = {
-                id: Date.now(),
+            const novoRegistroDB = {
                 data: dataAtualFormatted,
                 hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 caixa: operadorAtivo,
                 coo: document.getElementById('coo').value.trim(),
                 valor: parseFloat(document.getElementById('valor').value) || 0,
                 troco: parseFloat(document.getElementById('troco').value) || 0,
-                valorATrazer: parseFloat(document.getElementById('valorATrazer').value) || 0,
+                valor_a_trazer: parseFloat(document.getElementById('valorATrazer').value) || 0,
                 motoboy: document.getElementById('selectMotoboy').value,
-                formaPag: descricaoPag,
+                forma_pag: descricaoPag,
                 concluido: document.getElementById('statusInicial').checked
             };
 
-            historico.unshift(novoObj);
+            const { data, error } = await supabaseClient.from('entregas_farmassim').insert([novoRegistroDB]).select();
 
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('entregas_farmassim').insert([{
-                        data: novoObj.data, hora: novoObj.hora, caixa: novoObj.caixa,
-                        coo: novoObj.coo, valor: novoObj.valor, troco: novoObj.troco,
-                        valor_a_trazer: novoObj.valorATrazer, motoboy: novoObj.motoboy,
-                        forma_pag: novoObj.formaPag, concluido: novoObj.concluido
-                    }]);
-                } catch(err) { console.warn("Erro ao salvar no Supabase"); }
+            if (error) {
+                console.error("Erro ao inserir:", error);
+                showToast("Erro ao salvar no banco!");
+                return;
             }
 
             document.getElementById('coo').value = '';
@@ -614,50 +810,133 @@
             document.getElementById('valorATrazer').value = '';
             cancelarPagamentoMisto();
 
-            renderizarTabela();
+            await carregarDadosSupabase();
             focarCampoPedido();
-            showToast("Entrega Registrada!");
+            showToast("Entrega Registrada no Banco!");
         }
 
-        async function alternarStatus(id) {
+        async function atualizarCampoSupabase(id, campo, novoValor) {
+            const { error } = await supabaseClient.from('entregas_farmassim').update({ [campo]: novoValor }).eq('id', id);
+            if (error) {
+                showToast("Erro ao atualizar.");
+                return;
+            }
+            await carregarDadosSupabase();
+            if(!document.getElementById('modalConsultaHistorico').classList.contains('hidden')){
+                executarConsultaHistorico();
+            }
+            showToast("Registro atualizado!");
+        }
+
+        function abrirModalEdicaoPagamento(id) {
             const item = historico.find(r => r.id === id);
             if (!item) return;
-            item.concluido = !item.concluido;
-            if (supabaseClient) {
-                try { await supabaseClient.from('entregas_farmassim').update({ concluido: item.concluido }).eq('id', id); } catch(e){}
+
+            document.getElementById('editRegistroId').value = item.id;
+            document.getElementById('editInfoCoo').innerText = item.coo;
+            document.getElementById('editInfoValor').innerText = `R$ ${item.valor.toFixed(2)}`;
+            document.getElementById('editTroco').value = item.troco.toFixed(2);
+
+            const isMisto = item.formaPag.includes('+');
+            document.getElementById('editChkJiMisto').checked = isMisto;
+
+            if (isMisto) {
+                document.getElementById('editPainelSimples').classList.add('hidden');
+                document.getElementById('editPainelMisto').classList.remove('hidden');
+                try {
+                    const partes = item.formaPag.split(' + ');
+                    const p1 = partes[0].split(' (R$ ');
+                    const p2 = partes[1].split(' (R$ ');
+                    document.getElementById('editForma1').value = p1[0];
+                    document.getElementById('editVal1').value = parseFloat(p1[1].replace(')', '')) || 0;
+                    document.getElementById('editForma2').value = p2[0];
+                    document.getElementById('editVal2').value = parseFloat(p2[1].replace(')', '')) || 0;
+                } catch(e) {
+                    document.getElementById('editVal1').value = (item.valor / 2).toFixed(2);
+                    calcularRestanteEdicao();
+                }
+            } else {
+                document.getElementById('editPainelSimples').classList.remove('hidden');
+                document.getElementById('editPainelMisto').classList.add('hidden');
+                document.getElementById('editSelectPagamento').value = item.formaPag;
             }
-            renderizarTabela();
+            openModal('modalEditarPagamento');
         }
 
-        async function excluirRegistro(id) {
-            if (!confirm("Excluir este registro?")) return;
-            historico = historico.filter(r => r.id !== id);
-            if (supabaseClient) {
-                try { await supabaseClient.from('entregas_farmassim').delete().eq('id', id); } catch(e){}
+        function alternarModoEdicaoPagamento() {
+            const isMisto = document.getElementById('editChkJiMisto').checked;
+            if (isMisto) {
+                document.getElementById('editPainelSimples').classList.add('hidden');
+                document.getElementById('editPainelMisto').classList.remove('hidden');
+                const regId = parseInt(document.getElementById('editRegistroId').value);
+                const item = historico.find(r => r.id === regId);
+                if (item) {
+                    document.getElementById('editVal1').value = (item.valor / 2).toFixed(2);
+                    calcularRestanteEdicao();
+                }
+            } else {
+                document.getElementById('editPainelSimples').classList.remove('hidden');
+                document.getElementById('editPainelMisto').classList.add('hidden');
             }
-            renderizarTabela();
-            showToast("Registro excluído!");
+        }
+
+        function calcularRestanteEdicao() {
+            const regId = parseInt(document.getElementById('editRegistroId').value);
+            const item = historico.find(r => r.id === regId);
+            if (!item) return;
+            const v1 = parseFloat(document.getElementById('editVal1').value) || 0;
+            document.getElementById('editVal2').value = Math.max(0, item.valor - v1).toFixed(2);
+        }
+
+        async function salvarEdicaoPagamento() {
+            const id = parseInt(document.getElementById('editRegistroId').value);
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
+
+            const isMisto = document.getElementById('editChkJiMisto').checked;
+            let novaForma = '';
+
+            if (isMisto) {
+                const f1 = document.getElementById('editForma1').value;
+                const v1 = parseFloat(document.getElementById('editVal1').value) || 0;
+                const f2 = document.getElementById('editForma2').value;
+                const v2 = parseFloat(document.getElementById('editVal2').value) || 0;
+                novaForma = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+            } else {
+                novaForma = document.getElementById('editSelectPagamento').value;
+            }
+
+            const novoTroco = parseFloat(document.getElementById('editTroco').value) || 0;
+            const novoValorTrazer = item.valor + novoTroco;
+
+            const { error } = await supabaseClient.from('entregas_farmassim').update({
+                forma_pag: novaForma,
+                troco: novoTroco,
+                valor_a_trazer: novoValorTrazer
+            }).eq('id', id);
+
+            if (error) {
+                showToast("Erro ao salvar edição.");
+                return;
+            }
+
+            closeModal('modalEditarPagamento');
+            await carregarDadosSupabase();
+            if(!document.getElementById('modalConsultaHistorico').classList.contains('hidden')){
+                executarConsultaHistorico();
+            }
+            showToast("Pagamento atualizado!");
         }
 
         function abrirConsultaHistorico() {
-            document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
-            
-            let opcoesCaixas = `<option value="TODOS">Todos</option>`;
-            if (caixas.length > 0) {
-                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
-            } else {
-                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
-            }
-            document.getElementById('histOperador').innerHTML = opcoesCaixas;
-
+            atualizarSelectsConsulta();
             executarConsultaHistorico();
             openModal('modalConsultaHistorico');
         }
 
-        function abrirMinhasEntregasHoje() {
-            document.getElementById('histDataInicio').value = dataAtualFormatted;
-            document.getElementById('histDataFim').value = dataAtualFormatted;
-            abrirConsultaHistorico();
+        function atualizarSelectsConsulta() {
+            document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+            document.getElementById('histOperador').innerHTML = `<option value="TODOS">🌐 Todos os Operadores</option>` + caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
         }
 
         async function executarConsultaHistorico() {
@@ -666,125 +945,208 @@
             const motoboy = document.getElementById('histMotoboy').value;
             const operador = document.getElementById('histOperador').value;
 
-            const tbody = document.getElementById('tbodyConsultaHistorico');
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Consultando banco...</td></tr>`;
+            let query = supabaseClient.from('entregas_farmassim').select('*');
+            if (dInicio) query = query.gte('data', dInicio);
+            if (dFim) query = query.lte('data', dFim);
+            if (motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
+            if (operador !== 'TODOS') query = query.eq('caixa', operador);
 
-            resultadoConsultaGlobal = [];
-
-            if (supabaseClient) {
-                try {
-                    let query = supabaseClient.from('entregas_farmassim').select('*');
-                    if (dInicio) query = query.gte('data', dInicio);
-                    if (dFim) query = query.lte('data', dFim);
-                    if (motoboy && motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
-                    if (operador && operador !== 'TODOS') query = query.eq('caixa', operador);
-
-                    const { data, error } = await query.order('created_at', { ascending: false });
-                    if (!error && data) {
-                        resultadoConsultaGlobal = data.map(item => ({
-                            id: item.id,
-                            data: item.data,
-                            hora: item.hora,
-                            caixa: item.caixa,
-                            coo: item.coo,
-                            valor: parseFloat(item.valor) || 0,
-                            motoboy: item.motoboy,
-                            formaPag: item.forma_pag,
-                            concluido: item.concluido
-                        }));
-                    }
-                } catch(e) { console.warn("Erro ao consultar histórico:", e); }
+            const { data, error } = await query.order('data', { ascending: false });
+            if (error) {
+                showToast("Erro ao consultar histórico.");
+                return;
             }
 
+            resultadoConsultaGlobal = (data || []).map(item => ({
+                id: item.id,
+                data: item.data,
+                hora: item.hora,
+                caixa: item.caixa,
+                coo: item.coo,
+                valor: parseFloat(item.valor) || 0,
+                troco: parseFloat(item.troco) || 0,
+                valorATrazer: parseFloat(item.valor_a_trazer) || 0,
+                motoboy: item.motoboy,
+                formaPag: item.forma_pag,
+                concluido: item.concluido
+            }));
+
+            const tbody = document.getElementById('tbodyConsultaHistorico');
+            tbody.innerHTML = '';
+            let totVal = 0, totTroco = 0, totTrazer = 0;
+
             if (resultadoConsultaGlobal.length === 0) {
-                resultadoConsultaGlobal = historico.filter(r => {
-                    let match = true;
-                    if (dInicio && r.data < dInicio) match = false;
-                    if (dFim && r.data > dFim) match = false;
-                    if (motoboy !== 'TODOS' && r.motoboy !== motoboy) match = false;
-                    if (operador !== 'TODOS' && r.caixa !== operador) match = false;
-                    return match;
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400 font-bold">Nenhum registro encontrado para este filtro.</td></tr>`;
+            } else {
+                resultadoConsultaGlobal.forEach(r => {
+                    totVal += r.valor;
+                    totTroco += r.troco;
+                    totTrazer += r.valorATrazer;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3 font-semibold">${r.data.split('-').reverse().join('/')} <span class="text-slate-400 font-normal">${r.hora}</span></td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-slate-800">${r.coo}</td>
+                        <td class="py-2.5 px-3">${r.caixa}</td>
+                        <td class="py-2.5 px-3 font-bold">${r.motoboy}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="inline-flex items-center gap-1">
+                                ${r.formaPag}
+                                <button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 ml-1" title="Alterar"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-right text-amber-700">R$ ${r.troco.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-right font-black text-farmassim-800">R$ ${r.valorATrazer.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <button onclick="alternarStatus(${r.id})" class="px-2 py-0.5 rounded text-[10px] font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${r.concluido ? 'Concluído' : 'Pendente'}
+                            </button>
+                        </td>
+                        <td class="py-2.5 px-3 text-center flex gap-1 justify-center">
+                            <button onclick="imprimirCupom(${r.id})" class="p-1 text-slate-500 hover:text-slate-800"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
                 });
             }
 
-            tbody.innerHTML = '';
-            
-            if (resultadoConsultaGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Nenhum registro encontrado no período selecionado.</td></tr>`;
-                return;
-            }
-
-            resultadoConsultaGlobal.forEach(r => {
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50">
-                        <td class="py-2.5 px-3">${r.data} ${r.hora}</td>
-                        <td class="py-2.5 px-3 font-bold">${r.coo}</td>
-                        <td class="py-2.5 px-3">${r.caixa}</td>
-                        <td class="py-2.5 px-3">${r.motoboy}</td>
-                        <td class="py-2.5 px-3">${r.formaPag}</td>
-                        <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
-                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</span></td>
-                    </tr>`;
-            });
+            document.getElementById('histQtd').innerText = resultadoConsultaGlobal.length;
+            document.getElementById('histTotalVal').innerText = totVal.toFixed(2);
+            document.getElementById('histTotalTroco').innerText = totTroco.toFixed(2);
+            document.getElementById('histTotalTrazer').innerText = totTrazer.toFixed(2);
         }
 
-        function exportarHistoricoExcel() {
-            if (!resultadoConsultaGlobal || resultadoConsultaGlobal.length === 0) {
-                alert("Não há dados filtrados para exportar!");
+        function exportarCSVConsulta() {
+            if (resultadoConsultaGlobal.length === 0) {
+                showToast("Nenhum dado para exportar.");
                 return;
             }
-            let csv = "Data;Hora;Operador;COO/Pedido;Motoboy;Forma Pagamento;Valor (R$);Status\n";
+            let csv = "Data;Hora;COO/Pedido;Operador;Motoboy;Pagamento;Valor Pedido;Troco;Valor A Trazer;Status\n";
             resultadoConsultaGlobal.forEach(r => {
-                csv += `${r.data};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2).replace('.', ',')};${r.concluido ? 'Concluido' : 'Pendente'}\n`;
+                csv += `${r.data};${r.hora};${r.coo};${r.caixa};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)};${r.troco.toFixed(2)};${r.valorATrazer.toFixed(2)};${r.concluido ? 'Concluido' : 'Pendente'}\n`;
             });
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = `historico_entregas_${Date.now()}.csv`;
             link.click();
-            showToast("Relatório exportado com sucesso!");
+        }
+
+        async function alternarStatus(id) {
+            const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
+            if (!item) return;
+
+            const novoStatus = !item.concluido;
+            const { error } = await supabaseClient.from('entregas_farmassim').update({ concluido: novoStatus }).eq('id', id);
+            if (error) {
+                showToast("Erro ao alterar status.");
+                return;
+            }
+            await carregarDadosSupabase();
+            if(!document.getElementById('modalConsultaHistorico').classList.contains('hidden')){
+                executarConsultaHistorico();
+            }
+        }
+
+        async function excluirRegistro(id) {
+            if(!confirm("Deseja realmente excluir este registro?")) return;
+            const { error } = await supabaseClient.from('entregas_farmassim').delete().eq('id', id);
+            if (error) {
+                showToast("Erro ao excluir.");
+                return;
+            }
+            await carregarDadosSupabase();
+            if(!document.getElementById('modalConsultaHistorico').classList.contains('hidden')){
+                executarConsultaHistorico();
+            }
+            showToast("Registro excluído!");
         }
 
         async function cadastrarMotoboy() {
-            const nome = document.getElementById('novoMotoboyNome').value.trim();
-            if (nome) {
-                motoboys.push({ id: Date.now(), nome });
-                document.getElementById('novoMotoboyNome').value = '';
-                atualizarSelects();
-                renderizarListasGerenciamento();
-                if (supabaseClient) {
-                    try { await supabaseClient.from('motoboys').insert([{ nome }]); } catch(e){}
+            const input = document.getElementById('novoMotoboyNome');
+            const nome = input.value.trim();
+            if (nome !== "") {
+                const { error } = await supabaseClient.from('motoboys').insert([{ nome }]);
+                if (!error) {
+                    input.value = "";
+                    await carregarCadastrosSupabase();
+                    showToast("Motoboy cadastrado!");
                 }
-                showToast("Motoboy cadastrado!");
+            }
+        }
+
+        async function excluirMotoboy(id) {
+            if(!confirm("Deseja realmente remover este motoboy?")) return;
+            const { error } = await supabaseClient.from('motoboys').delete().eq('id', id);
+            if (!error) {
+                await carregarCadastrosSupabase();
+                showToast("Motoboy removido!");
+            }
+        }
+
+        async function cadastrarFormaPagamento() {
+            const input = document.getElementById('novoPagamentoNome');
+            const chk = document.getElementById('novoPagamentoRequerTroco');
+            const nome = input.value.trim();
+            if (nome !== "") {
+                const { error } = await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: chk.checked }]);
+                if (!error) {
+                    input.value = "";
+                    await carregarCadastrosSupabase();
+                    showToast("Forma de pagamento cadastrada!");
+                }
+            }
+        }
+
+        async function excluirFormaPagamento(id) {
+            if(!confirm("Deseja realmente remover esta forma de pagamento?")) return;
+            const { error } = await supabaseClient.from('formas_pagamento').delete().eq('id', id);
+            if (!error) {
+                await carregarCadastrosSupabase();
+                showToast("Forma de pagamento removida!");
             }
         }
 
         function renderizarListasGerenciamento() {
-            const div = document.getElementById('listaMotoboys');
-            if (div) {
-                div.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
-            }
+            document.getElementById('listaCaixas').innerHTML = caixas.map(c => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                    [${c.usuario_id || 'ID'}] ${c.nome}
+                </span>`).join('');
+
+            document.getElementById('listaMotoboys').innerHTML = motoboys.map(m => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                    ${m.nome} <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-xmark"></i></button>
+                </span>`).join('');
+
+            document.getElementById('listaPagamentos').innerHTML = formasPagamento.map(p => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                    ${p.nome} <button onclick="excluirFormaPagamento(${p.id})" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-xmark"></i></button>
+                </span>`).join('');
         }
 
-        function atualizarSelects() {
-            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
-            const opcoesMotoboys = motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+        function imprimirCupom(id) {
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
 
-            document.getElementById('selectMotoboy').innerHTML = opcoesMotoboys;
-            document.getElementById('formaPagamento').innerHTML = opcoesPag;
-            document.getElementById('addMistoForma1').innerHTML = opcoesPag;
-            document.getElementById('addMistoForma2').innerHTML = opcoesPag;
+            document.getElementById('conteudoCupom').innerHTML = `
+                <p><strong>PEDIDO/COO:</strong> ${item.coo}</p>
+                <p><strong>DATA/HORA:</strong> ${item.data} ${item.hora}</p>
+                <p><strong>OPERADOR:</strong> ${item.caixa}</p>
+                <p><strong>MOTOBOY:</strong> ${item.motoboy}</p>
+                <hr class="my-1 border-dashed">
+                <p><strong>VALOR PEDIDO:</strong> R$ ${item.valor.toFixed(2)}</p>
+                <p><strong>TROCO LEVADO:</strong> R$ ${item.troco.toFixed(2)}</p>
+                <p><strong>TOTAL A TRAZER:</strong> R$ ${item.valorATrazer.toFixed(2)}</p>
+                <p><strong>PAGAMENTO:</strong> ${item.formaPag}</p>
+            `;
+            window.print();
         }
 
-        function renderizarTabela() {
-            const tbody = document.querySelector('#tabelaRegistros tbody');
-            const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
-            tbody.innerHTML = '';
-
+        function renderizarResumos() {
             let lista = historico;
-            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
-            if (busca) lista = lista.filter(r => r.coo.toLowerCase().includes(busca) || r.motoboy.toLowerCase().includes(busca));
-
             let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
             let pendentePorMotoboy = {};
 
@@ -798,20 +1160,6 @@
                     qtdPendentes++;
                     pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
                 }
-
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50">
-                        <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
-                        <td class="py-3 px-4">${r.hora}</td>
-                        <td class="py-3 px-4">${r.caixa}</td>
-                        <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
-                        <td class="py-3 px-4 font-bold">${r.motoboy}</td>
-                        <td class="py-3 px-4">${r.formaPag}</td>
-                        <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-center flex gap-1 justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>`;
             });
 
             document.getElementById('totalDia').innerText = totalDia.toFixed(2);
@@ -822,25 +1170,114 @@
             document.getElementById('qtdConcluidas').innerText = qtdConcluidas;
 
             const divMotoboys = document.getElementById('resumoMotoboys');
-            const chaves = Object.keys(pendentePorMotoboy);
-            divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
+            const chavesMotoboy = Object.keys(pendentePorMotoboy);
+            if (chavesMotoboy.length === 0) {
+                divMotoboys.innerHTML = '<span class="text-slate-400 italic">Nenhum valor pendente.</span>';
+            } else {
+                divMotoboys.innerHTML = chavesMotoboy.map(m => `
+                    <div class="flex justify-between items-center py-0.5 border-b border-slate-100 last:border-0">
+                        <span class="text-slate-700">${m}:</span>
+                        <span class="font-extrabold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderizarTabela() {
+            const tbody = document.querySelector('#tabelaRegistros tbody');
+            const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
+
+            tbody.innerHTML = '';
+            let lista = historico;
+
+            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
+
+            if (busca) {
+                lista = lista.filter(r => 
+                    r.coo.toLowerCase().includes(busca) || 
+                    r.motoboy.toLowerCase().includes(busca) ||
+                    r.caixa.toLowerCase().includes(busca) ||
+                    r.formaPag.toLowerCase().includes(busca)
+                );
+            }
+
+            lista.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50";
+                const optionsMotoboy = motoboys.map(m => `<option value="${m.nome}" ${m.nome === r.motoboy ? 'selected' : ''}>${m.nome}</option>`).join('');
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${r.concluido ? 'Concluído' : 'Pendente'}
+                        </button>
+                    </td>
+                    <td class="py-3 px-4">${r.hora}</td>
+                    <td class="py-3 px-4">${r.caixa}</td>
+                    <td class="py-2 px-3">
+                        <input type="text" value="${r.coo}" onchange="atualizarCampoSupabase(${r.id}, 'coo', this.value.trim())" class="bg-white border border-slate-200 text-slate-800 text-xs font-mono font-bold rounded-lg px-2 py-1 w-28">
+                    </td>
+                    <td class="py-2 px-3">
+                        <select onchange="atualizarCampoSupabase(${r.id}, 'motoboy', this.value)" class="bg-white border border-slate-200 text-slate-800 text-xs font-semibold rounded-lg px-2 py-1">
+                            ${optionsMotoboy}
+                        </select>
+                    </td>
+                    <td class="py-2 px-3">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-semibold text-xs text-slate-800 truncate max-w-[140px]" title="${r.formaPag}">${r.formaPag}</span>
+                            <button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 bg-slate-100 p-1 rounded" title="Alterar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-center flex gap-1 justify-center">
+                        <button onclick="imprimirCupom(${r.id})" class="p-1.5 text-slate-600 hover:text-slate-900"><i class="fa-solid fa-print"></i></button>
+                        <button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderizarResumos();
+        }
+
+        function atualizarSelects() {
+            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+            const opcoesMotoboys = motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+
+            document.getElementById('selectMotoboy').innerHTML = opcoesMotoboys;
+            document.getElementById('formaPagamento').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma1').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma2').innerHTML = opcoesPag;
+            document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
+            document.getElementById('editForma1').innerHTML = opcoesPag;
+            document.getElementById('editForma2').innerHTML = opcoesPag;
         }
 
         function exportarCSV() {
-            let csv = "Status;Hora;Operador;COO;Motoboy;Pagamento;Valor\n";
-            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
+            if (historico.length === 0) {
+                showToast("Nenhum registro nesta data.");
+                return;
+            }
+            let csv = "Status;Hora;Operador;COO/Pedido;Motoboy;Pagamento;Valor Pedido;Troco;Valor A Trazer\n";
+            historico.forEach(r => {
+                csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)};${r.troco.toFixed(2)};${r.valorATrazer.toFixed(2)}\n`;
+            });
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `entregas_${Date.now()}.csv`;
+            link.download = `entregas_farmassim_${dataAtualFormatted}.csv`;
             link.click();
         }
 
         function showToast(msg) {
-            const t = document.getElementById('toast');
+            const toast = document.getElementById('toast');
             document.getElementById('toastMessage').innerText = msg;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 2500);
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
         }
     </script>
 </body>
