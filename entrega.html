@@ -356,46 +356,46 @@
         </div>
     </div>
 
-    <!-- MODAL DE CADASTROS COM ABAS / SEÇÕES -->
+    <!-- MODAL DE CADASTROS COMPLETO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
                 <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-gear"></i> Gerenciar Cadastros</h3>
-                <button onclick="closeModal('modalCadastros')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <!-- Abas de navegação interna -->
-                <div class="flex border-b border-slate-200">
-                    <button onclick="mudarAbaCadastros('motoboys')" id="tabBtnMotoboys" class="flex-1 pb-2 text-xs font-bold text-farmassim-600 border-b-2 border-farmassim-600 transition-all">Motoboys</button>
-                    <button onclick="mudarAbaCadastros('formas')" id="tabBtnFormas" class="flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all">Formas de Pagamento</button>
-                    <button onclick="mudarAbaCadastros('caixas')" id="tabBtnCaixas" class="flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all">Operadores / Caixas</button>
-                </div>
-
-                <!-- Conteúdo Motoboys -->
-                <div id="abaMotoboys" class="space-y-3">
-                    <div class="flex gap-2">
+                <!-- Seção Motoboys -->
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Entregadores / Motoboys</h4>
+                    <div class="flex gap-2 mb-3">
                         <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarMotoboy()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
-                    <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1"></div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
 
-                <!-- Conteúdo Formas de Pagamento -->
-                <div id="abaFormas" class="space-y-3 hidden">
-                    <div class="flex gap-2">
+                <hr class="border-slate-100">
+
+                <!-- Seção Formas de Pagamento -->
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Formas de Pagamento</h4>
+                    <div class="flex gap-2 mb-3">
                         <input type="text" id="novaFormaNome" placeholder="Nome (Ex: Pix, Dinheiro...)" class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarFormaPagamento()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
-                    <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1"></div>
+                    <div id="listaFormasPagamento" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
 
-                <!-- Conteúdo Operadores / Caixas -->
-                <div id="abaCaixas" class="space-y-3 hidden">
-                    <div class="flex gap-2">
+                <hr class="border-slate-100">
+
+                <!-- Seção Caixas/Operadores -->
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase tracking-wider mb-2">Caixas / Operadores</h4>
+                    <div class="flex gap-2 mb-3">
                         <input type="text" id="novoCaixaNome" placeholder="Nome do Operador..." class="flex-1 bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2.5 font-bold">
                         <button onclick="cadastrarCaixa()" class="px-4 py-2 text-xs font-bold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl transition-all">Adicionar</button>
                     </div>
-                    <div id="listaCaixas" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-1"></div>
+                    <div id="listaCaixas" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1"></div>
                 </div>
             </div>
             <div class="p-4 bg-slate-50 border-t flex justify-end">
@@ -411,7 +411,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -542,27 +542,6 @@
         }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function focarCampoPedido() { document.getElementById('coo').focus(); }
-
-        function mudarAbaCadastros(aba) {
-            document.getElementById('abaMotoboys').classList.add('hidden');
-            document.getElementById('abaFormas').classList.add('hidden');
-            document.getElementById('abaCaixas').classList.add('hidden');
-
-            document.getElementById('tabBtnMotoboys').className = "flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all border-b-2 border-transparent";
-            document.getElementById('tabBtnFormas').className = "flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all border-b-2 border-transparent";
-            document.getElementById('tabBtnCaixas').className = "flex-1 pb-2 text-xs font-bold text-slate-500 hover:text-slate-700 transition-all border-b-2 border-transparent";
-
-            if (aba === 'motoboys') {
-                document.getElementById('abaMotoboys').classList.remove('hidden');
-                document.getElementById('tabBtnMotoboys').className = "flex-1 pb-2 text-xs font-bold text-farmassim-600 border-b-2 border-farmassim-600 transition-all";
-            } else if (aba === 'formas') {
-                document.getElementById('abaFormas').classList.remove('hidden');
-                document.getElementById('tabBtnFormas').className = "flex-1 pb-2 text-xs font-bold text-farmassim-600 border-b-2 border-farmassim-600 transition-all";
-            } else if (aba === 'caixas') {
-                document.getElementById('abaCaixas').classList.remove('hidden');
-                document.getElementById('tabBtnCaixas').className = "flex-1 pb-2 text-xs font-bold text-farmassim-600 border-b-2 border-farmassim-600 transition-all";
-            }
-        }
 
         function toggleMostrarConcluidas() {
             exibirConcluidas = !exibirConcluidas;
@@ -764,4 +743,213 @@
                     if (dFim && r.data > dFim) match = false;
                     if (motoboy !== 'TODOS' && r.motoboy !== motoboy) match = false;
                     if (operador !== 'TODOS' && r.caixa !== operador) match = false;
-                    return match
+                    return match;
+                });
+            }
+
+            tbody.innerHTML = '';
+            
+            if (dadosEncontrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Nenhum registro encontrado no período selecionado.</td></tr>`;
+                return;
+            }
+
+            dadosEncontrados.forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-2.5 px-3">${r.data} ${r.hora}</td>
+                        <td class="py-2.5 px-3 font-bold">${r.coo}</td>
+                        <td class="py-2.5 px-3">${r.caixa}</td>
+                        <td class="py-2.5 px-3">${r.motoboy}</td>
+                        <td class="py-2.5 px-3">${r.formaPag}</td>
+                        <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</span></td>
+                    </tr>`;
+            });
+        }
+
+        async function cadastrarMotoboy() {
+            const nome = document.getElementById('novoMotoboyNome').value.trim();
+            if (nome) {
+                const novoM = { id: Date.now(), nome };
+                motoboys.push(novoM);
+                document.getElementById('novoMotoboyNome').value = '';
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('motoboys').insert([{ nome }]); } catch(e){}
+                }
+                showToast("Motoboy cadastrado!");
+            }
+        }
+
+        async function excluirMotoboy(id) {
+            if (!confirm("Remover este motoboy?")) return;
+            motoboys = motoboys.filter(m => m.id !== id);
+            atualizarSelects();
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('motoboys').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Motoboy removido!");
+        }
+
+        async function cadastrarFormaPagamento() {
+            const nome = document.getElementById('novaFormaNome').value.trim();
+            if (nome) {
+                const novaF = { id: Date.now(), nome, requerTroco: true };
+                formasPagamento.push(novaF);
+                document.getElementById('novaFormaNome').value = '';
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: true }]); } catch(e){}
+                }
+                showToast("Forma de pagamento cadastrada!");
+            }
+        }
+
+        async function excluirFormaPagamento(id) {
+            if (!confirm("Remover esta forma de pagamento?")) return;
+            formasPagamento = formasPagamento.filter(f => f.id !== id);
+            atualizarSelects();
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('formas_pagamento').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Forma de pagamento removida!");
+        }
+
+        async function cadastrarCaixa() {
+            const nome = document.getElementById('novoCaixaNome').value.trim();
+            if (nome) {
+                const novoC = { id: Date.now(), nome };
+                caixas.push(novoC);
+                document.getElementById('novoCaixaNome').value = '';
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('caixas').insert([{ nome }]); } catch(e){}
+                }
+                showToast("Caixa/Operador cadastrado!");
+            }
+        }
+
+        async function excluirCaixa(id) {
+            if (!confirm("Remover este caixa/operador?")) return;
+            caixas = caixas.filter(c => c.id !== id);
+            renderizarListasGerenciamento();
+            if (supabaseClient) {
+                try { await supabaseClient.from('caixas').delete().eq('id', id); } catch(e){}
+            }
+            showToast("Caixa removido!");
+        }
+
+        function renderizarListasGerenciamento() {
+            const divMotoboys = document.getElementById('listaMotoboys');
+            if (divMotoboys) {
+                divMotoboys.innerHTML = motoboys.map(m => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${m.nome} 
+                        <button onclick="excluirMotoboy(${m.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('');
+            }
+
+            const divFormas = document.getElementById('listaFormasPagamento');
+            if (divFormas) {
+                divFormas.innerHTML = formasPagamento.map(f => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${f.nome} 
+                        <button onclick="excluirFormaPagamento(${f.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('');
+            }
+
+            const divCaixas = document.getElementById('listaCaixas');
+            if (divCaixas) {
+                divCaixas.innerHTML = caixas.length === 0 ? '<span class="text-slate-400 italic text-xs">Nenhum caixa extra cadastrado.</span>' : caixas.map(c => `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
+                        ${c.nome} 
+                        <button onclick="excluirCaixa(${c.id})" class="text-slate-400 hover:text-rose-600 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('');
+            }
+        }
+
+        function atualizarSelects() {
+            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+            const opcoesMotoboys = motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+
+            document.getElementById('selectMotoboy').innerHTML = opcoesMotoboys;
+            document.getElementById('formaPagamento').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma1').innerHTML = opcoesPag;
+            document.getElementById('addMistoForma2').innerHTML = opcoesPag;
+            document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
+        }
+
+        function renderizarTabela() {
+            const tbody = document.querySelector('#tabelaRegistros tbody');
+            const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
+            tbody.innerHTML = '';
+
+            let lista = historico;
+            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
+            if (busca) lista = lista.filter(r => r.coo.toLowerCase().includes(busca) || r.motoboy.toLowerCase().includes(busca));
+
+            let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
+            let pendentePorMotoboy = {};
+
+            lista.forEach(r => {
+                totalDia += r.valor;
+                if (r.concluido) {
+                    totalConcluido += r.valorATrazer;
+                    qtdConcluidas++;
+                } else {
+                    totalPendente += r.valorATrazer;
+                    qtdPendentes++;
+                    pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
+                        <td class="py-3 px-4">${r.hora}</td>
+                        <td class="py-3 px-4">${r.caixa}</td>
+                        <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
+                        <td class="py-3 px-4 font-bold">${r.motoboy}</td>
+                        <td class="py-3 px-4">${r.formaPag}</td>
+                        <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-center flex gap-1 justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+
+            document.getElementById('totalDia').innerText = totalDia.toFixed(2);
+            document.getElementById('qtdEntregasDia').innerText = lista.length;
+            document.getElementById('totalPendente').innerText = totalPendente.toFixed(2);
+            document.getElementById('qtdPendentes').innerText = qtdPendentes;
+            document.getElementById('totalConcluido').innerText = totalConcluido.toFixed(2);
+            document.getElementById('qtdConcluidas').innerText = qtdConcluidas;
+
+            const divMotoboys = document.getElementById('resumoMotoboys');
+            const chaves = Object.keys(pendentePorMotoboy);
+            divMotoboys.innerHTML = chaves.length === 0 ? '<span class="text-slate-400 italic">Nenhum valor pendente.</span>' : chaves.map(m => `<div class="flex justify-between"><span>${m}:</span><span class="font-bold text-amber-700">R$ ${pendentePorMotoboy[m].toFixed(2)}</span></div>`).join('');
+        }
+
+        function exportarCSV() {
+            let csv = "Status;Hora;Operador;COO;Motoboy;Pagamento;Valor\n";
+            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `entregas_${Date.now()}.csv`;
+            link.click();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2500);
+        }
+    </script>
+</body>
+</html>
