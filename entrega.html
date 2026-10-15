@@ -356,11 +356,46 @@
         </div>
     </div>
 
+    <!-- MODAL CADASTROS RESTAURADO COMPLETO -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center"><h3 class="font-bold text-base">Gerenciar Cadastros</h3><button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-base"><i class="fa-solid fa-sliders text-farmassimYellow-400"></i> Gerenciar Cadastros do Sistema</h3>
+                <button onclick="closeModal('modalCadastros')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
             <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                <div><h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2">Motoboys</h4><div class="flex gap-2 mb-2"><input type="text" id="novoMotoboyNome" placeholder="Nome..." class="flex-1 border text-xs p-2 font-bold rounded-xl"><button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button></div><div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div></div>
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2"><i class="fa-solid fa-user-doctor"></i> Operadores de Caixa</h4>
+                    <div id="listaCaixas" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2"><i class="fa-solid fa-helmet-safety"></i> Motoboys</h4>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="novoMotoboyNome" placeholder="Nome do Motoboy..." class="flex-1 border text-xs p-2 font-bold rounded-xl">
+                        <button onclick="cadastrarMotoboy()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button>
+                    </div>
+                    <div id="listaMotoboys" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div>
+                    <h4 class="text-xs font-bold text-farmassim-700 uppercase mb-2"><i class="fa-solid fa-credit-card"></i> Formas de Pagamento</h4>
+                    <div class="space-y-2 mb-2">
+                        <div class="flex gap-2">
+                            <input type="text" id="novoPagamentoNome" placeholder="Ex: Pix, Cartão..." class="flex-1 border text-xs p-2 font-bold rounded-xl">
+                            <button onclick="cadastrarFormaPagamento()" class="px-4 text-xs text-white bg-farmassim-600 rounded-xl">Adicionar</button>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="novoPagamentoRequerTroco" checked class="w-4 h-4 text-farmassim-600 rounded">
+                            <span class="ml-2 text-xs font-bold text-slate-600">Requer / Aceita Troco</span>
+                        </label>
+                    </div>
+                    <div id="listaPagamentos" class="flex flex-wrap gap-1.5"></div>
+                </div>
             </div>
             <div class="p-4 bg-slate-50 border-t flex justify-end"><button onclick="closeModal('modalCadastros')" class="px-5 py-2 text-xs bg-slate-200 rounded-xl">Fechar</button></div>
         </div>
@@ -373,7 +408,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -480,6 +515,7 @@
                 badge.className = "flex items-center gap-1.5 text-amber-400";
                 badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
             }
+            renderizarListasGerenciamento();
             renderizarTabela();
         }
 
@@ -685,7 +721,6 @@
                 } catch(e) { console.warn("Erro ao consultar histórico:", e); }
             }
 
-            // Fallback para os dados locais caso não traga resultados do banco
             if (dadosEncontrados.length === 0) {
                 dadosEncontrados = historico.filter(r => {
                     let match = true;
@@ -732,10 +767,36 @@
             }
         }
 
+        async function cadastrarFormaPagamento() {
+            const input = document.getElementById('novoPagamentoNome');
+            const chk = document.getElementById('novoPagamentoRequerTroco');
+            const nome = input.value.trim();
+            if (nome !== "") {
+                formasPagamento.push({ id: Date.now(), nome, requerTroco: chk.checked });
+                input.value = "";
+                atualizarSelects();
+                renderizarListasGerenciamento();
+                if (supabaseClient) {
+                    try { await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: chk.checked }]); } catch(e){}
+                }
+                showToast("Forma de pagamento cadastrada!");
+            }
+        }
+
         function renderizarListasGerenciamento() {
-            const div = document.getElementById('listaMotoboys');
-            if (div) {
-                div.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+            const divCaixas = document.getElementById('listaCaixas');
+            if (divCaixas) {
+                divCaixas.innerHTML = (caixas.length > 0 ? caixas : [{nome: operadorAtivo}]).map(c => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${c.nome}</span>`).join('');
+            }
+
+            const divMotoboys = document.getElementById('listaMotoboys');
+            if (divMotoboys) {
+                divMotoboys.innerHTML = motoboys.map(m => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${m.nome}</span>`).join('');
+            }
+
+            const divPagamentos = document.getElementById('listaPagamentos');
+            if (divPagamentos) {
+                divPagamentos.innerHTML = formasPagamento.map(p => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-900 border">${p.nome}</span>`).join('');
             }
         }
 
