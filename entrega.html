@@ -299,7 +299,7 @@
         <p class="font-medium">Emerson de França - 2026</p>
     </footer>
 
-    <!-- MODAL PAGAMENTO MISTO (NOVO LANÇAMENTO) -->
+    <!-- MODAIS -->
     <div id="modalAddMisto" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
@@ -339,7 +339,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONSULTA / HISTÓRICO AVANÇADO -->
     <div id="modalConsultaHistorico" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-100 my-8 flex flex-col max-h-[90vh]">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
@@ -417,7 +416,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR PAGAMENTO -->
     <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
@@ -486,7 +484,6 @@
         </div>
     </div>
 
-    <!-- MODAL CADASTROS -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-farmassim-600 text-white">
@@ -559,75 +556,89 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         let supabaseClient = null;
 
-        // Inicialização robusta do cliente Supabase global
         try {
-            if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: { persistSession: false }
-                });
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
         } catch(e) {
-            console.error("Erro crítico ao instanciar Supabase:", e);
+            console.error("Erro no Supabase:", e);
         }
 
         let caixas = [];
-        let motoboys = [];
-        let formasPagamento = [];
+        let motoboys = [{ id: 1, nome: 'Geral' }];
+        let formasPagamento = [
+            { id: 1, nome: 'Dinheiro', requerTroco: true },
+            { id: 2, nome: 'Pix', requerTroco: false },
+            { id: 3, nome: 'Cartão de Débito', requerTroco: false },
+            { id: 4, nome: 'Cartão de Crédito', requerTroco: false }
+        ];
         let historico = [];
         let exibirConcluidas = true;
         let resultadoConsultaGlobal = [];
-        let operadorAtivo = '';
+        let operadorAtivo = 'Caixa';
         let dataAtualFormatted = '';
 
-        window.onload = async function() {
-            operadorAtivo = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
-            
-            if (!operadorAtivo || operadorAtivo.trim() === "") {
-                operadorAtivo = prompt("Operador não identificado. Digite seu nome:") || "Operador";
+        // Execução rápida síncrona no arranque da página
+        window.onload = function() {
+            // 1. Obter Operador Imediatamente sem travar a interface
+            const opSalvo = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
+            if (opSalvo && opSalvo.trim() !== '') {
+                operadorAtivo = opSalvo.trim();
+            } else {
+                operadorAtivo = prompt("Digite o nome do Operador/Caixa:") || "Operador";
                 sessionStorage.setItem('farmassim_operador_logado', operadorAtivo);
             }
 
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
+            // Atualiza o ecrã imediatamente
+            const badgeOp = document.getElementById('badgeOperadorFiltroAtivo');
+            if (badgeOp) badgeOp.innerText = `Operador: ${operadorAtivo}`;
 
-            dataAtualFormatted = `${year}-${month}-${day}`;
+            // 2. Definir a data atual
+            const today = new Date();
+            dataAtualFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
-            document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
 
-            await carregarCadastrosSupabase();
+            // 3. Preencher opções padrão no formulário para não ficar vazio
+            atualizarSelects();
             focarCampoPedido();
+
+            // 4. Iniciar busca no banco de dados em segundo plano (Assíncrona)
+            carregarDadosIniciaisAssincrono();
         };
 
-        async function carregarCadastrosSupabase() {
+        // Função de carregamento seguro com tempo limite de resposta
+        async function carregarDadosIniciaisAssincrono() {
             const badge = document.getElementById('badgeStatusSupabase');
             if (!supabaseClient) {
-                badge.className = "flex items-center gap-1.5 text-rose-300";
-                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Sem Supabase`;
+                if (badge) {
+                    badge.className = "flex items-center gap-1.5 text-rose-300";
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Erro Script`;
+                }
                 return;
             }
 
-            badge.className = "flex items-center gap-1.5 text-amber-300";
-            badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...`;
+            if (badge) {
+                badge.className = "flex items-center gap-1.5 text-amber-300";
+                badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span class="hidden sm:inline">DB:</span> Conectando...`;
+            }
 
             try {
-                // Teste direto de conexão e carregamento das tabelas de apoio
-                const [resCaixas, resMotoboys, resPagamentos] = await Promise.all([
+                // Adiciona timeout para a requisição de cadastros não prender o sistema
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout DB")), 4000));
+                
+                const fetchPromise = Promise.all([
                     supabaseClient.from('caixas').select('*').order('nome'),
                     supabaseClient.from('motoboys').select('*').order('nome'),
                     supabaseClient.from('formas_pagamento').select('*').order('nome')
                 ]);
 
-                if (resCaixas.error) console.warn("Aviso caixas:", resCaixas.error.message);
-                if (resMotoboys.error) console.warn("Aviso motoboys:", resMotoboys.error.message);
-                if (resPagamentos.error) console.warn("Aviso pagamentos:", resPagamentos.error.message);
+                const [resCaixas, resMotoboys, resPagamentos] = await Promise.race([fetchPromise, timeoutPromise]);
 
-                if (resCaixas.data) caixas = resCaixas.data;
-                if (resMotoboys.data) motoboys = resMotoboys.data;
-                if (resPagamentos.data) {
+                if (resCaixas && resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
+                if (resMotoboys && resMotoboys.data && resMotoboys.data.length > 0) motoboys = resMotoboys.data;
+                if (resPagamentos && resPagamentos.data && resPagamentos.data.length > 0) {
                     formasPagamento = resPagamentos.data.map(p => ({
                         id: p.id,
                         nome: p.nome,
@@ -635,30 +646,20 @@
                     }));
                 }
 
-                // Se as tabelas estiverem vazias ou sem cadastros padrão, injeta padrões locais para o sistema funcionar
-                if (motoboys.length === 0) motoboys = [{ id: 1, nome: 'Motoboy Padrão' }];
-                if (formasPagamento.length === 0) formasPagamento = [{ id: 1, nome: 'Dinheiro', requerTroco: true }, { id: 2, nome: 'Pix', requerTroco: false }];
-
                 atualizarSelects();
                 renderizarListasGerenciamento();
+
+                // Busca entregas do dia
                 await carregarDadosSupabase();
 
-            } catch (e) {
-                console.error("Falha na conexão com o Banco de Dados:", e);
-                badge.className = "flex items-center gap-1.5 text-rose-300";
-                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Erro DB`;
-                showToast("Erro ao conectar no banco de dados.");
+            } catch (err) {
+                console.warn("Aviso de Conexão DB:", err.message);
+                if (badge) {
+                    badge.className = "flex items-center gap-1.5 text-rose-300";
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Offline`;
+                }
             }
         }
-
-        function sairDoSistema() {
-            sessionStorage.removeItem('farmassim_operador_logado');
-            window.location.href = 'index.html';
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function focarCampoPedido() { document.getElementById('coo').focus(); }
 
         async function carregarDadosSupabase() {
             const badge = document.getElementById('badgeStatusSupabase');
@@ -687,16 +688,29 @@
                     concluido: item.concluido
                 }));
 
-                badge.className = "flex items-center gap-1.5 text-emerald-300";
-                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+                if (badge) {
+                    badge.className = "flex items-center gap-1.5 text-emerald-300";
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+                }
 
                 renderizarTabela();
             } catch (err) {
                 console.error("Erro ao buscar entregas:", err);
-                badge.className = "flex items-center gap-1.5 text-rose-300";
-                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Falha`;
+                if (badge) {
+                    badge.className = "flex items-center gap-1.5 text-rose-300";
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">DB:</span> Erro`;
+                }
             }
         }
+
+        function sairDoSistema() {
+            sessionStorage.removeItem('farmassim_operador_logado');
+            window.location.href = 'index.html';
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function focarCampoPedido() { document.getElementById('coo').focus(); }
 
         function toggleMostrarConcluidas() {
             exibirConcluidas = !exibirConcluidas;
@@ -1145,7 +1159,7 @@
                 const { error } = await supabaseClient.from('motoboys').insert([{ nome }]);
                 if (!error) {
                     input.value = "";
-                    await carregarCadastrosSupabase();
+                    await carregarDadosIniciaisAssincrono();
                     showToast("Motoboy cadastrado!");
                 }
             }
@@ -1155,7 +1169,7 @@
             if(!confirm("Deseja realmente remover este motoboy?")) return;
             const { error } = await supabaseClient.from('motoboys').delete().eq('id', id);
             if (!error) {
-                await carregarCadastrosSupabase();
+                await carregarDadosIniciaisAssincrono();
                 showToast("Motoboy removido!");
             }
         }
@@ -1168,7 +1182,7 @@
                 const { error } = await supabaseClient.from('formas_pagamento').insert([{ nome, requer_troco: chk.checked }]);
                 if (!error) {
                     input.value = "";
-                    await carregarCadastrosSupabase();
+                    await carregarDadosIniciaisAssincrono();
                     showToast("Forma de pagamento cadastrada!");
                 }
             }
@@ -1178,7 +1192,7 @@
             if(!confirm("Deseja realmente remover esta forma de pagamento?")) return;
             const { error } = await supabaseClient.from('formas_pagamento').delete().eq('id', id);
             if (!error) {
-                await carregarCadastrosSupabase();
+                await carregarDadosIniciaisAssincrono();
                 showToast("Forma de pagamento removida!");
             }
         }
