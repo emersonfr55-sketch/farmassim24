@@ -575,10 +575,12 @@
         let dataAtualFormatted = '';
 
         window.onload = async function() {
-            operadorAtivo = sessionStorage.getItem('farmassim_operador_logado');
-            if (!operadorAtivo) {
-                window.location.href = 'index.html';
-                return;
+            // Verifica chaves alternativas comuns salvas em sessões anteriores
+            operadorAtivo = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
+            
+            if (!operadorAtivo || operadorAtivo.trim() === "") {
+                operadorAtivo = prompt("Operador não identificado. Digite seu nome para continuar:") || "Operador";
+                sessionStorage.setItem('farmassim_operador_logado', operadorAtivo);
             }
 
             const today = new Date();
@@ -598,7 +600,10 @@
         };
 
         async function carregarCadastrosSupabase() {
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                document.getElementById('badgeStatusSupabase').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Erro DB`;
+                return;
+            }
             try {
                 const [resCaixas, resMotoboys, resPagamentos] = await Promise.all([
                     supabaseClient.from('caixas').select('*').order('nome'),
@@ -618,9 +623,11 @@
 
                 atualizarSelects();
                 renderizarListasGerenciamento();
-                carregarDadosSupabase();
+                await carregarDadosSupabase();
             } catch (e) {
                 console.error("Erro ao carregar cadastros:", e);
+                // Fallback caso tabelas secundárias demorem: tenta carregar os dados principais mesmo assim
+                await carregarDadosSupabase();
             }
         }
 
