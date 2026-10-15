@@ -356,7 +356,7 @@
         </div>
     </div>
 
-    <!-- MODAL CADASTROS RESTAURADO COMPLETO -->
+    <!-- MODAL CADASTROS -->
     <div id="modalCadastros" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 my-8">
             <div class="p-5 border-b bg-farmassim-600 text-white flex justify-between items-center">
@@ -420,7 +420,7 @@
         } catch(e) { console.error("Erro init supabase", e); }
 
         let caixas = [];
-        let motoboys = [{ id: 1, nome: 'Motoboy 1' }, { id: 2, nome: 'Motoboy 2' }];
+        let motoboys = [];
         let formasPagamento = [
             { id: 1, nome: 'Dinheiro', requerTroco: true },
             { id: 2, nome: 'Pix', requerTroco: false },
@@ -463,19 +463,26 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
-                
-                const fetchDb = Promise.all([
-                    supabaseClient.from('caixas').select('*'),
-                    supabaseClient.from('motoboys').select('*'),
-                    supabaseClient.from('formas_pagamento').select('*'),
+                // Busca simultânea das tabelas no Supabase com tratamento individual para não travar
+                const [resCaixas, resMot, resPag, resEnt] = await Promise.all([
+                    supabaseClient.from('caixas').select('*').order('nome'),
+                    supabaseClient.from('motoboys').select('*').order('nome'),
+                    supabaseClient.from('formas_pagamento').select('*').order('nome'),
                     supabaseClient.from('entregas_farmassim').select('*').eq('data', dataAtualFormatted)
                 ]);
 
-                const [resCaixas, resMot, resPag, resEnt] = await Promise.race([fetchDb, timeout]);
+                if (resCaixas.data && resCaixas.data.length > 0) {
+                    caixas = resCaixas.data;
+                } else {
+                    caixas = [{ id: 1, nome: operadorAtivo }];
+                }
 
-                if (resCaixas.data && resCaixas.data.length > 0) caixas = resCaixas.data;
-                if (resMot.data && resMot.data.length > 0) motoboys = resMot.data;
+                if (resMot.data && resMot.data.length > 0) {
+                    motoboys = resMot.data;
+                } else {
+                    motoboys = [{ id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' }, { id: 2, nome: 'FERNANDO GOMES DA MOTA' }, { id: 3, nome: 'KAIKE SCHIBLSKI' }, { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' }, { id: 5, nome: 'MAURO MOKRESKI' }];
+                }
+
                 if (resPag.data && resPag.data.length > 0) {
                     formasPagamento = resPag.data.map(p => ({ id: p.id, nome: p.nome, requerTroco: p.requer_troco !== false }));
                 }
@@ -504,7 +511,7 @@
                 badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
 
             } catch (err) {
-                console.warn("Supabase indisponível, usando modo local:", err);
+                console.warn("Supabase indisponível, usando fallback local:", err);
                 marcarOffline("Modo Local");
             }
         }
@@ -515,6 +522,13 @@
                 badge.className = "flex items-center gap-1.5 text-amber-400";
                 badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
             }
+            if (motoboys.length === 0) {
+                motoboys = [{ id: 1, nome: 'ANTONIO ADRIANO DE OLIVEIRA ANDRADE' }, { id: 2, nome: 'FERNANDO GOMES DA MOTA' }, { id: 3, nome: 'KAIKE SCHIBLSKI' }, { id: 4, nome: 'LUCIANO ALVES DE OLIVEIRA' }, { id: 5, nome: 'MAURO MOKRESKI' }];
+            }
+            if (caixas.length === 0) {
+                caixas = [{ id: 1, nome: operadorAtivo }];
+            }
+            atualizarSelects();
             renderizarListasGerenciamento();
             renderizarTabela();
         }
@@ -665,15 +679,15 @@
         }
 
         function abrirConsultaHistorico() {
-            document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">Todos</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+            document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
             
-            let opcoesCaixas = `<option value="TODOS">Todos</option>`;
-            if (caixas.length > 0) {
-                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
-            } else {
-                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            let operadoresUnicos = caixas.length > 0 ? caixas : [{ nome: operadorAtivo }];
+            // Garantir que o operador logado apareça nas opções caso não esteja na tabela do banco
+            if (!operadoresUnicos.some(c => c.nome === operadorAtivo)) {
+                operadoresUnicos.push({ nome: operadorAtivo });
             }
-            document.getElementById('histOperador').innerHTML = opcoesCaixas;
+
+            document.getElementById('histOperador').innerHTML = `<option value="TODOS">🌐 Todos os Operadores</option>` + operadoresUnicos.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
 
             executarConsultaHistorico();
             openModal('modalConsultaHistorico');
@@ -786,7 +800,8 @@
         function renderizarListasGerenciamento() {
             const divCaixas = document.getElementById('listaCaixas');
             if (divCaixas) {
-                divCaixas.innerHTML = (caixas.length > 0 ? caixas : [{nome: operadorAtivo}]).map(c => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${c.nome}</span>`).join('');
+                let listaC = caixas.length > 0 ? caixas : [{nome: operadorAtivo}];
+                divCaixas.innerHTML = listaC.map(c => `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border">${c.nome}</span>`).join('');
             }
 
             const divMotoboys = document.getElementById('listaMotoboys');
@@ -863,7 +878,7 @@
 
         function exportarCSV() {
             let csv = "Status;Hora;Operador;COO;Motoboy;Pagamento;Valor\n";
-            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
+            historico.forEach(r => csv += `${r.concluido ? 'Concluido' : 'Pendente'};${r.hora};${r.caissuer || r.caixa};${r.coo};${r.motoboy};${r.formaPag};${r.valor.toFixed(2)}\n`);
             const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
