@@ -135,14 +135,17 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <button onclick="imprimirCupomTermico()" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
-            <i class="fa-solid fa-print text-sm"></i> Imprimir Comprovante (F8)
+        <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+          <button onclick="imprimirCupomTermico()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
+            <i class="fa-solid fa-print text-sm"></i> Imprimir (F8)
           </button>
-          <button onclick="carregarExemplo()" class="flex-1 sm:flex-none px-3.5 py-2 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-900 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+          <button onclick="abrirModalGerenciar()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
+            <i class="fa-solid fa-folder-open"></i> Gerenciar Fechamentos
+          </button>
+          <button onclick="carregarExemplo()" class="px-3 py-2 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-900 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i> Exemplo
           </button>
-          <button onclick="zerarTudo()" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+          <button onclick="zerarTudo()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-rotate-left"></i> Zerar
           </button>
         </div>
@@ -286,13 +289,71 @@
               <h4 class="font-bold text-slate-800 dark:text-white text-xs flex items-center gap-1.5">
                 <i class="fa-solid fa-clock-rotate-left text-farmassim-600"></i> Histórico Recente
               </h4>
-              <button onclick="imprimirCupomTermico()" class="text-xs text-slate-500 hover:text-farmassim-700" title="Imprimir"><i class="fa-solid fa-print"></i></button>
+              <button onclick="abrirModalGerenciar()" class="text-xs text-farmassim-600 dark:text-emerald-400 font-bold hover:underline">Ver Todos</button>
             </div>
             <div id="historico-lista" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs"></div>
           </div>
         </section>
       </div>
     </main>
+  </div>
+
+  <!-- MODAL DE GERENCIAMENTO DE FECHAMENTOS ANTERIORES -->
+  <div id="modalGerenciar" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 my-8 flex flex-col max-h-[85vh]">
+      
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-farmassim-800 text-white shrink-0">
+        <h3 class="font-bold text-sm flex items-center gap-2">
+          <i class="fa-solid fa-folder-open text-farmassim-yellow"></i> Gerenciamento de Fechamentos Anteriores
+        </h3>
+        <button onclick="fecharModalGerenciar()" class="text-white/80 hover:text-white rounded-lg p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto flex-1">
+        <!-- Barra de Busca e Filtro -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="relative w-full sm:w-80">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" id="filtroHistorico" placeholder="Filtrar por operador..."
+                   oninput="filtrarHistoricoModal()"
+                   class="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600 shadow-inner">
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+            Total de registros: <span id="contadorModal" class="text-slate-800 dark:text-white font-bold">0</span>
+          </div>
+        </div>
+
+        <!-- Tabela de Fechamentos -->
+        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+          <div class="overflow-x-auto max-h-96">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider">
+                  <th class="py-2.5 px-3">Data / Hora</th>
+                  <th class="py-2.5 px-3">Operador</th>
+                  <th class="py-2.5 px-3">Total Líquido</th>
+                  <th class="py-2.5 px-3">Sangria</th>
+                  <th class="py-2.5 px-3 text-center">Status Malote</th>
+                  <th class="py-2.5 px-3 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaGerenciarCorpo" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr><td colspan="6" class="text-center py-4 text-slate-400">Carregando registros...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end shrink-0">
+        <button onclick="fecharModalGerenciar()" class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 rounded-xl transition">Fechar</button>
+      </div>
+
+    </div>
   </div>
 
   <footer class="no-print bg-farmassim-dark text-white text-center py-3 text-xs font-medium border-t-2 border-farmassim-yellow">
@@ -326,6 +387,7 @@
     let listaExtras = [];
     let audioCtx = null;
     let operadorLogado = '';
+    let cacheHistoricoCompleto = [];
 
     function aplicarDarkModeSalvo() {
       const isDark = localStorage.getItem('farmassim_dark_mode') === 'true';
@@ -509,7 +571,6 @@
         e.preventDefault();
         tocarSomAdicao();
         dispararFeedbackVisual(`row-cedula-${idxAtual}`);
-        // Pula para o campo de VALOR da mesma linha (ou para o Qtd da próxima)
         const proximoVal = document.getElementById(`input-cedula-val-${idxAtual}`);
         if (proximoVal) {
           proximoVal.focus(); proximoVal.select();
@@ -522,7 +583,6 @@
         e.preventDefault();
         tocarSomAdicao();
         dispararFeedbackVisual(`row-cedula-${idxAtual}`);
-        // Pula para o campo de QTD da PRÓXIMA cédula logo abaixo
         const proximaQtd = document.getElementById(`input-cedula-qtd-${idxAtual + 1}`);
         if (proximaQtd) {
           proximaQtd.focus(); proximaQtd.select();
@@ -775,7 +835,6 @@
         if (desejaImprimir) {
           imprimirCupomTermico();
         }
-        // Mantém os valores preenchidos na tela conforme solicitado, atualizando apenas o histórico
         carregarHistorico();
       }
     }
@@ -800,6 +859,7 @@
         return;
       }
 
+      cacheHistoricoCompleto = historico;
       container.innerHTML = historico.map(item => {
         const dataObj = new Date(item.data_hora);
         const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR');
@@ -817,6 +877,94 @@
       }).join('');
     }
 
+    async function abrirModalGerenciar() {
+      document.getElementById('modalGerenciar').classList.remove('hidden');
+      document.getElementById('filtroHistorico').value = '';
+      await carregarDadosModalGerenciar();
+    }
+
+    function fecharModalGerenciar() {
+      document.getElementById('modalGerenciar').classList.add('hidden');
+    }
+
+    async function carregarDadosModalGerenciar() {
+      const tbody = document.getElementById('tabelaGerenciarCorpo');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i> Carregando todos os registros...</td></tr>`;
+
+      const { data, error } = await supabaseClient
+        .from('fechamentos_caixa')
+        .select('*')
+        .order('data_hora', { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Erro ao buscar dados do banco.</td></tr>`;
+        return;
+      }
+
+      cacheHistoricoCompleto = data || [];
+      renderizarTabelaModal(cacheHistoricoCompleto);
+    }
+
+    function renderizarTabelaModal(lista) {
+      const tbody = document.getElementById('tabelaGerenciarCorpo');
+      document.getElementById('contadorModal').innerText = lista.length;
+
+      if (!lista || lista.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400 italic">Nenhum registro encontrado.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = lista.map(item => {
+        const dataObj = new Date(item.data_hora);
+        const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR');
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+            <td class="py-2.5 px-3 font-medium text-slate-700 dark:text-slate-300">${dataFormatada}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-white">${item.operador || 'Não informado'}</td>
+            <td class="py-2.5 px-3 font-black text-farmassim-700 dark:text-emerald-400">${formatarBRL(Number(item.total_geral))}</td>
+            <td class="py-2.5 px-3 font-semibold text-rose-600">${formatarBRL(Number(item.sangria || 0))}</td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="px-2 py-0.5 text-[10px] font-black rounded border ${item.fechou ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-900' : 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-900'}">
+                ${item.fechou ? 'OK' : 'NÃO OK'}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-right">
+              <button onclick="excluirFechamento('${item.id}')" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-700 dark:text-rose-300 rounded-lg font-bold transition" title="Excluir Registro">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filtrarHistoricoModal() {
+      const termo = document.getElementById('filtroHistorico').value.toLowerCase().trim();
+      const filtrados = cacheHistoricoCompleto.filter(item => {
+        const op = (item.operador || '').toLowerCase();
+        const dataStr = new Date(item.data_hora).toLocaleString('pt-BR').toLowerCase();
+        return op.includes(termo) || dataStr.includes(termo);
+      });
+      renderizarTabelaModal(filtrados);
+    }
+
+    async function excluirFechamento(id) {
+      if (!confirm("Deseja realmente excluir este registro de fechamento do banco de dados?")) return;
+
+      const { error } = await supabaseClient
+        .from('fechamentos_caixa')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert("Erro ao excluir registro: " + error.message);
+      } else {
+        alert("Registro excluído com sucesso!");
+        await carregarDadosModalGerenciar();
+        await carregarHistorico();
+      }
+    }
+
     function focarPrimeiroCampo() {
       setTimeout(() => {
         const p = document.getElementById('input-moeda-0');
@@ -832,7 +980,12 @@
         e.preventDefault(); imprimirCupomTermico();
       }
       if (e.key === 'Escape') {
-        if (confirm("Deseja zerar todos os campos da tela?")) { zerarTudo(); }
+        const modal = document.getElementById('modalGerenciar');
+        if (!modal.classList.contains('hidden')) {
+          fecharModalGerenciar();
+        } else if (confirm("Deseja zerar todos os campos da tela?")) { 
+          zerarTudo(); 
+        }
       }
     });
 
