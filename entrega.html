@@ -366,8 +366,8 @@
                         <select id="histMotoboy" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
                     </div>
                     <div>
-                        <label for="histOperador" class="block text-[11px] font-bold text-slate-600 mb-1">Operador</label>
-                        <select id="histOperador" disabled class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold cursor-not-allowed"></select>
+                        <label for="histOperador" class="block text-[11px] font-bold text-slate-600 mb-1">Operador / Caixa</label>
+                        <select id="histOperador" class="w-full bg-white border border-slate-300 text-slate-800 text-xs rounded-lg p-2 font-bold"></select>
                     </div>
                     <div>
                         <button onclick="executarConsultaHistorico()" class="w-full py-2 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-xs rounded-lg transition-all shadow-sm">
@@ -592,7 +592,6 @@
             document.getElementById('histDataFim').value = dataAtualFormatted;
 
             document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
-            document.getElementById('histOperador').innerHTML = `<option value="${operadorAtivo}">${operadorAtivo}</option>`;
 
             await carregarCadastrosSupabase();
             focarCampoPedido();
@@ -712,7 +711,7 @@
             const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
             const f2 = document.getElementById('addMistoForma2').value;
             const v2 = parseFloat(document.getElementById('addMistoVal2').value) || 0;
-            const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+            const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) +${f2} (R$ ${v2.toFixed(2)})`;
 
             document.getElementById('pagamentoMistoAtivo').value = "true";
             document.getElementById('textoPagamentoMisto').value = textoMisto;
@@ -744,7 +743,7 @@
                 const v1 = parseFloat(document.getElementById('addMistoVal1').value) || 0;
                 const f2 = document.getElementById('addMistoForma2').value;
                 const v2 = parseFloat(document.getElementById('addMistoVal2').value) || 0;
-                const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+                const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) +${f2} (R$ ${v2.toFixed(2)})`;
                 document.getElementById('textoPagamentoMisto').value = textoMisto;
                 document.getElementById('labelPagamentoMistoAtivo').innerText = textoMisto;
             }
@@ -817,6 +816,14 @@
         }
 
         async function atualizarCampoSupabase(id, campo, novoValor) {
+            const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
+            if (!item || item.caixa !== operadorAtivo) {
+                showToast("Você só pode alterar registros feitos por você!");
+                await carregarDadosSupabase();
+                if(!document.getElementById('modalConsultaHistorico').classList.contains('hidden')) executarConsultaHistorico();
+                return;
+            }
+
             const { error } = await supabaseClient.from('entregas_farmassim').update({ [campo]: novoValor }).eq('id', id);
             if (error) {
                 showToast("Erro ao atualizar.");
@@ -830,8 +837,13 @@
         }
 
         function abrirModalEdicaoPagamento(id) {
-            const item = historico.find(r => r.id === id);
+            const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
             if (!item) return;
+
+            if (item.caixa !== operadorAtivo) {
+                showToast("Apenas o operador que criou este registro pode editá-lo!");
+                return;
+            }
 
             document.getElementById('editRegistroId').value = item.id;
             document.getElementById('editInfoCoo').innerText = item.coo;
@@ -870,7 +882,7 @@
                 document.getElementById('editPainelSimples').classList.add('hidden');
                 document.getElementById('editPainelMisto').classList.remove('hidden');
                 const regId = parseInt(document.getElementById('editRegistroId').value);
-                const item = historico.find(r => r.id === regId);
+                const item = historico.find(r => r.id === regId) || resultadoConsultaGlobal.find(r => r.id === regId);
                 if (item) {
                     document.getElementById('editVal1').value = (item.valor / 2).toFixed(2);
                     calcularRestanteEdicao();
@@ -883,7 +895,7 @@
 
         function calcularRestanteEdicao() {
             const regId = parseInt(document.getElementById('editRegistroId').value);
-            const item = historico.find(r => r.id === regId);
+            const item = historico.find(r => r.id === regId) || resultadoConsultaGlobal.find(r => r.id === regId);
             if (!item) return;
             const v1 = parseFloat(document.getElementById('editVal1').value) || 0;
             document.getElementById('editVal2').value = Math.max(0, item.valor - v1).toFixed(2);
@@ -891,8 +903,11 @@
 
         async function salvarEdicaoPagamento() {
             const id = parseInt(document.getElementById('editRegistroId').value);
-            const item = historico.find(r => r.id === id);
-            if (!item) return;
+            const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
+            if (!item || item.caixa !== operadorAtivo) {
+                showToast("Apenas o operador que criou este registro pode editá-lo!");
+                return;
+            }
 
             const isMisto = document.getElementById('editChkJiMisto').checked;
             let novaForma = '';
@@ -902,7 +917,7 @@
                 const v1 = parseFloat(document.getElementById('editVal1').value) || 0;
                 const f2 = document.getElementById('editForma2').value;
                 const v2 = parseFloat(document.getElementById('editVal2').value) || 0;
-                novaForma = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+                novaForma = `${f1} (R$ ${v1.toFixed(2)}) +${f2} (R$ ${v2.toFixed(2)})`;
             } else {
                 novaForma = document.getElementById('editSelectPagamento').value;
             }
@@ -939,24 +954,33 @@
             document.getElementById('histDataInicio').value = dataAtualFormatted;
             document.getElementById('histDataFim').value = dataAtualFormatted;
             document.getElementById('histMotoboy').value = 'TODOS';
+            document.getElementById('histOperador').value = operadorAtivo;
             abrirConsultaHistorico();
         }
 
         function atualizarSelectsConsulta() {
             document.getElementById('histMotoboy').innerHTML = `<option value="TODOS">🌐 Todos os Motoboys</option>` + motoboys.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
-            document.getElementById('histOperador').innerHTML = `<option value="${operadorAtivo}">${operadorAtivo}</option>`;
+            
+            let opcoesCaixas = `<option value="TODOS">🌐 Todos os Operadores</option>`;
+            if (caixas.length > 0) {
+                opcoesCaixas += caixas.map(c => `<option value="${c.nome}" ${c.nome === operadorAtivo ? 'selected' : ''}>${c.nome}</option>`).join('');
+            } else {
+                opcoesCaixas += `<option value="${operadorAtivo}" selected>${operadorAtivo}</option>`;
+            }
+            document.getElementById('histOperador').innerHTML = opcoesCaixas;
         }
 
         async function executarConsultaHistorico() {
             const dInicio = document.getElementById('histDataInicio').value;
             const dFim = document.getElementById('histDataFim').value;
             const motoboy = document.getElementById('histMotoboy').value;
+            const operador = document.getElementById('histOperador').value;
 
             let query = supabaseClient.from('entregas_farmassim').select('*');
             if (dInicio) query = query.gte('data', dInicio);
             if (dFim) query = query.lte('data', dFim);
-            if (motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
-            if (operadorAtivo) query = query.eq('caixa', operadorAtivo);
+            if (motoboy && motoboy !== 'TODOS') query = query.eq('motoboy', motoboy);
+            if (operador && operador !== 'TODOS') query = query.eq('caixa', operador);
 
             const { data, error } = await query.order('data', { ascending: false });
             if (error) {
@@ -990,6 +1014,19 @@
                     totTroco += r.troco;
                     totTrazer += r.valorATrazer;
 
+                    const pSocio = (r.caixa === operadorAtivo);
+                    const btnStatusHtml = pSocio 
+                        ? `<button onclick="alternarStatus(${r.id})" class="px-2 py-0.5 rounded text-[10px] font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${r.concluido ? 'Concluído' : 'Pendente'}</button>`
+                        : `<span class="px-2 py-0.5 rounded text-[10px] font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} opacity-75" title="Somente leitura">${r.concluido ? 'Concluído' : 'Pendente'}</span>`;
+
+                    const btnAcaoHtml = pSocio
+                        ? `<button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 ml-1" title="Alterar"><i class="fa-solid fa-pen text-[10px]"></i></button>`
+                        : ``;
+
+                    const btnExcluirHtml = pSocio
+                        ? `<button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700" title="Excluir"><i class="fa-solid fa-trash"></i></button>`
+                        : `<span class="text-slate-300 p-1" title="Sem permissão"><i class="fa-solid fa-lock text-[10px]"></i></span>`;
+
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 border-b border-slate-100";
                     tr.innerHTML = `
@@ -999,20 +1036,17 @@
                         <td class="py-2.5 px-3 font-bold">${r.motoboy}</td>
                         <td class="py-2.5 px-3">
                             <span class="inline-flex items-center gap-1">
-                                ${r.formaPag}
-                                <button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 ml-1" title="Alterar"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                ${r.formaPag}${btnAcaoHtml}
                             </span>
                         </td>
                         <td class="py-2.5 px-3 text-right font-bold">R$ ${r.valor.toFixed(2)}</td>
                         <td class="py-2.5 px-3 text-right text-amber-700">R$ ${r.troco.toFixed(2)}</td>
                         <td class="py-2.5 px-3 text-right font-black text-farmassim-800">R$ ${r.valorATrazer.toFixed(2)}</td>
                         <td class="py-2.5 px-3 text-center">
-                            <button onclick="alternarStatus(${r.id})" class="px-2 py-0.5 rounded text-[10px] font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                ${r.concluido ? 'Concluído' : 'Pendente'}
-                            </button>
+                            ${btnStatusHtml}
                         </td>
-                        <td class="py-2.5 px-3 text-center flex gap-1 justify-center">
-                            <button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-2.5 px-3 text-center flex gap-1 justify-center items-center">
+                            ${btnExcluirHtml}
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1045,6 +1079,11 @@
             const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
             if (!item) return;
 
+            if (item.caixa !== operadorAtivo) {
+                showToast("Apenas o operador que criou este registro pode alterar o status!");
+                return;
+            }
+
             const novoStatus = !item.concluido;
             const { error } = await supabaseClient.from('entregas_farmassim').update({ concluido: novoStatus }).eq('id', id);
             if (error) {
@@ -1058,6 +1097,12 @@
         }
 
         async function excluirRegistro(id) {
+            const item = historico.find(r => r.id === id) || resultadoConsultaGlobal.find(r => r.id === id);
+            if (!item || item.caixa !== operadorAtivo) {
+                showToast("Apenas o operador que criou este registro pode excluí-lo!");
+                return;
+            }
+
             if(!confirm("Deseja realmente excluir este registro?")) return;
             const { error } = await supabaseClient.from('entregas_farmassim').delete().eq('id', id);
             if (error) {
@@ -1119,7 +1164,7 @@
         function renderizarListasGerenciamento() {
             document.getElementById('listaCaixas').innerHTML = caixas.map(c => `
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-farmassim-50 text-farmassim-800 border border-farmassim-200">
-                    [${c.usuario_id || 'ID'}] ${c.nome}
+                    [${c.usuario_id \vert{}\vert{} 'ID'}]${c.nome}
                 </span>`).join('');
 
             document.getElementById('listaMotoboys').innerHTML = motoboys.map(m => `
@@ -1194,35 +1239,49 @@
                 tr.className = "border-b border-slate-100 hover:bg-slate-50";
                 const optionsMotoboy = motoboys.map(m => `<option value="${m.nome}" ${m.nome === r.motoboy ? 'selected' : ''}>${m.nome}</option>`).join('');
 
+                const isMeuRegistro = (r.caixa === operadorAtivo);
+
+                const inputCooHtml = isMeuRegistro
+                    ? `<input type="text" value="${r.coo}" onchange="atualizarCampoSupabase(${r.id}, 'coo', this.value.trim())" class="bg-white border border-slate-200 text-slate-800 text-xs font-mono font-bold rounded-lg px-1.5 py-1 w-20 text-center">`
+                    : `<span class="font-mono font-bold text-slate-800 px-1.5">${r.coo}</span>`;
+
+                const selectMotoboyHtml = isMeuRegistro
+                    ? `<select onchange="atualizarCampoSupabase(${r.id}, 'motoboy', this.value)" class="bg-white border border-slate-200 text-slate-800 text-xs font-semibold rounded-lg px-1.5 py-1 w-44 truncate">${optionsMotoboy}</select>`
+                    : `<span class="text-xs font-semibold text-slate-700 px-1.5">${r.motoboy}</span>`;
+
+                const btnEditPagHtml = isMeuRegistro
+                    ? `<button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 bg-slate-100 p-1 rounded" title="Alterar"><i class="fa-solid fa-pen-to-square text-[11px]"></i></button>`
+                    : ``;
+
+                const btnExcluirHtml = isMeuRegistro
+                    ? `<button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700" title="Excluir"><i class="fa-solid fa-trash"></i></button>`
+                    : `<span class="text-slate-300 p-1" title="Somente leitura (Outro operador)"><i class="fa-solid fa-lock text-[10px]"></i></span>`;
+
                 tr.innerHTML = `
                     <td class="py-2.5 px-2">
-                        <button onclick="alternarStatus(${r.id})" class="px-2 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                        <button onclick="alternarStatus(${r.id})" ${!isMeuRegistro ? 'disabled title="Você não pode alterar o status de entregas de outros usuários"' : ''} class="px-2 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} ${!isMeuRegistro ? 'opacity-75 cursor-not-allowed' : ''}">
                             ${r.concluido ? 'Concluído' : 'Pendente'}
                         </button>
                     </td>
                     <td class="py-2.5 px-2 text-xs font-medium">${r.hora}</td>
                     <td class="py-2.5 px-2 text-xs font-medium">${r.caixa}</td>
                     <td class="py-2 px-2">
-                        <input type="text" value="${r.coo}" onchange="atualizarCampoSupabase(${r.id}, 'coo', this.value.trim())" class="bg-white border border-slate-200 text-slate-800 text-xs font-mono font-bold rounded-lg px-1.5 py-1 w-20 text-center">
+                        ${inputCooHtml}
                     </td>
                     <td class="py-2 px-2">
-                        <select onchange="atualizarCampoSupabase(${r.id}, 'motoboy', this.value)" class="bg-white border border-slate-200 text-slate-800 text-xs font-semibold rounded-lg px-1.5 py-1 w-44 truncate">
-                            ${optionsMotoboy}
-                        </select>
+                        ${selectMotoboyHtml}
                     </td>
                     <td class="py-2 px-2">
                         <div class="flex items-center gap-1">
                             <span class="font-semibold text-xs text-slate-800 truncate max-w-[120px]" title="${r.formaPag}">${r.formaPag}</span>
-                            <button onclick="abrirModalEdicaoPagamento(${r.id})" class="text-slate-400 hover:text-farmassim-600 bg-slate-100 p-1 rounded" title="Alterar">
-                                <i class="fa-solid fa-pen-to-square text-[11px]"></i>
-                            </button>
+                            ${btnEditPagHtml}
                         </div>
                     </td>
                     <td class="py-2.5 px-2 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
                     <td class="py-2.5 px-2 text-right text-amber-700 font-semibold">R$ ${r.troco.toFixed(2)}</td>
                     <td class="py-2.5 px-2 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
-                    <td class="py-2.5 px-2 text-center flex gap-1 justify-center">
-                        <button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    <td class="py-2.5 px-2 text-center flex gap-1 justify-center items-center">
+                        ${btnExcluirHtml}
                     </td>
                 `;
                 tbody.appendChild(tr);
