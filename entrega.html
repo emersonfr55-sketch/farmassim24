@@ -281,6 +281,9 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="limparFiltros()" class="px-3 py-2 text-xs font-bold text-slate-600 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 rounded-xl transition-all flex items-center gap-1.5 border border-slate-200 dark:border-zinc-700" title="Limpar todos os filtros">
+                            <i class="fa-solid fa-broom"></i> Limpar Filtros
+                        </button>
                         <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 dark:text-farmassim-300 bg-farmassim-50 dark:bg-zinc-800 hover:bg-farmassim-100 border border-farmassim-200 dark:border-zinc-700 rounded-xl transition-all">
                             <i class="fa-solid fa-file-excel"></i> Exportar
                         </button>
@@ -457,7 +460,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjE0Njc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -1050,15 +1053,30 @@
             const operadorAtual = selectFiltroOp.value;
             const motoboyAtual = selectFiltroMot.value;
 
-            // Extrair operadores únicos do histórico carregado
-            const operadoresUnicos = [...new Set(historico.map(r => r.caixa))];
+            // Une os caixas cadastrados no banco com o operador logado e operadores do histórico
+            let listaOps = caixas.map(c => c.nome);
+            if (operadorAtivo) listaOps.push(operadorAtivo);
+            historico.forEach(r => { if(r.caixa) listaOps.push(r.caixa); });
+            const operadoresUnicos = [...new Set(listaOps)].sort();
+
             selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
                 operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
 
-            // Extrair motoboys únicos do histórico ou da lista geral
-            const motoboysUnicos = [...new Set(historico.map(r => r.motoboy))];
+            // Une os motoboys cadastrados com o histórico
+            let listaMots = motoboys.map(m => m.nome);
+            historico.forEach(r => { if(r.motoboy) listaMots.push(r.motoboy); });
+            const motoboysUnicos = [...new Set(listaMots)].sort();
+
             selectFiltroMot.innerHTML = `<option value="TODOS">Todos os Motoboys</option>` + 
-                motoboys.map(m => `<option value="${m.nome}" ${m.nome === motoboyAtual ? 'selected' : ''}>${m.nome}</option>`).join('');
+                motoboysUnicos.map(m => `<option value="${m}" ${m === motoboyAtual ? 'selected' : ''}>${m}</option>`).join('');
+        }
+
+        function limparFiltros() {
+            document.getElementById('filtroOperador').value = 'TODOS';
+            document.getElementById('filtroMotoboy').value = 'TODOS';
+            document.getElementById('filtroStatus').value = 'TODOS';
+            document.getElementById('campoBusca').value = '';
+            renderizarTabela();
         }
 
         function renderizarTabela() {
@@ -1091,7 +1109,7 @@
             let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
             let pendentePorMotoboy = {};
 
-            // Os cards de resumo consideram o dia todo (historico completo do dia), não apenas o filtro visual
+            // Resumo do dia geral
             historico.forEach(r => {
                 totalDia += r.valor;
                 if (r.concluido) {
