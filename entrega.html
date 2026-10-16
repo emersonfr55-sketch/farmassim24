@@ -253,48 +253,74 @@
             </div>
         </section>
 
-        <!-- TABELA COM NAVEGAÇÃO DE DATA DESTACADA -->
+        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS AVANÇADOS -->
         <section class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-zinc-800 overflow-hidden flex flex-col">
-            <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50 dark:bg-zinc-950/50">
+            <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex flex-col gap-4 bg-slate-50/50 dark:bg-zinc-950/50">
                 
-                <!-- PAINEL DE CONTROLE DE DATA EM DESTAQUE -->
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-1 shadow-xs">
-                        <button onclick="mudarDataExibicao(-1)" class="px-3 py-1.5 text-xs font-extrabold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1" title="Dia Anterior">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        
-                        <div class="px-3 py-1 text-center min-w-[130px]">
-                            <span id="displayDataFiltro" class="text-sm font-black text-farmassim-700 dark:text-farmassim-400 tracking-tight block">--/--/----</span>
-                            <span id="displayDataLegenda" class="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase block">Carregando...</span>
+                <!-- LINHA 1: DATA E AÇÕES GERAIS -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-1 shadow-xs">
+                            <button onclick="mudarDataExibicao(-1)" class="px-3 py-1.5 text-xs font-extrabold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1" title="Dia Anterior">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            
+                            <div class="px-3 py-1 text-center min-w-[130px]">
+                                <span id="displayDataFiltro" class="text-sm font-black text-farmassim-700 dark:text-farmassim-400 tracking-tight block">--/--/----</span>
+                                <span id="displayDataLegenda" class="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase block">Carregando...</span>
+                            </div>
+
+                            <button onclick="mudarDataExibicao(1)" class="px-3 py-1.5 text-xs font-extrabold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1" title="Próximo Dia">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
                         </div>
 
-                        <button onclick="mudarDataExibicao(1)" class="px-3 py-1.5 text-xs font-extrabold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-all flex items-center gap-1" title="Próximo Dia">
-                            <i class="fa-solid fa-chevron-right"></i>
+                        <button id="btnVoltarHoje" onclick="irParaHoje()" class="hidden px-2.5 py-2 text-xs font-bold text-farmassim-800 dark:text-farmassim-300 bg-farmassim-100 dark:bg-zinc-800 hover:bg-farmassim-200 rounded-xl transition-all flex items-center gap-1 shadow-xs" title="Voltar para Hoje">
+                            <i class="fa-solid fa-calendar-day"></i> Hoje
                         </button>
                     </div>
 
-                    <button id="btnVoltarHoje" onclick="irParaHoje()" class="hidden px-2.5 py-2 text-xs font-bold text-farmassim-800 dark:text-farmassim-300 bg-farmassim-100 dark:bg-zinc-800 hover:bg-farmassim-200 rounded-xl transition-all flex items-center gap-1 shadow-xs" title="Voltar para Hoje">
-                        <i class="fa-solid fa-calendar-day"></i> Hoje
-                    </button>
-                </div>
-
-                <div class="flex-1 max-w-md flex items-center gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 dark:text-zinc-500 text-xs"></i>
-                        <input type="text" id="campoBusca" oninput="renderizarTabela()" placeholder="Busca por Pedido, Motoboy..." class="pl-8 w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2.5 font-semibold focus:ring-farmassim-500">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 dark:text-farmassim-300 bg-farmassim-50 dark:bg-zinc-800 hover:bg-farmassim-100 border border-farmassim-200 dark:border-zinc-700 rounded-xl transition-all">
+                            <i class="fa-solid fa-file-excel"></i> Exportar
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="toggleMostrarConcluidas()" id="btnToggleConcluidas" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all flex items-center gap-2 shadow-xs">
-                        <i id="iconeToggleConcluidas" class="fa-solid fa-eye text-farmassim-600 dark:text-farmassim-400"></i>
-                        <span id="txtToggleConcluidas">Ocultar Concluídas</span>
-                    </button>
-                    <button onclick="exportarCSV()" class="px-3 py-2 text-xs font-bold text-farmassim-700 dark:text-farmassim-300 bg-farmassim-50 dark:bg-zinc-800 hover:bg-farmassim-100 border border-farmassim-200 dark:border-zinc-700 rounded-xl transition-all">
-                        <i class="fa-solid fa-file-excel"></i> Exportar
-                    </button>
+                <!-- LINHA 2: FILTROS ESPECÍFICOS (OPERADOR, MOTOBOY, BUSCA E STATUS) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/80">
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Filtrar Operador:</label>
+                        <select id="filtroOperador" onchange="renderizarTabela()" class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold">
+                            <option value="TODOS">Todos os Operadores</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Filtrar Motoboy:</label>
+                        <select id="filtroMotoboy" onchange="renderizarTabela()" class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold">
+                            <option value="TODOS">Todos os Motoboys</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Status / Concluídas:</label>
+                        <select id="filtroStatus" onchange="renderizarTabela()" class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold">
+                            <option value="TODOS">Mostrar Todas (Pend. e Conc.)</option>
+                            <option value="PENDENTE">Apenas Pendentes</option>
+                            <option value="CONCLUIDO">Apenas Concluídas</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Busca por Pedido (COO):</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 dark:text-zinc-500 text-xs"></i>
+                            <input type="text" id="campoBusca" oninput="renderizarTabela()" placeholder="Nº do pedido..." class="pl-8 w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold focus:ring-farmassim-500">
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
             <div class="overflow-x-auto">
@@ -369,17 +395,6 @@
                 </div>
             </div>
             <div class="p-4 bg-slate-50 dark:bg-zinc-950 border-t dark:border-zinc-800 flex justify-end"><button onclick="closeModal('modalConsultaHistorico')" class="px-5 py-2 text-xs font-bold text-slate-600 dark:text-zinc-400 bg-slate-200 dark:bg-zinc-800 rounded-xl">Fechar</button></div>
-        </div>
-    </div>
-
-    <div id="modalEditarPagamento" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-zinc-800 my-8">
-            <div class="p-4 border-b border-slate-100 dark:border-zinc-800 bg-farmassim-600 dark:bg-zinc-950 text-white flex justify-between items-center"><h3 class="font-bold text-sm">Alterar Pagamento</h3><button onclick="closeModal('modalEditarPagamento')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-5 space-y-4"><input type="hidden" id="editRegistroId">
-                <div><label class="block text-xs font-bold mb-1 dark:text-zinc-300">Forma</label><select id="editSelectPagamento" class="w-full bg-slate-50 dark:bg-black border dark:border-zinc-800 text-xs p-2 font-bold dark:text-zinc-100"></select></div>
-                <div><label class="block text-xs font-bold mb-1 dark:text-zinc-300">Troco</label><input type="number" step="0.01" id="editTroco" class="w-full bg-slate-50 dark:bg-black border dark:border-zinc-800 text-xs p-2 font-bold dark:text-zinc-100"></div>
-            </div>
-            <div class="p-4 bg-slate-50 dark:bg-zinc-950 border-t dark:border-zinc-800 flex justify-end gap-2"><button onclick="closeModal('modalEditarPagamento')" class="px-4 py-2 text-xs bg-slate-200 dark:bg-zinc-800 dark:text-zinc-300 rounded-xl">Cancelar</button><button onclick="salvarEdicaoPagamento()" class="px-5 py-2 text-xs text-white bg-farmassim-600 rounded-xl">Salvar</button></div>
         </div>
     </div>
 
@@ -468,8 +483,6 @@
             { id: 4, nome: 'Cartão Crédito', requerTroco: false }
         ];
         let historico = [];
-        let exibirConcluidas = true;
-        let resultadoConsultaGlobal = [];
         let operadorAtivo = 'Operador';
         
         // GESTÃO DE NAVEGAÇÃO DE DATAS
@@ -666,12 +679,6 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function focarCampoPedido() { document.getElementById('coo').focus(); }
 
-        function toggleMostrarConcluidas() {
-            exibirConcluidas = !exibirConcluidas;
-            document.getElementById('txtToggleConcluidas').innerText = exibirConcluidas ? "Ocultar Concluídas" : "Mostrar Concluídas";
-            renderizarTabela();
-        }
-
         function abrirModalAddMisto() {
             const valTotal = parseFloat(document.getElementById('valor').value) || 0;
             document.getElementById('addMistoVal1').value = (valTotal / 2).toFixed(2);
@@ -799,6 +806,7 @@
             cancelarPagamentoMisto();
             tratarMudancaFormaPagamento('formaPagamento', 'troco');
 
+            atualizarSelectsFiltrosDinamicos();
             renderizarTabela();
             focarCampoPedido();
             showToast("Entrega Registrada!");
@@ -820,6 +828,7 @@
             if (supabaseClient) {
                 try { await supabaseClient.from('entregas_farmassim').delete().eq('id', id); } catch(e){}
             }
+            atualizarSelectsFiltrosDinamicos();
             renderizarTabela();
             showToast("Registro excluído!");
         }
@@ -1029,39 +1038,81 @@
             document.getElementById('addMistoForma1').innerHTML = opcoesPag;
             document.getElementById('addMistoForma2').innerHTML = opcoesPag;
             document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
+
+            atualizarSelectsFiltrosDinamicos();
+        }
+
+        function atualizarSelectsFiltrosDinamicos() {
+            const selectFiltroOp = document.getElementById('filtroOperador');
+            const selectFiltroMot = document.getElementById('filtroMotoboy');
+            if (!selectFiltroOp || !selectFiltroMot) return;
+
+            const operadorAtual = selectFiltroOp.value;
+            const motoboyAtual = selectFiltroMot.value;
+
+            // Extrair operadores únicos do histórico carregado
+            const operadoresUnicos = [...new Set(historico.map(r => r.caixa))];
+            selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
+                operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
+
+            // Extrair motoboys únicos do histórico ou da lista geral
+            const motoboysUnicos = [...new Set(historico.map(r => r.motoboy))];
+            selectFiltroMot.innerHTML = `<option value="TODOS">Todos os Motoboys</option>` + 
+                motoboys.map(m => `<option value="${m.nome}" ${m.nome === motoboyAtual ? 'selected' : ''}>${m.nome}</option>`).join('');
         }
 
         function renderizarTabela() {
             const tbody = document.querySelector('#tabelaRegistros tbody');
             const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
+            const filtroOp = document.getElementById('filtroOperador')?.value || 'TODOS';
+            const filtroMot = document.getElementById('filtroMotoboy')?.value || 'TODOS';
+            const filtroStatus = document.getElementById('filtroStatus')?.value || 'TODOS';
+
             tbody.innerHTML = '';
 
             let lista = historico;
-            if (!exibirConcluidas) lista = lista.filter(r => !r.concluido);
-            if (busca) lista = lista.filter(r => r.coo.toLowerCase().includes(busca) || r.motoboy.toLowerCase().includes(busca));
+
+            // Aplicar Filtros Avançados
+            if (filtroOp !== 'TODOS') {
+                lista = lista.filter(r => r.caixa === filtroOp);
+            }
+            if (filtroMot !== 'TODOS') {
+                lista = lista.filter(r => r.motoboy === filtroMot);
+            }
+            if (filtroStatus === 'PENDENTE') {
+                lista = lista.filter(r => !r.concluido);
+            } else if (filtroStatus === 'CONCLUIDO') {
+                lista = lista.filter(r => r.concluido);
+            }
+            if (busca) {
+                lista = lista.filter(r => r.coo.toLowerCase().includes(busca));
+            }
 
             let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
             let pendentePorMotoboy = {};
+
+            // Os cards de resumo consideram o dia todo (historico completo do dia), não apenas o filtro visual
+            historico.forEach(r => {
+                totalDia += r.valor;
+                if (r.concluido) {
+                    totalConcluido += r.valorATrazer;
+                    qtdConcluidas++;
+                } else {
+                    totalPendente += r.valorATrazer;
+                    qtdPendentes++;
+                    pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
+                }
+            });
 
             if (lista.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="10" class="py-8 text-center text-slate-400 dark:text-zinc-500 font-medium italic">
-                            Nenhuma entrega registrada para a data selecionada.
+                            Nenhuma entrega encontrada com os filtros selecionados.
                         </td>
                     </tr>`;
             } else {
                 lista.forEach(r => {
-                    totalDia += r.valor;
-                    if (r.concluido) {
-                        totalConcluido += r.valorATrazer;
-                        qtdConcluidas++;
-                    } else {
-                        totalPendente += r.valorATrazer;
-                        qtdPendentes++;
-                        pendentePorMotoboy[r.motoboy] = (pendentePorMotoboy[r.motoboy] || 0) + r.valorATrazer;
-                    }
-
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/40">
                             <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
@@ -1079,7 +1130,7 @@
             }
 
             document.getElementById('totalDia').innerText = totalDia.toFixed(2);
-            document.getElementById('qtdEntregasDia').innerText = lista.length;
+            document.getElementById('qtdEntregasDia').innerText = historico.length;
             document.getElementById('totalPendente').innerText = totalPendente.toFixed(2);
             document.getElementById('qtdPendentes').innerText = qtdPendentes;
             document.getElementById('totalConcluido').innerText = totalConcluido.toFixed(2);
