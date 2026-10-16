@@ -118,10 +118,22 @@
         <!-- FORMULÁRIO DE LANÇAMENTO RÁPIDO -->
         <section class="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-zinc-800 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1.5 h-full bg-farmassim-600"></div>
-            <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-zinc-800 pb-3">
-                <h2 class="text-base font-bold text-slate-800 dark:text-zinc-100 flex items-center gap-2">
-                    <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento
-                </h2>
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-zinc-800 pb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-zinc-100 flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-farmassimYellow-500 text-lg"></i> Novo Lançamento
+                    </h2>
+                    
+                    <!-- TABELA DISCRETA DE ATALHOS -->
+                    <div class="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-black/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-zinc-800 text-[10px] font-bold text-slate-600 dark:text-zinc-400">
+                        <span class="flex items-center gap-1"><kbd class="bg-white dark:bg-zinc-800 px-1.5 py-0.5 rounded border dark:border-zinc-700 text-farmassim-700 dark:text-farmassim-400 font-mono">F2</kbd> Focar COO</span>
+                        <span class="text-slate-300 dark:text-zinc-700">•</span>
+                        <span class="flex items-center gap-1"><kbd class="bg-white dark:bg-zinc-800 px-1.5 py-0.5 rounded border dark:border-zinc-700 text-farmassim-700 dark:text-farmassim-400 font-mono">F1</kbd> Registrar</span>
+                        <span class="text-slate-300 dark:text-zinc-700">•</span>
+                        <span class="flex items-center gap-1"><kbd class="bg-white dark:bg-zinc-800 px-1.5 py-0.5 rounded border dark:border-zinc-700 text-farmassim-700 dark:text-farmassim-400 font-mono">ESC</kbd> Limpar</span>
+                    </div>
+                </div>
+
                 <span id="badgeOperadorFiltroAtivo" class="bg-farmassim-50 dark:bg-zinc-800 text-farmassim-800 dark:text-farmassim-300 text-xs font-extrabold px-3 py-1 rounded-full border border-farmassim-200 dark:border-zinc-700">
                     Operador: ...
                 </span>
@@ -133,7 +145,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label for="coo" class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1.5">Nº COO / Pedido *</label>
+                        <label for="coo" class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1.5">Nº COO / Pedido * <span class="text-[10px] text-slate-400 font-normal">(F2)</span></label>
                         <input type="text" id="coo" required placeholder="Ex: 5041" class="w-full bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-2.5 font-bold">
                     </div>
 
@@ -199,7 +211,7 @@
                     </label>
 
                     <button type="submit" class="w-full sm:w-auto px-7 py-3 text-sm font-extrabold text-farmassim-900 bg-farmassimYellow-500 hover:bg-farmassimYellow-400 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 transform active:scale-95">
-                        <i class="fa-solid fa-plus text-base"></i> Registrar (Enter)
+                        <i class="fa-solid fa-plus text-base"></i> Registrar (F1 ou Enter)
                     </button>
                 </div>
             </form>
@@ -494,6 +506,38 @@
         let dataHojeReal = '';
         let dataFiltroAtiva = ''; 
 
+        // CONFIGURAÇÃO DOS ATALHOS RÁPIDOS POR TECLADO
+        window.addEventListener('keydown', function(e) {
+            // F2: Focar no campo COO / Pedido
+            if (e.key === 'F2') {
+                e.preventDefault();
+                const campoCoo = document.getElementById('coo');
+                if (campoCoo) {
+                    campoCoo.focus();
+                    campoCoo.select();
+                }
+            }
+            // F1: Disparar o envio do formulário de lançamento
+            else if (e.key === 'F1') {
+                e.preventDefault();
+                const form = document.getElementById('formRegistro');
+                if (form) {
+                    form.requestSubmit();
+                }
+            }
+            // ESC: Limpar formulário de lançamento
+            else if (e.key === 'Escape') {
+                // Só limpa se os modais estiverem fechados
+                const modalMisto = document.getElementById('modalAddMisto');
+                const modalHist = document.getElementById('modalConsultaHistorico');
+                const modalCad = document.getElementById('modalCadastros');
+
+                if (modalMisto.classList.contains('hidden') && modalHist.classList.contains('hidden') && modalCad.classList.contains('hidden')) {
+                    limparFormularioRegistro();
+                }
+            }
+        });
+
         window.onload = async function() {
             initTheme();
             let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
@@ -529,7 +573,6 @@
             atualizarSelectsFiltrosDinamicos();
             tratarMudancaFormaPagamento('formaPagamento', 'troco');
 
-            // Atualiza os cronômetros das entregas a cada 30 segundos automaticamente
             setInterval(() => {
                 if (document.querySelector('#tabelaRegistros tbody')) {
                     renderizarTabela();
@@ -772,6 +815,17 @@
             calcularValorATrazer();
         }
 
+        function limparFormularioRegistro() {
+            document.getElementById('coo').value = '';
+            document.getElementById('valor').value = '';
+            document.getElementById('troco').value = '';
+            document.getElementById('notaCliente').value = '';
+            document.getElementById('valorATrazer').value = '';
+            cancelarPagamentoMisto();
+            tratarMudancaFormaPagamento('formaPagamento', 'troco');
+            focarCampoPedido();
+        }
+
         async function adicionarRegistro(e) {
             e.preventDefault();
             const now = new Date();
@@ -815,17 +869,9 @@
                 } catch(err) { console.warn("Erro ao salvar no Supabase"); }
             }
 
-            document.getElementById('coo').value = '';
-            document.getElementById('valor').value = '';
-            document.getElementById('troco').value = '';
-            document.getElementById('notaCliente').value = '';
-            document.getElementById('valorATrazer').value = '';
-            cancelarPagamentoMisto();
-            tratarMudancaFormaPagamento('formaPagamento', 'troco');
-
+            limparFormularioRegistro();
             atualizarSelectsFiltrosDinamicos();
             renderizarTabela();
-            focarCampoPedido();
             showToast("Entrega Registrada!");
         }
 
@@ -1189,7 +1235,6 @@
                     if (r.concluido) {
                         badgeStatusHtml = `<button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">Concluído</button>`;
                     } else {
-                        // Calcula o tempo decorrido para colorir o cronômetro
                         const criado = new Date(r.createdAt || Date.now());
                         const diffMin = Math.floor((new Date() - criado) / 60000);
                         let corTempo = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300';
