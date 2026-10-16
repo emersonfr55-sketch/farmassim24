@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmassim 24hrs - Portal Central de Sistemas</title>
+    
+    <!-- Configuração de PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#006B2B">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -68,6 +73,32 @@
             animation: lightBeam 4s infinite ease-in-out;
         }
 
+        /* ANIMAÇÕES DO NOVO MODAL DE LOGIN MODERNO */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-modal-in {
+            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+        .login-glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .dark .login-glass-card {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
         #comprovante-wifi-termico, #comprovante-divergencia-termico { display: none; }
 
         @media print {
@@ -101,43 +132,68 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-950 flex flex-col min-h-screen transition-colors duration-200">
 
-    <!-- MODAL DE LOGIN -->
-    <div id="modalSelecaoOperadorInicial" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 space-y-5 text-center flex flex-col justify-between">
-            <div class="space-y-4">
-                <div class="bg-farmassim-100 dark:bg-farmassim-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-farmassim-600 dark:text-farmassim-400">
-                    <i class="fa-solid fa-user-lock text-3xl"></i>
+    <!-- MODAL DE LOGIN MODERNO E ANIMADO -->
+    <div id="modalSelecaoOperadorInicial" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="login-glass-card animate-modal-in rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 p-8 space-y-6 text-center flex flex-col justify-between relative">
+            
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-farmassim-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="space-y-5 relative z-10">
+                <!-- Ícone Animado com Flutuação -->
+                <div class="animate-float w-20 h-20 rounded-2xl bg-gradient-to-tr from-farmassim-600 to-emerald-500 flex items-center justify-center mx-auto text-white shadow-lg shadow-emerald-600/30 border border-white/20">
+                    <i class="fa-solid fa-shield-halved text-3xl"></i>
                 </div>
+
+                <!-- Títulos -->
                 <div>
-                    <h2 class="text-xl font-black text-slate-800 dark:text-white">Portal Restrito Farmassim</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Insira suas credenciais do PDV A7Pharma para acessar o sistema.</p>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Portal Farmassim</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Insira suas credenciais do PDV A7Pharma para acessar o sistema.</p>
                 </div>
                 
-                <div class="space-y-3 text-left">
-                    <div>
-                        <label for="inputUsuarioID" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-hashtag text-farmassim-600 mr-1"></i> Número do Usuário (PDV)
+                <!-- Campos do Formulário -->
+                <div class="space-y-4 text-left pt-2">
+                    <div class="space-y-1.5">
+                        <label for="inputUsuarioID" class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                            <i class="fa-solid fa-hashtag text-farmassim-600 dark:text-farmassim-400 mr-1"></i> Número do Usuário (PDV)
                         </label>
-                        <input type="text" id="inputUsuarioID" placeholder="Ex: 488, 4, 17" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-regular fa-user text-xs"></i>
+                            </span>
+                            <input type="text" id="inputUsuarioID" placeholder="Ex: 488, 4, 17" class="w-full bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-2xl focus:ring-2 focus:ring-farmassim-500 focus:bg-white dark:focus:bg-slate-900 block pl-10 pr-4 py-3 font-bold transition-all outline-none">
+                        </div>
                     </div>
-                    <div>
-                        <label for="inputSenha" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-key text-farmassim-600 mr-1"></i> Senha
+
+                    <div class="space-y-1.5">
+                        <label for="inputSenha" class="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                            <i class="fa-solid fa-key text-farmassim-600 dark:text-farmassim-400 mr-1"></i> Senha
                         </label>
-                        <input type="password" id="inputSenha" placeholder="••••" onkeydown="if(event.key === 'Enter') confirmarOperadorInicial()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-farmassim-500 focus:border-farmassim-500 block p-3 font-bold">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-lock text-xs"></i>
+                            </span>
+                            <input type="password" id="inputSenha" placeholder="••••••••" onkeydown="if(event.key === 'Enter') confirmarOperadorInicial()" class="w-full bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-2xl focus:ring-2 focus:ring-farmassim-500 focus:bg-white dark:focus:bg-slate-900 block pl-10 pr-4 py-3 font-bold transition-all outline-none">
+                        </div>
                     </div>
-                    <div id="loginErrorMsg" class="hidden text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 p-2.5 rounded-lg border border-rose-200 dark:border-rose-900 text-center">
-                        Usuário ou senha incorretos!
+
+                    <!-- Mensagem de Erro -->
+                    <div id="loginErrorMsg" class="hidden text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 p-3 rounded-xl border border-rose-200 dark:border-rose-900/80 text-center flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Usuário ou senha incorretos!</span>
                     </div>
                 </div>
 
-                <button onclick="confirmarOperadorInicial()" class="w-full py-3 bg-farmassim-600 hover:bg-farmassim-700 text-white font-extrabold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> Acessar Portal
+                <!-- Botão de Acesso Principal -->
+                <button onclick="confirmarOperadorInicial()" class="w-full py-3.5 bg-gradient-to-r from-farmassim-600 to-emerald-600 hover:from-farmassim-700 hover:to-emerald-700 text-white font-black text-sm rounded-2xl transition-all shadow-lg shadow-emerald-600/25 active:scale-[0.98] flex items-center justify-center gap-2 group">
+                    <i class="fa-solid fa-right-to-bracket transition-transform group-hover:translate-x-1"></i> Acessar Portal
                 </button>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-medium text-slate-400">
-                Emerson de França - 2026
+            <!-- Rodapé do Modal -->
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-slate-400 flex justify-between items-center relative z-10">
+                <span>Farmassim 24hrs</span>
+                <span>Emerson de França - 2026</span>
             </div>
         </div>
     </div>
@@ -161,7 +217,7 @@
                 <img id="imgQrcodeWifiModal" src="" alt="QR Code Wi-Fi" class="w-40 h-40 object-contain" />
             </div>
 
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Aponte a câmara para conectar automaticamente à rede.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Aponte a câmera para conectar automaticamente à rede.</p>
 
             <div class="flex gap-2 pt-2">
                 <button onclick="imprimirWifiTermico()" class="flex-1 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
@@ -554,7 +610,7 @@
                   <img src="${urlQrcodeWifi}" alt="QR Code Wi-Fi" style="width: 44mm; height: 44mm; display: inline-block;" />
                 </div>
                 <div style="text-align: center; font-size: 12px; font-weight: 900; margin-top: 10px;">
-                  Aponte a câmara para conectar!
+                  Aponte a câmera para conectar!
                 </div>
                 <div style="text-align: center; font-size: 10px; font-weight: 900; margin-top: 15px; border-top: 1px dashed #000; padding-top: 4px;">
                   Emerson de França - 2026
@@ -640,13 +696,13 @@
             const errorMsg = document.getElementById('loginErrorMsg');
 
             if (!usuarioId) {
-                errorMsg.innerText = "Informe o Número do Usuário.";
+                errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Informe o Número do Usuário.</span>`;
                 errorMsg.classList.remove('hidden');
                 return;
             }
 
             if (!supabaseClient) {
-                errorMsg.innerText = "Erro de conexão com o banco de dados.";
+                errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Erro de conexão com o banco de dados.</span>`;
                 errorMsg.classList.remove('hidden');
                 return;
             }
@@ -659,7 +715,7 @@
                     .maybeSingle();
 
                 if (error || !data) {
-                    errorMsg.innerText = "Usuário não encontrado!";
+                    errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Usuário não encontrado!</span>`;
                     errorMsg.classList.remove('hidden');
                     return;
                 }
@@ -674,7 +730,7 @@
                                     (senhaBanco === '' && senhaDigitada === '');
 
                 if (!senhaValida) {
-                    errorMsg.innerText = "Senha incorreta!";
+                    errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Senha incorreta!</span>`;
                     errorMsg.classList.remove('hidden');
                     return;
                 }
@@ -684,8 +740,8 @@
 
             } catch (e) {
                 console.error("Erro na autenticação:", e);
-                errorMsg.innerText = "Erro ao validar credenciais.";
-                errorMsg.classList.add('hidden');
+                errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Erro ao validar credenciais.</span>`;
+                errorMsg.classList.remove('hidden');
             }
         }
 
