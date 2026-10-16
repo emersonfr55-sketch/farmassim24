@@ -6,7 +6,7 @@
     <title>Farmassim 24hrs - Gerenciamento e Consulta de Códigos</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for UI icons -->
+    <!-- FontAwesome Pro/Free for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -20,10 +20,14 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         farmassim: {
-                            50: '#eefdf4', 100: '#d7fbe2', 200: '#b0f5c6', 300: '#75ea9c',
-                            500: '#008337', 600: '#006B2B', 700: '#005421', 800: '#00421a', 900: '#002e12',
+                            50: '#edfcf2', 100: '#d1fae2', 200: '#a7f3cb', 300: '#6ee7b2',
+                            500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22'
                         },
-                        farmassimYellow: { 400: '#ffe033', 500: '#ffd700', 600: '#e6c200' }
+                        farmassimYellow: { 400: '#facc15', 500: '#eab308', 600: '#ca8a04' }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.08)',
+                        'glow': '0 0 20px -3px rgba(16, 185, 129, 0.3)',
                     }
                 }
             }
@@ -31,65 +35,80 @@
     </script>
     <style>
         .logo-text { font-style: italic; font-weight: 900; letter-spacing: -0.03em; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .animate-fade-in { animation: fadeIn 0.2s ease-in-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        .glass-header {
+            background: rgba(5, 150, 105, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.92);
         }
     </style>
 </head>
-<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+<body class="h-full bg-slate-100/70 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-300">
 
-    <!-- CABEÇALHO PADRONIZADO LIMPO COM SAUDAÇÃO CENTRALIZADA -->
-    <header class="bg-farmassim-600/95 dark:bg-slate-900/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-slate-800">
+    <!-- CABEÇALHO PADRONIZADO MODERNO -->
+    <header class="glass-header text-white shadow-xl sticky top-0 z-40 border-b border-emerald-500/20 dark:border-slate-800/80 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
+            <div class="flex flex-col lg:flex-row items-center justify-between py-3.5 gap-3.5">
                 
-                <!-- Lado Esquerdo: Logo e Título -->
+                <!-- Logo -->
                 <div class="flex items-center justify-between w-full lg:w-auto">
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-400">24hrs</span></h1>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-900/20 text-white font-black text-lg">
+                            <i class="fa-solid fa-pills"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow-sm">FARMASSIM <span class="text-farmassimYellow-400 font-black">24hrs</span></h1>
+                            <p class="text-[10px] tracking-wider uppercase font-semibold text-emerald-100/80 dark:text-slate-400">Gerenciador Inteligente</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Centro: Saudação e Nome do Operador Ativo -->
-                <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-slate-800 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-slate-700 shadow-inner">
-                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-slate-200 font-medium flex items-center gap-2">
-                        <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> Carregando...
+                <!-- Saudação do Operador -->
+                <div class="flex items-center justify-center bg-black/10 dark:bg-slate-800/80 px-4 py-2 rounded-2xl border border-white/10 dark:border-slate-700/60 shadow-inner">
+                    <p id="saudacaoOperador" class="text-xs text-emerald-50 dark:text-slate-200 font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-spinner fa-spin text-farmassimYellow-400"></i> Carregando sistema...
                     </p>
                 </div>
 
-                <!-- Lado Direito: Ações e Botões Compactos -->
-                <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
-                    <a href="index.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Portal">
+                <!-- Botões de Ação e Atalhos -->
+                <div class="flex items-center gap-2 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
+                    <a href="index.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Portal">
                         <i class="fa-solid fa-house text-farmassimYellow-400"></i> <span class="hidden sm:inline">Portal</span>
                     </a>
-                    <a href="entrega.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Entregas">
+                    <a href="entrega.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Entregas">
                         <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> <span class="hidden sm:inline">Entregas</span>
                     </a>
-                    <a href="fechamento.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Fechamento">
+                    <a href="fechamento.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Fechamento">
                         <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> <span class="hidden sm:inline">Fechamento</span>
                     </a>
 
-                    <div id="statusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-farmassim-700/40 dark:bg-slate-800 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-medium flex items-center gap-1.5 border border-farmassim-500/20 dark:border-slate-700 cursor-default">
+                    <div id="statusDbDiscreto" title="Status da Conexão com o Banco de Dados" class="bg-black/10 dark:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 border border-white/10 dark:border-slate-700 cursor-default">
                         <span id="statusDb" class="flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-notch fa-spin text-amber-400"></i> <span class="hidden sm:inline">DB:</span> Conectando...
                         </span>
                     </div>
 
-                    <button onclick="app.abrirPainelAdmin()" class="bg-farmassimYellow-500 text-farmassim-900 hover:bg-farmassimYellow-400 font-extrabold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all" title="Painel de Gestão">
-                        <i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">Painel</span>
+                    <button onclick="app.abrirPainelAdmin()" class="bg-farmassimYellow-400 hover:bg-farmassimYellow-500 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all transform active:scale-95" title="Painel de Gestão">
+                        <i class="fa-solid fa-sliders text-slate-900"></i> <span class="hidden sm:inline">Painel Admin</span>
                     </button>
 
-                    <button onclick="alternarDarkMode()" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-farmassim-500/30 dark:border-slate-700" title="Alternar Modo Escuro">
+                    <button onclick="alternarDarkMode()" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Alternar Modo Escuro">
                         <i id="darkModeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
                     </button>
                     
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Sair">
+                    <button onclick="sairDoSistema()" class="bg-rose-600/95 hover:bg-rose-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all shadow-sm" title="Sair do Sistema">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -97,147 +116,160 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
         
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 transition-all">
-            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-layer-group text-emerald-600"></i>
-                <span>Categorias de Acesso Rápido</span>
+        <!-- FILTROS DE CATEGORIA MODERNOS COM ÍCONES FONT AWESOME -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-5 transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <i class="fa-solid fa-layer-group text-emerald-500"></i>
+                    <span>Categorias de Acesso Rápido</span>
+                </div>
+                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Selecione para filtrar</span>
             </div>
-            <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin" id="categoryFilters"></div>
+            <div class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin" id="categoryFilters"></div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 transition-all">
+        <!-- BARRA DE PESQUISA E CONTROLES -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-5 transition-all">
             <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
-                <div class="relative w-full lg:w-96">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                <div class="relative w-full lg:w-[420px]">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-emerald-500"></i>
                     </span>
                     <input type="text" id="searchInput"
                         placeholder="Pesquisar por nome ou código do produto..."
-                        class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-inner">
-                    <button id="clearSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 hidden">
+                        class="w-full pl-11 pr-11 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-inner font-medium">
+                    <button id="clearSearch" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden transition">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 self-end lg:self-auto shrink-0">
-                    <button onclick="app.setViewMode('grid')" id="gridBtn"
-                        class="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs" title="Visualização em Grade (Cards)">
-                        <i class="fa-solid fa-grip"></i>
-                        <span>Cards</span>
-                    </button>
-                    <button onclick="app.setViewMode('list')" id="listBtn"
-                        class="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all" title="Visualização em Tabela Compacta">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Tabela</span>
-                    </button>
-                </div>
-            </div>
+                <div class="flex items-center justify-between w-full lg:w-auto gap-4">
+                    <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span><strong class="text-slate-800 dark:text-white font-bold" id="productCount">0</strong> produtos disponíveis</span>
+                    </div>
 
-            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                <div class="flex items-center gap-2">
-                    <span class="font-semibold text-slate-700 dark:text-white" id="productCount">0</span> produtos encontrados
+                    <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shrink-0">
+                        <button onclick="app.setViewMode('grid')" id="gridBtn"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" title="Visualização em Grade (Cards)">
+                            <i class="fa-solid fa-grip"></i>
+                            <span>Cards</span>
+                        </button>
+                        <button onclick="app.setViewMode('list')" id="listBtn"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" title="Visualização em Tabela Compacta">
+                            <i class="fa-solid fa-list"></i>
+                            <span>Tabela</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- CONTAINER DE PRODUTOS -->
         <div id="productContainer"></div>
 
-        <div id="emptyState" class="hidden flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 my-auto">
-            <div class="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/50 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl mb-4 border border-emerald-100 dark:border-emerald-900">
+        <!-- ESTADO VAZIO -->
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center p-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 my-auto shadow-xl shadow-slate-200/40 dark:shadow-none">
+            <div class="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/50 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-3xl mb-5 border border-emerald-100 dark:border-emerald-900 shadow-inner">
                 <i class="fa-solid fa-box-open"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-700 dark:text-white mb-1">Nenhum produto encontrado</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-4">Não encontramos nenhum item correspondente à sua busca ou os mais buscados ainda estão vazios. Clique em "Copiar" nos produtos que mais utiliza para salvá-los aqui!</p>
-            <button onclick="app.resetFilters()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition shadow-sm">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Nenhum produto encontrado</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mb-6 leading-relaxed">Não encontramos nenhum item correspondente à sua busca ou os mais buscados ainda estão vazios. Utilize o botão "Copiar" para registrar os itens utilizados.</p>
+            <button onclick="app.resetFilters()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-bold transition shadow-lg shadow-emerald-600/30 transform active:scale-95">
                 Ver todos os produtos
             </button>
         </div>
 
     </main>
 
-    <!-- PAINEL DE GESTÃO (MODAL ADMIN PARA PRODUTOS E CATEGORIAS) -->
-    <div id="modalAdmin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 my-8 flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-emerald-800 text-white shrink-0">
-                <h3 class="font-bold text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-gear text-amber-300"></i> Painel de Gestão: Produtos e Categorias
-                </h3>
-                <button onclick="app.fecharPainelAdmin()" class="text-white/80 hover:text-white rounded-lg p-1">
+    <!-- PAINEL DE GESTÃO (MODAL ADMIN) -->
+    <div id="modalAdmin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 my-8 flex flex-col max-h-[90vh] animate-fade-in">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-emerald-700 text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                        <i class="fa-solid fa-sliders text-amber-300"></i>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base">Painel de Gestão: Produtos e Categorias</h3>
+                </div>
+                <button onclick="app.fecharPainelAdmin()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
             <div class="p-6 overflow-y-auto space-y-6">
                 <!-- Seção 1: Cadastrar / Editar Produto -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/80">
+                    <h4 class="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 tracking-wider">
                         <i class="fa-solid fa-plus-circle"></i> <span id="tituloFormProduto">Cadastrar Novo Produto</span>
                     </h4>
-                    <form id="formProduto" onsubmit="app.salvarProduto(event)" class="space-y-3">
+                    <form id="formProduto" onsubmit="app.salvarProduto(event)" class="space-y-4">
                         <input type="hidden" id="adminProdId">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Nome do Produto *</label>
-                                <input type="text" id="adminNome" required placeholder="Ex: ESMALTE..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold focus:ring-emerald-500">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Nome do Produto *</label>
+                                <input type="text" id="adminNome" required placeholder="Ex: ESMALTE..." class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Código de Barras *</label>
-                                <input type="text" id="adminCodigo" required placeholder="Ex: 014562" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-mono font-bold focus:ring-emerald-500">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Código de Barras *</label>
+                                <input type="text" id="adminCodigo" required placeholder="Ex: 014562" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Categoria *</label>
-                            <select id="adminCategoria" required class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold focus:ring-emerald-500"></select>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Categoria *</label>
+                            <select id="adminCategoria" required class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
                         </div>
-                        <div class="flex justify-end gap-2 pt-2">
-                            <button type="button" onclick="app.limparFormProduto()" class="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-xl">Limpar</button>
-                            <button type="submit" class="px-4 py-1.5 text-xs font-extrabold text-slate-950 bg-amber-400 hover:bg-amber-500 rounded-xl shadow-sm">Salvar Produto</button>
+                        <div class="flex justify-end gap-2.5 pt-2">
+                            <button type="button" onclick="app.limparFormProduto()" class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 rounded-xl transition">Limpar</button>
+                            <button type="submit" class="px-5 py-2 text-xs font-extrabold text-slate-950 bg-farmassimYellow-400 hover:bg-farmassimYellow-500 rounded-xl shadow-md transition">Salvar Produto</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Seção 2: Criar Nova Categoria -->
-                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/80">
+                    <h4 class="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 tracking-wider">
                         <i class="fa-solid fa-folder-plus"></i> Criar Nova Categoria
                     </h4>
-                    <form onsubmit="app.criarCategoria(event)" class="flex gap-2">
-                        <input type="text" id="novaCategoriaNome" required placeholder="Ex: PERFUMARIA" class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-2 font-bold uppercase focus:ring-emerald-500">
-                        <button type="submit" class="px-4 py-2 text-xs font-extrabold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm">Adicionar Categoria</button>
+                    <form onsubmit="app.criarCategoria(event)" class="flex gap-3">
+                        <input type="text" id="novaCategoriaNome" required placeholder="Ex: PERFUMARIA" class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-bold uppercase focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <button type="submit" class="px-5 py-3 text-xs font-extrabold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-md transition shrink-0">Adicionar</button>
                     </form>
                 </div>
 
-                <!-- Seção 3: Listagem Completa para Gerir -->
+                <!-- Seção 3: Listagem para Gestão -->
                 <div>
-                    <h4 class="text-xs font-black uppercase text-slate-700 dark:text-slate-300 mb-2">Lista de Produtos Cadastrados</h4>
-                    <div class="max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                    <h4 class="text-xs font-black uppercase text-slate-600 dark:text-slate-400 mb-3 tracking-wider">Produtos Cadastrados no Banco</h4>
+                    <div class="max-h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                         <div id="adminListaProdutos" class="divide-y divide-slate-100 dark:divide-slate-800"></div>
                     </div>
                 </div>
             </div>
 
             <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end shrink-0">
-                <button type="button" onclick="app.fecharPainelAdmin()" class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 rounded-xl">Fechar Painel</button>
+                <button type="button" onclick="app.fecharPainelAdmin()" class="px-5 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 rounded-xl transition">Fechar Painel</button>
             </div>
         </div>
     </div>
 
-    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 mt-auto text-center text-xs text-slate-600 dark:text-slate-400 shadow-inner">
-        <div class="max-w-7xl mx-auto px-4 font-semibold tracking-wide">
-            Desenvolvido por Emerson de França - 2026
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-5 mt-auto text-center text-xs text-slate-500 dark:text-slate-400 shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 font-semibold tracking-wide flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>Farmassim 24hrs &bull; Sistema de Consulta de Códigos</span>
+            <span>Desenvolvido por Emerson de França - 2026</span>
         </div>
     </footer>
 
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 ease-in-out">
-        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-3 border border-slate-800">
-            <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm shadow-sm">
+    <!-- TOAST DE NOTIFICAÇÃO -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-28 opacity-0 transition-all duration-300 ease-in-out">
+        <div class="bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 border border-slate-800">
+            <div class="w-8 h-8 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-sm shadow-md shrink-0">
                 <i class="fa-solid fa-check"></i>
             </div>
             <div>
-                <p class="text-xs font-medium text-slate-400">Notificação</p>
-                <p id="toastMessage" class="text-sm font-semibold text-slate-100">Operação realizada com sucesso!</p>
+                <p class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Notificação</p>
+                <p id="toastMessage" class="text-xs sm:text-sm font-semibold text-slate-100">Operação realizada com sucesso!</p>
             </div>
         </div>
     </div>
@@ -287,7 +319,7 @@
             else if (horaAtual >= 18 || horaAtual < 5) saudacao = "Boa noite";
 
             document.getElementById('saudacaoOperador').innerHTML = `
-                <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> ${saudacao}, <span class="font-bold text-white">${operadorAtivo}</span>
+                <i class="fa-solid fa-user-shield text-farmassimYellow-400"></i> ${saudacao}, <span class="font-bold text-white">${operadorAtivo}</span>
             `;
 
             window.app = new ProductApp();
@@ -298,14 +330,15 @@
             window.location.href = 'index.html';
         }
 
+        // MAPEAMENTO DE CATEGORIAS COM ÍCONES MODERNOS DO FONT AWESOME
         const CATEGORY_CONFIG_DEFAULT = {
-            'TODOS': { emoji: '✨', bg: 'bg-emerald-500 text-white' },
-            'MAIS BUSCADOS': { emoji: '🔥', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-900' },
-            'UNHAS': { emoji: '💅', bg: 'bg-pink-50 dark:bg-pink-950/40', text: 'text-pink-700 dark:text-pink-300', border: 'border-pink-200 dark:border-pink-900' },
-            'SOBRANCELHA': { emoji: '👁️', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-900' },
-            'DOCES': { emoji: '🍬', bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-900' },
-            'MEDICAMENTOS': { emoji: '💊', bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-900' },
-            'DIVERSOS': { emoji: '📦', bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-800 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-900' }
+            'TODOS': { icon: 'fa-solid fa-star', bg: 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md shadow-emerald-600/20' },
+            'MAIS BUSCADOS': { icon: 'fa-solid fa-fire', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-900' },
+            'UNHAS': { icon: 'fa-solid fa-hand-sparkles', bg: 'bg-pink-50 dark:bg-pink-950/40', text: 'text-pink-700 dark:text-pink-300', border: 'border-pink-200 dark:border-pink-900' },
+            'SOBRANCELHA': { icon: 'fa-solid fa-eye', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-900' },
+            'DOCES': { icon: 'fa-solid fa-cookie-bite', bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-900' },
+            'MEDICAMENTOS': { icon: 'fa-solid fa-pills', bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-900' },
+            'DIVERSOS': { icon: 'fa-solid fa-box-archive', bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-800 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-900' }
         };
 
         class ProductApp {
@@ -341,7 +374,7 @@
 
             async carregarProdutosSupabase() {
                 if (!supabaseClient) {
-                    this.statusDb.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-300"></i> Erro`;
+                    this.statusDb.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Erro`;
                     return;
                 }
                 try {
@@ -352,12 +385,12 @@
 
                     if (error) throw error;
                     this.products = data || [];
-                    this.statusDb.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-300"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
+                    this.statusDb.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span class="hidden sm:inline">DB:</span> Conectado`;
                     this.render();
                     this.renderAdminLista();
                 } catch (e) {
                     console.error("Erro ao carregar produtos:", e);
-                    this.statusDb.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-300"></i> Desconectado`;
+                    this.statusDb.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Desconectado`;
                     this.showToast("Erro ao carregar banco de dados", true);
                 }
             }
@@ -443,26 +476,26 @@
                 document.getElementById('novaCategoriaNome').value = '';
                 this.initCategoriesUI();
                 this.atualizarSelectCategorias();
-                this.showToast(`Categoria <b>${novaCat}</b> criada!`);
+                this.showToast(`Categoria <b>${novaCat}</b> criada com sucesso!`);
             }
 
             renderAdminLista() {
                 const container = document.getElementById('adminListaProdutos');
                 if (this.products.length === 0) {
-                    container.innerHTML = `<div class="p-3 text-center text-slate-400">Nenhum produto cadastrado.</div>`;
+                    container.innerHTML = `<div class="p-4 text-center text-slate-400">Nenhum produto cadastrado.</div>`;
                     return;
                 }
                 container.innerHTML = this.products.map(p => `
-                    <div class="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800">
+                    <div class="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
                         <div>
                             <span class="font-bold text-slate-800 dark:text-white">${p.name}</span>
-                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Cód: ${p.code} • <span class="uppercase font-bold text-emerald-700 dark:text-emerald-400">${p.category}</span></div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Cód: ${p.code} • <span class="uppercase font-bold text-emerald-700 dark:text-emerald-400">${p.category}</span></div>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="app.preencherEdicao('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.code}', '${p.category}')" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 rounded-lg font-bold" title="Editar">
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="app.preencherEdicao('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${p.code}', '${p.category}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 rounded-xl font-bold text-xs transition" title="Editar">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button type="button" onclick="app.excluirProduto('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 rounded-lg font-bold" title="Excluir">
+                            <button type="button" onclick="app.excluirProduto('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 rounded-xl font-bold text-xs transition" title="Excluir">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
@@ -473,13 +506,15 @@
             initCategoriesUI() {
                 const list = ['TODOS', 'MAIS BUSCADOS', ...this.categories];
                 this.categoryFiltersContainer.innerHTML = list.map(cat => {
-                    const cfg = CATEGORY_CONFIG_DEFAULT[cat] || { emoji: '🏷️', bg: 'bg-slate-50 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-700' };
+                    const cfg = CATEGORY_CONFIG_DEFAULT[cat] || { icon: 'fa-solid fa-tag', bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200 dark:border-slate-700' };
                     const isSelected = this.currentCategory === cat;
-                    let btnClasses = isSelected ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-105" : `${cfg.bg || 'bg-slate-50'} ${cfg.text || 'text-slate-700'} ${cfg.border || 'border-slate-200'} hover:shadow-sm`;
+                    let btnClasses = isSelected 
+                        ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border-transparent shadow-lg shadow-emerald-600/30 scale-[1.02]" 
+                        : `${cfg.bg || 'bg-slate-50 dark:bg-slate-800'} ${cfg.text || 'text-slate-700 dark:text-slate-300'} ${cfg.border || 'border-slate-200 dark:border-slate-700'} hover:shadow-md`;
                     return `
                         <button onclick="app.setCategory('${cat}')" 
-                            class="category-btn whitespace-nowrap px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 border flex items-center gap-2.5 shrink-0 cursor-pointer ${btnClasses}" data-category="${cat}">
-                            <span class="text-base sm:text-lg">${cfg.emoji || '🏷️'}</span>
+                            class="category-btn whitespace-nowrap px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 border flex items-center gap-2.5 shrink-0 cursor-pointer ${btnClasses}" data-category="${cat}">
+                            <i class="${cfg.icon || 'fa-solid fa-tag'} text-base"></i>
                             <span>${cat}</span>
                         </button>
                     `;
@@ -517,11 +552,11 @@
 
             updateViewModeUI() {
                 if (this.viewMode === 'grid') {
-                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
-                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
+                    this.gridBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
+                    this.listBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
                 } else {
-                    this.listBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
-                    this.gridBtn.className = "px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
+                    this.listBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 shadow-sm";
+                    this.gridBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white";
                 }
             }
 
@@ -569,7 +604,7 @@
                 try {
                     const successful = document.execCommand('copy');
                     if (successful) {
-                        this.showToast(`Código <b>${code}</b> copiado!`);
+                        this.showToast(`Código <b>${code}</b> copiado com sucesso!`);
                         this.triggerButtonAnimation(btnElement);
                     } else {
                         this.showToast("Erro ao copiar código", true);
@@ -583,11 +618,11 @@
             triggerButtonAnimation(btn) {
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = `<i class="fa-solid fa-check text-white"></i><span>Copiado!</span>`;
-                btn.className = "px-3.5 py-2 bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm scale-95 shrink-0";
+                btn.className = "px-4 py-2.5 bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-md scale-95 shrink-0";
                 
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
-                    btn.className = "px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs shrink-0";
+                    btn.className = "px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-2 border border-emerald-200 dark:border-emerald-900 shadow-sm shrink-0";
                 }, 1200);
             }
 
@@ -602,9 +637,9 @@
                     toastInner.classList.remove('bg-rose-900', 'border-rose-800');
                     toastInner.classList.add('bg-slate-900', 'border-slate-800');
                 }
-                this.toast.classList.remove('translate-y-24', 'opacity-0');
+                this.toast.classList.remove('translate-y-28', 'opacity-0');
                 this.toastTimeout = setTimeout(() => {
-                    this.toast.classList.add('translate-y-24', 'opacity-0');
+                    this.toast.classList.add('translate-y-28', 'opacity-0');
                 }, 2500);
             }
 
@@ -621,32 +656,32 @@
 
                 if (this.viewMode === 'grid') {
                     this.productContainer.innerHTML = `
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                             ${filtered.map((p, index) => {
-                                const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
+                                const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { icon: 'fa-solid fa-tag' };
                                 return `
-                                    <div class="group bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between gap-3 animate-fade-in" style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
+                                    <div class="group bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/60 hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 flex flex-col justify-between gap-4 animate-fade-in" style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
                                         <div>
-                                            <div class="flex items-center justify-between gap-2 mb-2">
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-[11px] font-semibold rounded-full border border-emerald-100 dark:border-emerald-900 tracking-wide uppercase">
-                                                    <span>${cfg.emoji}</span>
+                                            <div class="flex items-center justify-between gap-2 mb-3">
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold rounded-full border border-emerald-100 dark:border-emerald-900/60 tracking-wider uppercase">
+                                                    <i class="${cfg.icon}"></i>
                                                     <span>${p.category}</span>
                                                 </span>
-                                                <span class="text-xs font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                                                <span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
                                                     #${p.code}
                                                 </span>
                                             </div>
-                                            <h3 class="font-semibold text-slate-800 dark:text-white text-sm leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition line-clamp-2">
+                                            <h3 class="font-bold text-slate-800 dark:text-white text-sm sm:text-base leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition line-clamp-2">
                                                 ${p.name}
                                             </h3>
                                         </div>
                                         
-                                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                                            <div class="font-mono font-bold text-emerald-800 dark:text-emerald-400 text-sm bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded border border-slate-200/60 dark:border-slate-700 select-all">
+                                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                                            <div class="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700 select-all">
                                                 ${p.code}
                                             </div>
                                             <button onclick="app.copyCode('${p.code}', '${p.name.replace(/'/g, "\\'")}', this)" 
-                                                class="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600">
+                                                class="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-emerald-200 dark:border-emerald-900 shadow-xs shrink-0 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600">
                                                 <i class="fa-regular fa-copy"></i>
                                                 <span>Copiar</span>
                                             </button>
@@ -658,33 +693,33 @@
                     `;
                 } else {
                     this.productContainer.innerHTML = `
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden animate-fade-in">
+                        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden animate-fade-in">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold">
-                                            <th class="py-3 px-4">Produto</th>
-                                            <th class="py-3 px-4">Categoria</th>
-                                            <th class="py-3 px-4 font-mono">Código</th>
-                                            <th class="py-3 px-4 text-right">Ação</th>
+                                        <tr class="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-400 text-[11px] uppercase tracking-wider font-extrabold">
+                                            <th class="py-4 px-6">Produto</th>
+                                            <th class="py-4 px-6">Categoria</th>
+                                            <th class="py-4 px-6 font-mono">Código</th>
+                                            <th class="py-4 px-6 text-right">Ação</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-medium">
                                         ${filtered.map((p) => {
-                                            const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { emoji: '🏷️' };
+                                            const cfg = CATEGORY_CONFIG_DEFAULT[p.category] || { icon: 'fa-solid fa-tag' };
                                             return `
-                                                <tr class="hover:bg-emerald-50/40 dark:hover:bg-slate-800/50 transition-colors">
-                                                    <td class="py-3 px-4 font-medium text-slate-800 dark:text-white">${p.name}</td>
-                                                    <td class="py-3 px-4">
-                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-xs font-medium rounded-full border border-emerald-100 dark:border-emerald-900 uppercase">
-                                                            <span>${cfg.emoji}</span>
+                                                <tr class="hover:bg-emerald-50/40 dark:hover:bg-slate-800/40 transition-colors">
+                                                    <td class="py-4 px-6 font-bold text-slate-800 dark:text-white">${p.name}</td>
+                                                    <td class="py-4 px-6">
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded-full border border-emerald-100 dark:border-emerald-900 uppercase">
+                                                            <i class="${cfg.icon}"></i>
                                                             <span>${p.category}</span>
                                                         </span>
                                                     </td>
-                                                    <td class="py-3 px-4 font-mono font-bold text-emerald-800 dark:text-emerald-400 select-all">${p.code}</td>
-                                                    <td class="py-3 px-4 text-right">
+                                                    <td class="py-4 px-6 font-mono font-bold text-emerald-700 dark:text-emerald-400 select-all">${p.code}</td>
+                                                    <td class="py-4 px-6 text-right">
                                                         <button onclick="app.copyCode('${p.code}', '${p.name.replace(/'/g, "\\'")}', this)" 
-                                                            class="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-900 hover:border-emerald-600 shadow-xs">
+                                                            class="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white rounded-xl text-xs font-bold transition-all inline-flex items-center gap-2 border border-emerald-200 dark:border-emerald-900 shadow-xs">
                                                             <i class="fa-regular fa-copy"></i>
                                                             <span>Copiar</span>
                                                         </button>
