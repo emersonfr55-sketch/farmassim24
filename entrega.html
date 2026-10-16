@@ -297,7 +297,7 @@
                         <div class="relative">
                             <input type="text" id="filtroOperador" list="listaOperadoresDatalist" oninput="renderizarTabela()" placeholder="Digite ou selecione..." class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold focus:ring-farmassim-500">
                             <datalist id="listaOperadoresDatalist">
-                                <option value="TODOS">Todos os Operadores</option>
+                                <option value="TODOS">
                             </datalist>
                         </div>
                     </div>
@@ -1083,7 +1083,6 @@
             const operadoresUnicos = [...new Set(listaOps)].sort();
             const motoboysUnicos = [...new Set(listaMots)].sort();
 
-            // Preenche o datalist de operadores para busca interativa
             datalistOp.innerHTML = `<option value="TODOS">` + 
                 operadoresUnicos.map(op => `<option value="${op}">`).join('');
 
@@ -1189,7 +1188,7 @@
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            document.getElementById('toastMessage'].innerText = msg;
+            document.getElementById('toastMessage').innerText = msg;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 2500);
         }
