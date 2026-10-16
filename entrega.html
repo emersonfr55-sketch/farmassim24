@@ -333,7 +333,7 @@
                 <table id="tabelaRegistros" class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-100/70 dark:bg-zinc-950 text-slate-600 dark:text-zinc-400 uppercase text-[11px] font-extrabold border-b border-slate-200 dark:border-zinc-800">
-                            <th class="py-3.5 px-4">Status</th>
+                            <th class="py-3.5 px-4">Status / Tempo</th>
                             <th class="py-3.5 px-4">Hora</th>
                             <th class="py-3.5 px-4">Operador</th>
                             <th class="py-3.5 px-4">COO / Pedido</th>
@@ -528,6 +528,13 @@
             renderizarListasGerenciamento();
             atualizarSelectsFiltrosDinamicos();
             tratarMudancaFormaPagamento('formaPagamento', 'troco');
+
+            // Atualiza os cronômetros das entregas a cada 30 segundos automaticamente
+            setInterval(() => {
+                if (document.querySelector('#tabelaRegistros tbody')) {
+                    renderizarTabela();
+                }
+            }, 30000);
         };
 
         function atualizarDisplayData() {
@@ -637,7 +644,8 @@
                         valorATrazer: parseFloat(item.valor_a_trazer) || 0,
                         motoboy: item.motoboy,
                         formaPag: item.forma_pag,
-                        concluido: item.concluido
+                        concluido: item.concluido,
+                        createdAt: item.created_at || new Date().toISOString()
                     }));
                 } else {
                     historico = [];
@@ -790,7 +798,8 @@
                 valorATrazer: valorATrazerFinal,
                 motoboy: document.getElementById('selectMotoboy').value,
                 formaPag: descricaoPag,
-                concluido: document.getElementById('statusInicial').checked
+                concluido: document.getElementById('statusInicial').checked,
+                createdAt: new Date().toISOString()
             };
 
             historico.unshift(novoObj);
@@ -820,12 +829,10 @@
             showToast("Entrega Registrada!");
         }
 
-        // TRAVA DE SEGURANÇA: Apenas o operador que lançou pode marcar como concluído
         async function alternarStatus(id) {
             const item = historico.find(r => r.id === id);
             if (!item) return;
 
-            // Compara ignorando maiúsculas/minúsculas e espaços extras
             if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
                 alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}". Apenas ele(a) pode alterar o status.`);
                 return;
@@ -838,7 +845,6 @@
             renderizarTabela();
         }
 
-        // TRAVA DE SEGURANÇA: Apenas o operador que lançou pode excluir
         async function excluirRegistro(id) {
             const item = historico.find(r => r.id === id);
             if (!item) return;
@@ -1115,6 +1121,20 @@
             renderizarTabela();
         }
 
+        function calcularTempoDecorrido(createdAtStr) {
+            if (!createdAtStr) return "0 min";
+            const agora = new Date();
+            const criado = new Date(createdAtStr);
+            const diffMs = agora - criado;
+            const diffMin = Math.floor(diffMs / 60000);
+            
+            if (diffMin < 1) return "Agora mesmo";
+            if (diffMin < 60) return `${diffMin} min`;
+            const horas = Math.floor(diffMin / 60);
+            const minsRest = diffMin % 60;
+            return `${horas}h ${minsRest}m`;
+        }
+
         function renderizarTabela() {
             const tbody = document.querySelector('#tabelaRegistros tbody');
             const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
@@ -1165,9 +1185,32 @@
                     </tr>`;
             } else {
                 lista.forEach(r => {
+                    let badgeStatusHtml = '';
+                    if (r.concluido) {
+                        badgeStatusHtml = `<button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">Concluído</button>`;
+                    } else {
+                        // Calcula o tempo decorrido para colorir o cronômetro
+                        const criado = new Date(r.createdAt || Date.now());
+                        const diffMin = Math.floor((new Date() - criado) / 60000);
+                        let corTempo = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300';
+                        if (diffMin >= 15 && diffMin < 30) {
+                            corTempo = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300';
+                        } else if (diffMin >= 30) {
+                            corTempo = 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300 animate-pulse';
+                        }
+                        const tempoStr = calcularTempoDecorrido(r.createdAt);
+
+                        badgeStatusHtml = `
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">Pendente</button>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${corTempo}" title="Tempo na rua"><i class="fa-solid fa-stopwatch"></i> ${tempoStr}</span>
+                            </div>
+                        `;
+                    }
+
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/40">
-                            <td class="py-3 px-4"><button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black ${r.concluido ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'}">${r.concluido ? 'Concluído' : 'Pendente'}</button></td>
+                            <td class="py-3 px-4">${badgeStatusHtml}</td>
                             <td class="py-3 px-4">${r.hora}</td>
                             <td class="py-3 px-4">${r.caixa}</td>
                             <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
