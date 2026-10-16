@@ -253,7 +253,7 @@
             </div>
         </section>
 
-        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS SEGUROS -->
+        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS BLINDADOS -->
         <section class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-zinc-800 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex flex-col gap-4 bg-slate-50/50 dark:bg-zinc-950/50">
                 
@@ -290,7 +290,7 @@
                     </div>
                 </div>
 
-                <!-- LINHA 2: FILTROS SEGUROS -->
+                <!-- LINHA 2: FILTROS COM BUSCA DIRETA NO SUPABASE -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/80">
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Filtrar Operador:</label>
@@ -488,11 +488,10 @@
         let historico = [];
         let operadorAtivo = 'Operador';
         
-        // GESTÃO DE NAVEGAÇÃO DE DATAS
         let dataHojeReal = '';
         let dataFiltroAtiva = ''; 
 
-        window.onload = function() {
+        window.onload = async function() {
             initTheme();
             let op = sessionStorage.getItem('farmassim_operador_logado') || sessionStorage.getItem('operador_logado') || localStorage.getItem('farmassim_operador_logado');
             if (!op || op.trim() === '') {
@@ -502,7 +501,6 @@
             operadorAtivo = op.trim();
             document.getElementById('badgeOperadorFiltroAtivo').innerText = `Operador: ${operadorAtivo}`;
 
-            // Saudação Dinâmica Centralizada
             const horaAtual = new Date().getHours();
             let saudacao = "Bom dia";
             if (horaAtual >= 12 && horaAtual < 18) saudacao = "Boa tarde";
@@ -520,9 +518,13 @@
             document.getElementById('histDataFim').value = dataHojeReal;
 
             atualizarDisplayData();
+            
+            // Carrega dados e cadastros do Supabase antes de montar a tela
+            await sincronizarComSupabase();
+            
             atualizarSelects();
             renderizarListasGerenciamento();
-            sincronizarComSupabase();
+            atualizarSelectsFiltrosDinamicos();
             tratarMudancaFormaPagamento('formaPagamento', 'troco');
         };
 
@@ -604,7 +606,7 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 4000));
+                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 5000));
                 
                 const fetchDb = Promise.all([
                     supabaseClient.from('caixas').select('*'),
@@ -641,8 +643,8 @@
 
                 atualizarSelects();
                 renderizarListasGerenciamento();
+                atualizarSelectsFiltrosDinamicos();
                 renderizarTabela();
-                tratarMudancaFormaPagamento('formaPagamento', 'troco');
 
                 badge.className = "flex items-center gap-1.5 text-emerald-300";
                 badge.innerHTML = `
@@ -665,6 +667,7 @@
                 badge.className = "flex items-center gap-1.5 text-amber-400";
                 badge.innerHTML = `<i class="fa-solid fa-database"></i> <span class="hidden sm:inline">DB:</span> ${motivo}`;
             }
+            atualizarSelectsFiltrosDinamicos();
             renderizarTabela();
         }
 
@@ -933,6 +936,7 @@
                 document.getElementById('novoMotoboyNome').value = '';
                 atualizarSelects();
                 renderizarListasGerenciamento();
+                atualizarSelectsFiltrosDinamicos();
                 if (supabaseClient) {
                     try { await supabaseClient.from('motoboys').insert([{ nome }]); } catch(e){}
                 }
@@ -945,6 +949,7 @@
             motoboys = motoboys.filter(m => m.id !== id);
             atualizarSelects();
             renderizarListasGerenciamento();
+            atualizarSelectsFiltrosDinamicos();
             if (supabaseClient) {
                 try { await supabaseClient.from('motoboys').delete().eq('id', id); } catch(e){}
             }
@@ -986,6 +991,7 @@
                 caixas.push(novoC);
                 document.getElementById('novoCaixaNome').value = '';
                 renderizarListasGerenciamento();
+                atualizarSelectsFiltrosDinamicos();
                 if (supabaseClient) {
                     try { await supabaseClient.from('caixas').insert([{ nome }]); } catch(e){}
                 }
@@ -997,6 +1003,7 @@
             if (!confirm("Remover este caixa/operador?")) return;
             caixas = caixas.filter(c => c.id !== id);
             renderizarListasGerenciamento();
+            atualizarSelectsFiltrosDinamicos();
             if (supabaseClient) {
                 try { await supabaseClient.from('caixas').delete().eq('id', id); } catch(e){}
             }
@@ -1040,12 +1047,9 @@
             document.getElementById('formaPagamento').innerHTML = opcoesPag;
             document.getElementById('addMistoForma1').innerHTML = opcoesPag;
             document.getElementById('addMistoForma2').innerHTML = opcoesPag;
-            document.getElementById('editSelectPagamento').innerHTML = opcoesPag;
-
-            atualizarSelectsFiltrosDinamicos();
         }
 
-        function atualizarSelectsFiltrosDinamicos() {
+        async function atualizarSelectsFiltrosDinamicos() {
             const selectFiltroOp = document.getElementById('filtroOperador');
             const selectFiltroMot = document.getElementById('filtroMotoboy');
             if (!selectFiltroOp || !selectFiltroMot) return;
@@ -1053,18 +1057,39 @@
             const operadorAtual = selectFiltroOp.value;
             const motoboyAtual = selectFiltroMot.value;
 
+            // Busca operadores direto da tabela do Supabase se possível, caso contrário usa o array local
             let listaOps = caixas.map(c => c.nome);
             if (operadorAtivo) listaOps.push(operadorAtivo);
-            historico.forEach(r => { if(r.caixa) listaOps.push(r.caixa); });
+            
+            // Busca motoboys direto do array local e do Supabase
+            let listaMots = motoboys.map(m => m.nome);
+
+            if (supabaseClient) {
+                try {
+                    const [resC, resM] = await Promise.all([
+                        supabaseClient.from('caixas').select('nome'),
+                        supabaseClient.from('motoboys').select('nome')
+                    ]);
+                    if (resC.data) resC.data.forEach(c => listaOps.push(c.nome));
+                    if (resM.data) resM.data.forEach(m => listaMots.push(m.nome));
+                } catch(e) {}
+            }
+
+            historico.forEach(r => {
+                if(r.caixa) listaOps.push(r.caixa);
+                if(r.motoboy) listaMots.push(r.motoboy);
+            });
+
             const operadoresUnicos = [...new Set(listaOps)].sort();
+            const motoboysUnicos = [...new Set(listaMots)].sort();
 
             selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
                 operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
 
-            let listaMots = motoboys.map(m => m.nome);
-            historico.forEach(r => { if(r.motoboy) listaMots.push(r.motoboy); });
-            const motoboysUnicos = [...new Set(listaMots)].sort();
-
+            selectFiltroMot.innerHTML = `<option value="TODOS">Todos los Motoboys</option>` + 
+                motoboysUnicos.map(m => `<option value="${m}" ${m === motoboyAtual ? 'selected' : ''}>${m}</option>`).join('');
+            
+            // Correção do texto do option em espanhol gerado por lapso
             selectFiltroMot.innerHTML = `<option value="TODOS">Todos os Motoboys</option>` + 
                 motoboysUnicos.map(m => `<option value="${m}" ${m === motoboyAtual ? 'selected' : ''}>${m}</option>`).join('');
         }
@@ -1088,7 +1113,6 @@
 
             let lista = [...historico];
 
-            // Aplicar Filtros Avançados com segurança
             if (filtroOp !== 'TODOS') {
                 lista = lista.filter(r => r.caixa === filtroOp);
             }
