@@ -253,7 +253,7 @@
             </div>
         </section>
 
-        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS BLINDADOS -->
+        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS INTELIGENTES -->
         <section class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-zinc-800 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex flex-col gap-4 bg-slate-50/50 dark:bg-zinc-950/50">
                 
@@ -290,13 +290,16 @@
                     </div>
                 </div>
 
-                <!-- LINHA 2: FILTROS COM BUSCA DIRETA NO SUPABASE -->
+                <!-- LINHA 2: FILTROS COM CAMPO DE DIGITAÇÃO DINÂMICO PARA OPERADOR -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/80">
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Filtrar Operador:</label>
-                        <select id="filtroOperador" onchange="renderizarTabela()" class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold">
-                            <option value="TODOS">Todos os Operadores</option>
-                        </select>
+                        <div class="relative">
+                            <input type="text" id="filtroOperador" list="listaOperadoresDatalist" oninput="renderizarTabela()" placeholder="Digite ou selecione..." class="w-full bg-white dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-xl p-2 font-bold focus:ring-farmassim-500">
+                            <datalist id="listaOperadoresDatalist">
+                                <option value="TODOS">Todos os Operadores</option>
+                            </datalist>
+                        </div>
                     </div>
 
                     <div>
@@ -519,7 +522,6 @@
 
             atualizarDisplayData();
             
-            // Carrega dados e cadastros do Supabase antes de montar a tela
             await sincronizarComSupabase();
             
             atualizarSelects();
@@ -1050,18 +1052,16 @@
         }
 
         async function atualizarSelectsFiltrosDinamicos() {
-            const selectFiltroOp = document.getElementById('filtroOperador');
+            const inputFiltroOp = document.getElementById('filtroOperador');
+            const datalistOp = document.getElementById('listaOperadoresDatalist');
             const selectFiltroMot = document.getElementById('filtroMotoboy');
-            if (!selectFiltroOp || !selectFiltroMot) return;
+            if (!inputFiltroOp || !datalistOp || !selectFiltroMot) return;
 
-            const operadorAtual = selectFiltroOp.value;
             const motoboyAtual = selectFiltroMot.value;
 
-            // Busca operadores direto da tabela do Supabase se possível, caso contrário usa o array local
             let listaOps = caixas.map(c => c.nome);
             if (operadorAtivo) listaOps.push(operadorAtivo);
             
-            // Busca motoboys direto do array local e do Supabase
             let listaMots = motoboys.map(m => m.nome);
 
             if (supabaseClient) {
@@ -1083,13 +1083,10 @@
             const operadoresUnicos = [...new Set(listaOps)].sort();
             const motoboysUnicos = [...new Set(listaMots)].sort();
 
-            selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
-                operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
+            // Preenche o datalist de operadores para busca interativa
+            datalistOp.innerHTML = `<option value="TODOS">` + 
+                operadoresUnicos.map(op => `<option value="${op}">`).join('');
 
-            selectFiltroMot.innerHTML = `<option value="TODOS">Todos los Motoboys</option>` + 
-                motoboysUnicos.map(m => `<option value="${m}" ${m === motoboyAtual ? 'selected' : ''}>${m}</option>`).join('');
-            
-            // Correção do texto do option em espanhol gerado por lapso
             selectFiltroMot.innerHTML = `<option value="TODOS">Todos os Motoboys</option>` + 
                 motoboysUnicos.map(m => `<option value="${m}" ${m === motoboyAtual ? 'selected' : ''}>${m}</option>`).join('');
         }
@@ -1105,7 +1102,7 @@
         function renderizarTabela() {
             const tbody = document.querySelector('#tabelaRegistros tbody');
             const busca = document.getElementById('campoBusca')?.value.toLowerCase() || '';
-            const filtroOp = document.getElementById('filtroOperador')?.value || 'TODOS';
+            const filtroOp = document.getElementById('filtroOperador')?.value.trim() || 'TODOS';
             const filtroMot = document.getElementById('filtroMotoboy')?.value || 'TODOS';
             const filtroStatus = document.getElementById('filtroStatus')?.value || 'TODOS';
 
@@ -1113,8 +1110,8 @@
 
             let lista = [...historico];
 
-            if (filtroOp !== 'TODOS') {
-                lista = lista.filter(r => r.caixa === filtroOp);
+            if (filtroOp !== 'TODOS' && filtroOp !== '') {
+                lista = lista.filter(r => r.caixa.toLowerCase().includes(filtroOp.toLowerCase()));
             }
             if (filtroMot !== 'TODOS') {
                 lista = lista.filter(r => r.motoboy === filtroMot);
@@ -1192,7 +1189,7 @@
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            document.getElementById('toastMessage').innerText = msg;
+            document.getElementById('toastMessage'].innerText = msg;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 2500);
         }
