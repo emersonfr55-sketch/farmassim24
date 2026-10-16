@@ -820,9 +820,17 @@
             showToast("Entrega Registrada!");
         }
 
+        // TRAVA DE SEGURANÇA: Apenas o operador que lançou pode marcar como concluído
         async function alternarStatus(id) {
             const item = historico.find(r => r.id === id);
             if (!item) return;
+
+            // Compara ignorando maiúsculas/minúsculas e espaços extras
+            if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
+                alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}". Apenas ele(a) pode alterar o status.`);
+                return;
+            }
+
             item.concluido = !item.concluido;
             if (supabaseClient) {
                 try { await supabaseClient.from('entregas_farmassim').update({ concluido: item.concluido }).eq('id', id); } catch(e){}
@@ -830,7 +838,16 @@
             renderizarTabela();
         }
 
+        // TRAVA DE SEGURANÇA: Apenas o operador que lançou pode excluir
         async function excluirRegistro(id) {
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
+
+            if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
+                alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}". Apenas ele(a) pode excluir.`);
+                return;
+            }
+
             if (!confirm("Excluir este registro?")) return;
             historico = historico.filter(r => r.id !== id);
             if (supabaseClient) {
