@@ -460,7 +460,7 @@
 
     <script>
         const SUPABASE_URL = 'https://zqloekphxaeyqcnrtvhk.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjE0Njc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
         
         let supabaseClient = null;
         try {
@@ -604,7 +604,7 @@
                 badge.className = "flex items-center gap-1.5 text-amber-300";
                 badge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...`;
 
-                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 3000));
+                const timeout = new Promise((_, reject) => setTimeout(() => reject("Timeout"), 4000));
                 
                 const fetchDb = Promise.all([
                     supabaseClient.from('caixas').select('*'),
@@ -1053,7 +1053,7 @@
             const operadorAtual = selectFiltroOp.value;
             const motoboyAtual = selectFiltroMot.value;
 
-            // Une os caixas cadastrados no banco com o operador logado e operadores do histórico
+            // Lista garantida de operadores (caixas cadastrados + operador ativo + histórico)
             let listaOps = caixas.map(c => c.nome);
             if (operadorAtivo) listaOps.push(operadorAtivo);
             historico.forEach(r => { if(r.caixa) listaOps.push(r.caixa); });
@@ -1062,7 +1062,7 @@
             selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
                 operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
 
-            // Une os motoboys cadastrados com o histórico
+            // Lista garantida de motoboys (motoboys cadastrados + histórico)
             let listaMots = motoboys.map(m => m.nome);
             historico.forEach(r => { if(r.motoboy) listaMots.push(r.motoboy); });
             const motoboysUnicos = [...new Set(listaMots)].sort();
@@ -1088,7 +1088,7 @@
 
             tbody.innerHTML = '';
 
-            let lista = historico;
+            let lista = [...historico];
 
             // Aplicar Filtros Avançados
             if (filtroOp !== 'TODOS') {
