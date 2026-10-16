@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Farmassim 24hrs - Fechamento Rápido de Caixa & Malote</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,6 +37,36 @@
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    
+    .glass-header {
+        background: rgba(5, 150, 105, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    .dark .glass-header {
+        background: rgba(15, 23, 42, 0.92);
+    }
+    @keyframes lightBeam {
+        0% { transform: translateX(-150%) skewX(-20deg); }
+        30% { transform: translateX(200%) skewX(-20deg); }
+        100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    .shine-effect {
+        position: relative;
+        overflow: hidden;
+    }
+    .shine-effect::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transform: translateX(-150%) skewX(-20deg);
+        animation: lightBeam 4s infinite ease-in-out;
+    }
+
     @keyframes flash-emerald {
       0% { background-color: rgba(16, 185, 129, 0.3); transform: scale(1.01); }
       100% { background-color: transparent; transform: scale(1); }
@@ -73,47 +102,52 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between antialiased selection:bg-farmassim-500 selection:text-white transition-colors duration-200">
 
   <div class="no-print">
-    <!-- CABEÇALHO PADRONIZADO LIMPO COM SAUDAÇÃO CENTRALIZADA -->
-    <header class="bg-farmassim-600/95 dark:bg-slate-900/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-slate-800">
+    <!-- CABEÇALHO COM LOGO ANIMADA COM FEIXE DE LUZ -->
+    <header class="glass-header text-white shadow-xl sticky top-0 z-40 border-b border-emerald-500/20 dark:border-slate-800/80 transition-all">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
+        <div class="flex flex-col lg:flex-row items-center justify-between py-3.5 gap-3.5">
           
-          <!-- Lado Esquerdo: Logo e Título -->
+          <!-- Logo Animada com Feixe de Luz -->
           <div class="flex items-center justify-between w-full lg:w-auto">
-            <div class="flex items-center gap-2">
-              <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-400">24hrs</span></h1>
+            <div class="flex items-center gap-3">
+              <div class="shine-effect px-3 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-700/40 to-emerald-800/60 border border-white/15 shadow-inner">
+                <h1 class="font-extrabold text-xl sm:text-2xl tracking-tight logo-text text-white drop-shadow-md">
+                  FARMASSIM <span class="text-farmassimYellow-400 font-black">24hrs</span>
+                </h1>
+                <p class="text-[10px] tracking-wider uppercase font-semibold text-emerald-100/90 dark:text-slate-400">Módulo Fechamento</p>
+              </div>
             </div>
           </div>
 
           <!-- Centro: Saudação e Nome do Operador Ativo -->
-          <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-slate-800 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-slate-700 shadow-inner">
-            <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-slate-200 font-medium flex items-center gap-2">
+          <div class="flex items-center justify-center bg-black/10 dark:bg-slate-800/80 px-4 py-2 rounded-2xl border border-white/10 dark:border-slate-700/60 shadow-inner">
+            <p id="saudacaoOperador" class="text-xs text-emerald-50 dark:text-slate-200 font-medium flex items-center gap-2">
               <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> Carregando...
             </p>
           </div>
 
           <!-- Lado Direito: Ações e Botões Compactos -->
-          <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
-            <a href="index.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Portal">
+          <div class="flex items-center gap-2 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
+            <a href="index.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Portal">
               <i class="fa-solid fa-house text-farmassimYellow-400"></i> <span class="hidden sm:inline">Portal</span>
             </a>
-            <a href="entrega.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Entregas">
+            <a href="entrega.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Entregas">
               <i class="fa-solid fa-motorcycle text-farmassimYellow-400"></i> <span class="hidden sm:inline">Entregas</span>
             </a>
-            <a href="codigos.html" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Códigos">
+            <a href="codigos.html" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Códigos">
               <i class="fa-solid fa-barcode text-farmassimYellow-400"></i> <span class="hidden sm:inline">Códigos</span>
             </a>
 
-            <div id="status-db-badge" title="Status Conexão Supabase" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-farmassim-700/40 dark:bg-slate-800 border border-farmassim-500/20 dark:border-slate-700 text-[11px] font-semibold text-emerald-200">
-              <span id="db-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <div id="status-db-badge" title="Status Conexão Supabase" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/10 dark:bg-slate-800 border border-white/10 dark:border-slate-700 text-xs font-medium text-emerald-200">
+              <span id="db-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
               <span id="db-text">Conectando...</span>
             </div>
 
-            <button onclick="alternarDarkMode()" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-farmassim-500/30 dark:border-slate-700" title="Alternar Modo Escuro">
+            <button onclick="alternarDarkMode()" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Alternar Modo Escuro">
               <i id="darkModeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
             </button>
 
-            <button onclick="sairParaIndex()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all" title="Sair">
+            <button onclick="sairParaIndex()" class="bg-rose-600/95 hover:bg-rose-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all shadow-sm" title="Sair">
               <i class="fa-solid fa-right-from-bracket"></i>
             </button>
           </div>
@@ -131,7 +165,7 @@
           </div>
           <div>
             <h2 class="text-base font-extrabold text-slate-800 dark:text-white">Contagem de Caixa Inteligente</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Use <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold">ENTER</kbd> p/ avançar • <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold">F2</kbd> Salvar • <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold">F8</kbd> Imprimir</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Use <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border rounded text-[10px]">ENTER</kbd> p/ avançar • <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border rounded text-[10px]">F2</kbd> Salvar • <kbd class="px-1 bg-slate-100 dark:bg-slate-800 border rounded text-[10px]">F8</kbd> Imprimir</p>
           </div>
         </div>
 
@@ -142,10 +176,10 @@
           <button onclick="abrirModalGerenciar()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
             <i class="fa-solid fa-folder-open"></i> Gerenciar Fechamentos
           </button>
-          <button onclick="carregarExemplo()" class="px-3 py-2 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-900 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+          <button onclick="carregarExemplo()" class="px-3 py-2 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i> Exemplo
           </button>
-          <button onclick="zerarTudo()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-700 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+          <button onclick="zerarTudo()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 text-slate-700 dark:text-slate-300 border rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
             <i class="fa-solid fa-rotate-left"></i> Zerar
           </button>
         </div>
@@ -192,13 +226,13 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-farmassim-700 dark:text-emerald-400 font-bold text-xs">R$</span>
                     <input type="number" id="input-extras" step="0.01" min="0" placeholder="0,00"
                            onkeydown="navegarExtra(event)"
-                           class="w-full pl-8 pr-2 py-1.5 bg-emerald-50/40 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 rounded-xl text-sm font-black text-farmassim-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600" />
+                           class="w-full pl-8 pr-2 py-1.5 bg-emerald-50/40 dark:bg-slate-800 border rounded-xl text-sm font-black text-farmassim-900 dark:text-white" />
                   </div>
                   <button onclick="adicionarExtra()" class="px-3 py-1.5 bg-farmassim-600 hover:bg-farmassim-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-1 shadow-xs">
                     <i class="fa-solid fa-plus text-farmassim-yellow"></i> Add
                   </button>
                 </div>
-                <div id="lista-extras" class="max-h-20 overflow-y-auto space-y-1 border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 bg-slate-50/60 dark:bg-slate-800/50 text-xs">
+                <div id="lista-extras" class="max-h-20 overflow-y-auto space-y-1 border rounded-xl p-1.5 bg-slate-50/60 dark:bg-slate-800/50 text-xs">
                   <div class="text-center py-1 text-slate-400 italic">Nenhum valor extra.</div>
                 </div>
               </div>
@@ -214,12 +248,12 @@
                          oninput="atualizarCalculos()"
                          onkeydown="navegarSangria(event)"
                          onfocus="this.select()"
-                         class="w-full pl-8 pr-2 py-1.5 bg-rose-50/40 dark:bg-slate-800 border border-rose-200 dark:border-slate-700 rounded-xl text-sm font-black text-rose-800 dark:text-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-500" />
+                         class="w-full pl-8 pr-2 py-1.5 bg-rose-50/40 dark:bg-slate-800 border rounded-xl text-sm font-black text-rose-800 dark:text-rose-300" />
                 </div>
               </div>
             </div>
           </div>
-          <div class="bg-emerald-50/80 dark:bg-slate-800/80 px-4 py-2.5 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div class="bg-emerald-50/80 dark:bg-slate-800/80 px-4 py-2.5 border-t flex justify-between items-center text-xs font-semibold text-slate-700 dark:text-slate-300">
             <span class="flex items-center gap-1.5 font-bold"><i class="fa-solid fa-calculator text-farmassim-600"></i> Subtotal Cédulas:</span>
             <span id="subtotal-cedulas" class="text-farmassim-800 dark:text-emerald-400 text-base font-black">R$ 0,00</span>
           </div>
@@ -241,18 +275,18 @@
                   <span class="text-slate-600 dark:text-slate-400">Alvo do Malote (R$ 400)</span>
                   <span id="progress-percent" class="text-farmassim-700 dark:text-emerald-400">0%</span>
                 </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-200 dark:border-slate-700 p-0.5">
+                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden border p-0.5">
                   <div id="progress-bar" class="bg-gradient-to-r from-farmassim-500 to-farmassim-yellow h-1.5 rounded-full transition-all duration-300 w-0"></div>
                 </div>
               </div>
 
-              <div class="space-y-1.5 text-xs bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div class="space-y-1.5 text-xs bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border">
                 <div class="flex justify-between text-slate-600 dark:text-slate-300"><span>Moedas:</span><span id="resumo-moedas" class="font-bold text-slate-800 dark:text-white">R$ 0,00</span></div>
                 <div class="flex justify-between text-slate-600 dark:text-slate-300"><span>Cédulas:</span><span id="resumo-cedulas" class="font-bold text-slate-800 dark:text-white">R$ 0,00</span></div>
                 <div class="flex justify-between text-farmassim-700 dark:text-emerald-400 font-medium"><span>(+) Extras:</span><span id="resumo-extras" class="font-bold">+ R$ 0,00</span></div>
                 <div class="flex justify-between text-rose-600 dark:text-rose-400 font-medium"><span>(-) Sangria:</span><span id="resumo-sangria" class="font-bold">- R$ 0,00</span></div>
                 
-                <div class="border-t border-slate-200 dark:border-slate-700 pt-1.5 flex justify-between items-center">
+                <div class="border-t pt-1.5 flex justify-between items-center">
                   <span class="font-bold text-slate-800 dark:text-white">Total Líquido:</span>
                   <span id="resumo-total-geral" class="text-lg font-black text-farmassim-700 dark:text-emerald-400">R$ 0,00</span>
                 </div>
@@ -274,7 +308,7 @@
                 <label for="input-operador" class="block text-xs font-bold text-slate-600 dark:text-slate-300">Operador / Caixa:</label>
                 <input type="text" id="input-operador" placeholder="Nome do Responsável"
                        onkeydown="navegarOperador(event)"
-                       class="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-farmassim-600 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white transition">
+                       class="w-full px-3 py-1.5 border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-farmassim-600 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white">
               </div>
 
               <button onclick="salvarFechamento()" class="w-full py-3 px-4 bg-gradient-to-r from-farmassim-600 to-farmassim-800 hover:from-farmassim-700 hover:to-farmassim-900 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-2 border border-farmassim-yellow/30">
@@ -298,11 +332,11 @@
     </main>
   </div>
 
-  <!-- MODAL DE GERENCIAMENTO DE FECHAMENTOS ANTERIORES -->
+  <!-- MODAL DE GERENCIAMENTO -->
   <div id="modalGerenciar" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 my-8 flex flex-col max-h-[85vh]">
       
-      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-farmassim-800 text-white shrink-0">
+      <div class="p-4 border-b flex items-center justify-between bg-farmassim-800 text-white shrink-0">
         <h3 class="font-bold text-sm flex items-center gap-2">
           <i class="fa-solid fa-folder-open text-farmassim-yellow"></i> Gerenciamento de Fechamentos Anteriores
         </h3>
@@ -312,27 +346,25 @@
       </div>
 
       <div class="p-5 space-y-4 overflow-y-auto flex-1">
-        <!-- Barra de Busca e Filtro -->
-        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border">
           <div class="relative w-full sm:w-80">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs">
               <i class="fa-solid fa-magnifying-glass"></i>
             </span>
             <input type="text" id="filtroHistorico" placeholder="Filtrar por operador..."
                    oninput="filtrarHistoricoModal()"
-                   class="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600 shadow-inner">
+                   class="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600">
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+          <div class="text-xs text-slate-500 font-semibold">
             Total de registros: <span id="contadorModal" class="text-slate-800 dark:text-white font-bold">0</span>
           </div>
         </div>
 
-        <!-- Tabela de Fechamentos -->
-        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+        <div class="border rounded-xl overflow-hidden bg-white dark:bg-slate-900">
           <div class="overflow-x-auto max-h-96">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider">
+                <tr class="bg-slate-100 dark:bg-slate-800 border-b text-slate-600 dark:text-slate-300 font-bold uppercase">
                   <th class="py-2.5 px-3">Data / Hora</th>
                   <th class="py-2.5 px-3">Operador</th>
                   <th class="py-2.5 px-3">Total Líquido</th>
@@ -349,8 +381,8 @@
         </div>
       </div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-end shrink-0">
-        <button onclick="fecharModalGerenciar()" class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 rounded-xl transition">Fechar</button>
+      <div class="p-4 border-t bg-slate-50 dark:bg-slate-950 flex justify-end shrink-0">
+        <button onclick="fecharModalGerenciar()" class="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 rounded-xl">Fechar</button>
       </div>
 
     </div>
@@ -370,17 +402,8 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxbG9la3BoeGFleXFjbnJ0dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExNzE5NjEsImV4cCI6MjEwNjc0Nzk2MX0.OUibTte-Tgl5OMzFXBFF32fzuKOwARvlKGSZy0GLdWE';
     const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    const MOEDAS = [
-      { valor: 0.05, label: '5¢' },
-      { valor: 0.10, label: '10¢' },
-      { valor: 0.25, label: '25¢' },
-      { valor: 0.50, label: '50¢' },
-      { valor: 1.00, label: 'R$1' }
-    ];
-
-    const CEDULAS = [
-      { valor: 2 }, { valor: 5 }, { valor: 10 }, { valor: 20 }, { valor: 50 }, { valor: 100 }, { valor: 200 }
-    ];
+    const MOEDAS = [{ valor: 0.05, label: '5¢' }, { valor: 0.10, label: '10¢' }, { valor: 0.25, label: '25¢' }, { valor: 0.50, label: '50¢' }, { valor: 1.00, label: 'R$1' }];
+    const CEDULAS = [{ valor: 2 }, { valor: 5 }, { valor: 10 }, { valor: 20 }, { valor: 50 }, { valor: 100 }, { valor: 200 }];
 
     let qtdMoedas = {};
     let valoresCedulas = {};
@@ -420,10 +443,10 @@
       try {
         const { error } = await supabaseClient.from('fechamentos_caixa').select('id', { count: 'exact', head: true });
         if (error) throw error;
-        dbDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        dbDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
         dbText.innerText = "BD Conectado";
       } catch (err) {
-        dbDot.className = "w-2 h-2 rounded-full bg-rose-500";
+        dbDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
         dbText.innerText = "Erro BD";
       }
     }
@@ -439,20 +462,14 @@
         osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
         gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.08);
       } catch (e) {}
     }
 
     function dispararFeedbackVisual(elementId) {
       const el = document.getElementById(elementId);
-      if (el) {
-        el.classList.remove('flash-success');
-        void el.offsetWidth;
-        el.classList.add('flash-success');
-      }
+      if (el) { el.classList.remove('flash-success'); void el.offsetWidth; el.classList.add('flash-success'); }
     }
 
     function formatarBRL(valor) {
@@ -466,9 +483,9 @@
         const qtd = qtdMoedas[key] || 0;
         const total = qtd * item.valor;
         return `
-          <div id="row-moeda-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50/60 dark:hover:bg-slate-700 rounded-xl border border-slate-200/80 dark:border-slate-700 transition">
+          <div id="row-moeda-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50/60 rounded-xl border transition">
             <div class="flex items-center gap-2">
-              <span class="w-8 h-8 rounded-full bg-amber-500 text-white font-black flex items-center justify-center text-xs shadow-xs">${item.label}</span>
+              <span class="w-8 h-8 rounded-full bg-amber-500 text-white font-black flex items-center justify-center text-xs">${item.label}</span>
               <span class="text-xs font-black text-slate-800 dark:text-white">R$ ${item.valor.toFixed(2)}</span>
             </div>
             <div class="flex items-center gap-2">
@@ -476,7 +493,7 @@
                      oninput="definirQtdMoeda('${key}', this.value, ${idx})"
                      onkeydown="navegarMoeda(event, ${idx})"
                      onfocus="this.select()"
-                     class="w-16 text-center font-bold text-slate-800 dark:text-white text-xs focus:outline-none border border-slate-300 dark:border-slate-600 rounded-lg py-1 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+                     class="w-16 text-center font-bold text-xs border rounded-lg py-1 bg-white dark:bg-slate-900" />
               <span id="subtotal-row-moeda-${idx}" class="w-20 text-right font-black text-xs text-slate-700 dark:text-slate-300">${formatarBRL(total)}</span>
             </div>
           </div>
@@ -491,9 +508,8 @@
         tocarSomAdicao();
         dispararFeedbackVisual(`row-moeda-${idxAtual}`);
         const proximo = document.getElementById(`input-moeda-${idxAtual + 1}`);
-        if (proximo) {
-          proximo.focus(); proximo.select();
-        } else {
+        if (proximo) { proximo.focus(); proximo.select(); }
+        else {
           const primCedQtd = document.getElementById('input-cedula-qtd-0');
           if (primCedQtd) { primCedQtd.focus(); primCedQtd.select(); }
         }
@@ -501,13 +517,9 @@
     }
 
     function definirQtdMoeda(chave, valor, idx) {
-      const parsed = parseInt(valor) || 0;
-      qtdMoedas[chave] = Math.max(0, parsed);
+      qtdMoedas[chave] = Math.max(0, parseInt(valor) || 0);
       const item = MOEDAS[idx];
-      if (item) {
-        const subtotalEl = document.getElementById(`subtotal-row-moeda-${idx}`);
-        if (subtotalEl) subtotalEl.innerText = formatarBRL(qtdMoedas[chave] * item.valor);
-      }
+      if (item) document.getElementById(`subtotal-row-moeda-${idx}`).innerText = formatarBRL(qtdMoedas[chave] * item.valor);
       atualizarCalculos();
     }
 
@@ -517,16 +529,14 @@
         const valTotal = valoresCedulas[ced.valor] || 0;
         const qtdSugerida = valTotal > 0 ? (valTotal / ced.valor) : '';
         return `
-          <div id="row-cedula-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50/60 dark:hover:bg-slate-700 rounded-xl border border-slate-200/80 dark:border-slate-700 transition gap-2">
-            <div class="flex items-center gap-2">
-              <span class="w-12 h-7 bg-emerald-700 text-white font-black text-xs rounded flex items-center justify-center shadow-xs">R$ ${ced.valor}</span>
-            </div>
+          <div id="row-cedula-${idx}" class="flex items-center justify-between p-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50/60 rounded-xl border gap-2">
+            <span class="w-12 h-7 bg-emerald-700 text-white font-black text-xs rounded flex items-center justify-center">R$ ${ced.valor}</span>
             <div class="flex items-center gap-1.5 flex-1 justify-end">
               <input type="number" id="input-cedula-qtd-${idx}" min="0" placeholder="Qtd" value="${qtdSugerida > 0 ? qtdSugerida : ''}"
                      oninput="alterarCedulaPorQtd(${ced.valor}, this.value, ${idx})"
                      onkeydown="navegarCedulaQtd(event, ${idx})"
                      onfocus="this.select()"
-                     class="w-14 text-center font-bold text-slate-700 dark:text-white text-xs focus:outline-none border border-slate-300 dark:border-slate-600 rounded-lg py-1 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+                     class="w-14 text-center font-bold text-xs border rounded-lg py-1 bg-white dark:bg-slate-900" />
               <span class="text-[10px] text-slate-400 font-bold">=</span>
               <div class="relative max-w-[110px]">
                 <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400 font-bold text-[10px]">R$</span>
@@ -534,7 +544,7 @@
                        oninput="alterarCedulaPorValor(${ced.valor}, this.value, ${idx})"
                        onkeydown="navegarCedulaVal(event, ${idx})"
                        onfocus="this.select()"
-                       class="w-full pl-6 pr-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-xs font-black text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-farmassim-600 shadow-inner" />
+                       class="w-full pl-6 pr-2 py-1 bg-white dark:bg-slate-900 border rounded-lg text-xs font-black" />
               </div>
             </div>
           </div>
@@ -544,52 +554,35 @@
     }
 
     function alterarCedulaPorQtd(valorNota, qtdInput, idx) {
-      const qtd = parseFloat(qtdInput) || 0;
-      const total = qtd * valorNota;
-      if (total > 0) valoresCedulas[valorNota] = total;
-      else delete valoresCedulas[valorNota];
+      const total = (parseFloat(qtdInput) || 0) * valorNota;
+      if (total > 0) valoresCedulas[valorNota] = total; else delete valoresCedulas[valorNota];
       const inputVal = document.getElementById(`input-cedula-val-${idx}`);
-      if (inputVal && document.activeElement !== inputVal) {
-        inputVal.value = total > 0 ? total : '';
-      }
+      if (inputVal && document.activeElement !== inputVal) inputVal.value = total > 0 ? total : '';
       atualizarCalculos();
     }
 
     function alterarCedulaPorValor(valorNota, totalInput, idx) {
       const total = parseFloat(totalInput) || 0;
-      if (total > 0) valoresCedulas[valorNota] = total;
-      else delete valoresCedulas[valorNota];
+      if (total > 0) valoresCedulas[valorNota] = total; else delete valoresCedulas[valorNota];
       const inputQtd = document.getElementById(`input-cedula-qtd-${idx}`);
-      if (inputQtd && document.activeElement !== inputQtd) {
-        inputQtd.value = total > 0 ? (total / valorNota) : '';
-      }
+      if (inputQtd && document.activeElement !== inputQtd) inputQtd.value = total > 0 ? (total / valorNota) : '';
       atualizarCalculos();
     }
 
     function navegarCedulaQtd(e, idxAtual) {
       if (e.key === 'Enter') {
-        e.preventDefault();
-        tocarSomAdicao();
-        dispararFeedbackVisual(`row-cedula-${idxAtual}`);
+        e.preventDefault(); tocarSomAdicao(); dispararFeedbackVisual(`row-cedula-${idxAtual}`);
         const proximoVal = document.getElementById(`input-cedula-val-${idxAtual}`);
-        if (proximoVal) {
-          proximoVal.focus(); proximoVal.select();
-        }
+        if (proximoVal) proximoVal.focus();
       }
     }
 
     function navegarCedulaVal(e, idxAtual) {
       if (e.key === 'Enter') {
-        e.preventDefault();
-        tocarSomAdicao();
-        dispararFeedbackVisual(`row-cedula-${idxAtual}`);
+        e.preventDefault(); tocarSomAdicao(); dispararFeedbackVisual(`row-cedula-${idxAtual}`);
         const proximaQtd = document.getElementById(`input-cedula-qtd-${idxAtual + 1}`);
-        if (proximaQtd) {
-          proximaQtd.focus(); proximaQtd.select();
-        } else {
-          const extrasInput = document.getElementById('input-extras');
-          if (extrasInput) { extrasInput.focus(); extrasInput.select(); }
-        }
+        if (proximaQtd) proximaQtd.focus();
+        else document.getElementById('input-extras').focus();
       }
     }
 
@@ -597,22 +590,13 @@
       if (e.key === 'Enter') {
         e.preventDefault();
         const input = document.getElementById('input-extras');
-        const val = parseFloat(input.value);
-        if (!isNaN(val) && val > 0) { adicionarExtra(); }
-        else {
-          const sangriaInput = document.getElementById('input-sangria');
-          if (sangriaInput) { sangriaInput.focus(); sangriaInput.select(); }
-        }
+        if (parseFloat(input.value) > 0) adicionarExtra();
+        else document.getElementById('input-sangria').focus();
       }
     }
 
     function navegarSangria(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        tocarSomAdicao();
-        const opInput = document.getElementById('input-operador');
-        if (opInput) { opInput.focus(); opInput.select(); }
-      }
+      if (e.key === 'Enter') { e.preventDefault(); tocarSomAdicao(); document.getElementById('input-operador').focus(); }
     }
 
     function navegarOperador(e) {
@@ -624,10 +608,8 @@
       const val = parseFloat(input.value);
       if (!isNaN(val) && val > 0) {
         listaExtras.push(val);
-        input.value = '';
-        input.focus();
-        tocarSomAdicao();
-        renderizarExtras();
+        input.value = ''; input.focus();
+        tocarSomAdicao(); renderizarExtras();
       }
     }
 
@@ -638,15 +620,14 @@
 
     function renderizarExtras() {
       const container = document.getElementById('lista-extras');
-      if (listaExtras.length === 0) {
-        container.innerHTML = `<div class="text-center py-1 text-slate-400 italic">Nenhum valor extra.</div>`;
-      } else {
+      if (listaExtras.length === 0) container.innerHTML = `<div class="text-center py-1 text-slate-400 italic">Nenhum valor extra.</div>`;
+      else {
         container.innerHTML = listaExtras.map((val, idx) => `
-          <div class="flex items-center justify-between p-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+          <div class="flex items-center justify-between p-1 bg-white dark:bg-slate-900 rounded-lg border text-xs">
             <span class="font-bold text-slate-500">Extra #${idx + 1}</span>
             <div class="flex items-center gap-1.5">
               <span class="font-black text-farmassim-700 dark:text-emerald-400">${formatarBRL(val)}</span>
-              <button onclick="removerExtra(${idx})" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash-can"></i></button>
+              <button onclick="removerExtra(${idx})" class="text-rose-500 px-1"><i class="fa-solid fa-trash-can"></i></button>
             </div>
           </div>
         `).join('');
@@ -655,25 +636,21 @@
     }
 
     function atualizarCalculos() {
-      let totalMoedas = 0;
-      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
-      let totalCedulas = 0;
-      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
-
-      const totalExtras = listaExtras.reduce((acc, curr) => acc + curr, 0);
-      const sangriaInput = parseFloat(document.getElementById('input-sangria').value) || 0;
-      const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangriaInput);
+      let totalMoedas = 0; MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0; CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+      const totalExtras = listaExtras.reduce((a, b) => a + b, 0);
+      const sangria = parseFloat(document.getElementById('input-sangria').value) || 0;
+      const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangria);
       const diferenca = totalGeral - 400.00;
 
       document.getElementById('subtotal-moedas').innerText = formatarBRL(totalMoedas);
       document.getElementById('badge-moedas-total').innerText = formatarBRL(totalMoedas);
       document.getElementById('subtotal-cedulas').innerText = formatarBRL(totalCedulas);
       document.getElementById('badge-cedulas-qtd').innerText = formatarBRL(totalCedulas);
-      
       document.getElementById('resumo-moedas').innerText = formatarBRL(totalMoedas);
       document.getElementById('resumo-cedulas').innerText = formatarBRL(totalCedulas);
       document.getElementById('resumo-extras').innerText = `+ ${formatarBRL(totalExtras)}`;
-      document.getElementById('resumo-sangria').innerText = `- ${formatarBRL(sangriaInput)}`;
+      document.getElementById('resumo-sangria').innerText = `- ${formatarBRL(sangria)}`;
       document.getElementById('resumo-total-geral').innerText = formatarBRL(totalGeral);
 
       const pct = Math.min(100, Math.round((totalGeral / 400) * 100));
@@ -682,9 +659,7 @@
 
       const elDif = document.getElementById('resumo-diferenca');
       elDif.innerText = formatarBRL(diferenca);
-      if (diferenca === 0) elDif.className = "font-black px-2 py-0.5 rounded text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-900";
-      else if (diferenca > 0) elDif.className = "font-black px-2 py-0.5 rounded text-indigo-800 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950 border border-indigo-300 dark:border-indigo-900";
-      else elDif.className = "font-black px-2 py-0.5 rounded text-rose-800 dark:text-rose-300 bg-rose-100 dark:bg-rose-950 border border-rose-300 dark:border-rose-900";
+      elDif.className = `font-black px-2 py-0.5 rounded ${diferenca === 0 ? 'bg-emerald-100 text-emerald-800' : diferenca > 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-rose-100 text-rose-800'}`;
 
       const statusCard = document.getElementById('status-malote-card');
       const statusIcon = document.getElementById('status-icon');
@@ -692,23 +667,19 @@
       const fechou = totalGeral >= 395.00 && totalGeral <= 405.00;
 
       if (fechou) {
-        statusCard.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 text-center flex flex-col items-center justify-center gap-0.5 shadow-xs";
-        statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400"></i>`;
+        statusCard.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 text-center flex flex-col items-center justify-center";
+        statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
         statusTexto.innerText = "FECHOU O MALOTE? SIM";
-        statusTexto.className = "font-black text-xs tracking-wide text-emerald-800 dark:text-emerald-300";
       } else {
-        statusCard.className = "p-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 text-center flex flex-col items-center justify-center gap-0.5 shadow-xs";
-        statusIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 dark:text-rose-400"></i>`;
+        statusCard.className = "p-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 dark:bg-rose-950/40 text-rose-900 text-center flex flex-col items-center justify-center";
+        statusIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i>`;
         statusTexto.innerText = "FECHOU O MALOTE? NÃO";
-        statusTexto.className = "font-black text-xs tracking-wide text-rose-800 dark:text-rose-300";
       }
     }
 
     function imprimirCupomTermico() {
-      let totalMoedas = 0;
-      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
-      let totalCedulas = 0;
-      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+      let totalMoedas = 0; MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0; CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
       const totalExtras = listaExtras.reduce((a, b) => a + b, 0);
       const sangria = parseFloat(document.getElementById('input-sangria').value) || 0;
       const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangria);
@@ -717,190 +688,92 @@
       const dataHoraAtual = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR');
 
       let params = new URLSearchParams();
-      params.append('op', operador);
-      params.append('dh', dataHoraAtual);
-      params.append('tg', totalGeral.toFixed(2));
-      params.append('san', sangria.toFixed(2));
-      params.append('ext', totalExtras.toFixed(2));
-      params.append('ok', fechou ? 'SIM' : 'NAO');
+      params.append('op', operador); params.append('dh', dataHoraAtual);
+      params.append('tg', totalGeral.toFixed(2)); params.append('san', sangria.toFixed(2));
+      params.append('ext', totalExtras.toFixed(2)); params.append('ok', fechou ? 'SIM' : 'NAO');
 
-      MOEDAS.forEach(m => {
-        const q = qtdMoedas[m.valor.toString()] || 0;
-        params.append(`m_${m.valor}`, q);
-      });
-
+      MOEDAS.forEach(m => params.append(`m_${m.valor}`, qtdMoedas[m.valor.toString()] || 0));
       CEDULAS.forEach(c => {
         const val = valoresCedulas[c.valor] || 0;
-        const q = val > 0 ? (val / c.valor) : 0;
-        params.append(`c_${c.valor}`, q);
+        params.append(`c_${c.valor}`, val > 0 ? (val / c.valor) : 0);
       });
 
-      const baseUrl = 'https://farmassim-24hrs.vercel.app/detalhes.html';
-      const urlDestino = baseUrl + '?' + params.toString();
+      const urlDestino = 'https://farmassim-24hrs.vercel.app/detalhes.html?' + params.toString();
       const urlQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlDestino)}`;
 
-      const cupomContainer = document.getElementById('comprovante-termico');
-      cupomContainer.innerHTML = `
+      document.getElementById('comprovante-termico').innerHTML = `
         <div style="text-align: center; margin-bottom: 6px;">
           <strong style="font-size: 13px; font-weight: 950; text-transform: uppercase;">FARMASSIM 24HRS</strong><br>
           <span style="font-size: 10px; font-weight: 900;">FECHAMENTO DE CAIXA E MALOTE</span><br>
           <span>--------------------------------</span>
         </div>
         <div style="font-size: 10px; font-weight: 900; margin-bottom: 6px;">
-          <b>DATA/HORA:</b> ${dataHoraAtual}<br>
-          <b>OPERADOR:</b> ${operador}<br>
-          <span>--------------------------------</span>
-        </div>
-        <div style="font-size: 10px; font-weight: 900; margin-bottom: 6px;">
-          <b>DISCRIMINAÇÃO:</b><br>
-          Subtotal Moedas: ${formatarBRL(totalMoedas)}<br>
-          Subtotal Cédulas: ${formatarBRL(totalCedulas)}<br>
-          (+) Extras: ${formatarBRL(totalExtras)}<br>
-          (-) Sangria: ${formatarBRL(sangria)}<br>
+          <b>DATA/HORA:</b> ${dataHoraAtual}<br><b>OPERADOR:</b> ${operador}<br><span>--------------------------------</span>
         </div>
         <div style="font-size: 11px; font-weight: 950; margin-bottom: 10px;">
-          <span>--------------------------------</span><br>
           <strong>TOTAL GERAL: ${formatarBRL(totalGeral)}</strong><br>
           <strong>FECHOU MALOTE? ${fechou ? 'SIM (OK)' : 'NÃO'}</strong><br>
           <span>--------------------------------</span>
         </div>
-        <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
-          <img id="img-qrcode-cupom" src="${urlQRCode}" alt="QR Code Detalhes" style="width: 32mm; height: 32mm; display: inline-block;" />
-        </div>
-        <div style="text-align: center; font-size: 10px; font-weight: 900; margin-top: 15px;">
-          ____________________________________<br>Assinatura do Responsável
-        </div>
-        <div style="text-align: center; font-size: 9px; font-weight: 900; margin-top: 15px; border-top: 1px dashed #000; padding-top: 4px;">
-          Emerson de França - 2026
-        </div>
+        <div style="text-align: center; margin: 10px 0;"><img src="${urlQRCode}" style="width: 32mm; height: 32mm;" /></div>
+        <div style="text-align: center; font-size: 10px; margin-top: 15px;">____________________________________<br>Assinatura</div>
       `;
-
-      const imgQR = document.getElementById('img-qrcode-cupom');
-      if (imgQR) {
-        imgQR.onload = function() { window.print(); };
-        imgQR.onerror = function() { window.print(); };
-      } else {
-        window.print();
-      }
+      window.print();
     }
 
     function zerarTudo() {
-      qtdMoedas = {};
-      valoresCedulas = {};
-      listaExtras = [];
+      qtdMoedas = {}; valoresCedulas = {}; listaExtras = [];
       document.getElementById('input-extras').value = '';
       document.getElementById('input-sangria').value = '0';
-      renderizarMoedas();
-      renderizarCedulasFixas();
-      renderizarExtras();
-      focarPrimeiroCampo();
+      renderizarMoedas(); renderizarCedulasFixas(); renderizarExtras();
     }
 
     function carregarExemplo() {
       qtdMoedas = { "0.25": 44 }; 
-      valoresCedulas = { 2: 2, 5: 5, 10: 10, 20: 20, 50: 50, 100: 300, 200: 0 };
+      valoresCedulas = { 2: 2, 5: 5, 10: 10, 20: 20, 50: 50, 100: 300 };
       listaExtras = [11.00];
-      document.getElementById('input-sangria').value = '0';
-      renderizarMoedas();
-      renderizarCedulasFixas();
-      renderizarExtras();
+      renderizarMoedas(); renderizarCedulasFixas(); renderizarExtras();
     }
 
     async function salvarFechamento() {
-      let totalMoedas = 0;
-      MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
-      let totalCedulas = 0;
-      CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
+      let totalMoedas = 0; MOEDAS.forEach(m => totalMoedas += (qtdMoedas[m.valor.toString()] || 0) * m.valor);
+      let totalCedulas = 0; CEDULAS.forEach(c => totalCedulas += (valoresCedulas[c.valor] || 0));
       const totalExtras = listaExtras.reduce((a, b) => a + b, 0);
       const sangria = parseFloat(document.getElementById('input-sangria').value) || 0;
       const totalGeral = Math.max(0, totalMoedas + totalCedulas + totalExtras - sangria);
 
-      if (totalGeral === 0 && sangria === 0 && totalExtras === 0) {
-        alert("Informe os valores de fechamento antes de salvar.");
-        return;
-      }
-
+      if (totalGeral === 0) { alert("Informe os valores de fechamento."); return; }
       const operador = document.getElementById('input-operador').value.trim() || operadorLogado;
       const fechou = totalGeral >= 395.00 && totalGeral <= 405.00;
 
-      const { data, error } = await supabaseClient
-        .from('fechamentos_caixa')
-        .insert([{ total_geral: totalGeral, sangria: sangria, operador: operador, fechou: fechou }]);
-
-      if (error) {
-        console.error("Erro do Supabase:", error);
-        alert("Erro ao salvar no banco de dados: " + error.message);
-      } else {
-        const desejaImprimir = confirm("Fechamento salvo com sucesso no banco de dados!\n\nDeseja imprimir o fechamento do caixa?");
-        if (desejaImprimir) {
-          imprimirCupomTermico();
-        }
+      const { error } = await supabaseClient.from('fechamentos_caixa').insert([{ total_geral: totalGeral, sangria, operador, fechou }]);
+      if (error) alert("Erro ao salvar: " + error.message);
+      else {
+        if (confirm("Salvo com sucesso! Deseja imprimir o comprovante?")) imprimirCupomTermico();
         carregarHistorico();
       }
     }
 
     async function carregarHistorico() {
       const container = document.getElementById('historico-lista');
-      container.innerHTML = '<p class="text-slate-400 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>';
-
-      const { data: historico, error } = await supabaseClient
-        .from('fechamentos_caixa')
-        .select('*')
-        .order('data_hora', { ascending: false })
-        .limit(10);
-
-      if (error) {
-        container.innerHTML = `<p class="text-rose-500 text-center py-2">Erro ao carregar histórico.</p>`;
-        return;
-      }
-
-      if (!historico || historico.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-center py-2 italic">Nenhum registro encontrado.</p>`;
-        return;
-      }
-
-      cacheHistoricoCompleto = historico;
-      container.innerHTML = historico.map(item => {
-        const dataObj = new Date(item.data_hora);
-        const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR');
-        return `
-          <div class="p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 rounded-xl flex justify-between items-center shadow-xs">
-            <div>
-              <div class="font-extrabold text-slate-800 dark:text-white">${formatarBRL(Number(item.total_geral))}</div>
-              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">${dataFormatada} • <span class="font-bold">${item.operador}</span></div>
-            </div>
-            <span class="px-2 py-0.5 text-[10px] font-black rounded border ${item.fechou ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-900' : 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-900'}">
-              ${item.fechou ? 'OK' : 'NÃO OK'}
-            </span>
-          </div>
-        `;
-      }).join('');
+      const { data, error } = await supabaseClient.from('fechamentos_caixa').select('*').order('data_hora', { ascending: false }).limit(10);
+      if (error || !data) { container.innerHTML = `<p class="text-rose-500 text-center">Erro histórico.</p>`; return; }
+      container.innerHTML = data.map(item => `
+        <div class="p-2 bg-slate-50 dark:bg-slate-800 border rounded-xl flex justify-between items-center text-xs">
+          <div><div class="font-extrabold">${formatarBRL(Number(item.total_geral))}</div><div class="text-[10px] text-slate-400">${new Date(item.data_hora).toLocaleString('pt-BR')} • ${item.operador}</div></div>
+          <span class="px-2 py-0.5 text-[10px] font-black rounded border ${item.fechou ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${item.fechou ? 'OK' : 'NÃO'}</span>
+        </div>
+      `).join('');
     }
 
     async function abrirModalGerenciar() {
       document.getElementById('modalGerenciar').classList.remove('hidden');
-      document.getElementById('filtroHistorico').value = '';
       await carregarDadosModalGerenciar();
     }
-
-    function fecharModalGerenciar() {
-      document.getElementById('modalGerenciar').classList.add('hidden');
-    }
+    function fecharModalGerenciar() { document.getElementById('modalGerenciar').classList.add('hidden'); }
 
     async function carregarDadosModalGerenciar() {
-      const tbody = document.getElementById('tabelaGerenciarCorpo');
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i> Carregando todos os registros...</td></tr>`;
-
-      const { data, error } = await supabaseClient
-        .from('fechamentos_caixa')
-        .select('*')
-        .order('data_hora', { ascending: false });
-
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Erro ao buscar dados do banco.</td></tr>`;
-        return;
-      }
-
+      const { data } = await supabaseClient.from('fechamentos_caixa').select('*').order('data_hora', { ascending: false });
       cacheHistoricoCompleto = data || [];
       renderizarTabelaModal(cacheHistoricoCompleto);
     }
@@ -908,111 +781,41 @@
     function renderizarTabelaModal(lista) {
       const tbody = document.getElementById('tabelaGerenciarCorpo');
       document.getElementById('contadorModal').innerText = lista.length;
-
-      if (!lista || lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400 italic">Nenhum registro encontrado.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = lista.map(item => {
-        const dataObj = new Date(item.data_hora);
-        const dataFormatada = dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR');
-        return `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
-            <td class="py-2.5 px-3 font-medium text-slate-700 dark:text-slate-300">${dataFormatada}</td>
-            <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-white">${item.operador || 'Não informado'}</td>
-            <td class="py-2.5 px-3 font-black text-farmassim-700 dark:text-emerald-400">${formatarBRL(Number(item.total_geral))}</td>
-            <td class="py-2.5 px-3 font-semibold text-rose-600">${formatarBRL(Number(item.sangria || 0))}</td>
-            <td class="py-2.5 px-3 text-center">
-              <span class="px-2 py-0.5 text-[10px] font-black rounded border ${item.fechou ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-900' : 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-900'}">
-                ${item.fechou ? 'OK' : 'NÃO OK'}
-              </span>
-            </td>
-            <td class="py-2.5 px-3 text-right">
-              <button onclick="excluirFechamento('${item.id}')" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-700 dark:text-rose-300 rounded-lg font-bold transition" title="Excluir Registro">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
+      tbody.innerHTML = lista.map(item => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+          <td class="py-2 px-3">${new Date(item.data_hora).toLocaleString('pt-BR')}</td>
+          <td class="py-2 px-3 font-bold">${item.operador}</td>
+          <td class="py-2 px-3 font-black text-emerald-600">${formatarBRL(Number(item.total_geral))}</td>
+          <td class="py-2 px-3 text-rose-600">${formatarBRL(Number(item.sangria || 0))}</td>
+          <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 text-[10px] font-black rounded ${item.fechou ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${item.fechou ? 'OK' : 'NÃO'}</span></td>
+          <td class="py-2 px-3 text-right"><button onclick="excluirFechamento('${item.id}')" class="px-2 py-1 bg-rose-50 text-rose-700 rounded font-bold"><i class="fa-solid fa-trash-can"></i></button></td>
+        </tr>
+      `).join('');
     }
 
     function filtrarHistoricoModal() {
       const termo = document.getElementById('filtroHistorico').value.toLowerCase().trim();
-      const filtrados = cacheHistoricoCompleto.filter(item => {
-        const op = (item.operador || '').toLowerCase();
-        const dataStr = new Date(item.data_hora).toLocaleString('pt-BR').toLowerCase();
-        return op.includes(termo) || dataStr.includes(termo);
-      });
-      renderizarTabelaModal(filtrados);
+      renderizarTabelaModal(cacheHistoricoCompleto.filter(i => (i.operador || '').toLowerCase().includes(termo)));
     }
 
     async function excluirFechamento(id) {
-      if (!confirm("Deseja realmente excluir este registro de fechamento do banco de dados?")) return;
-
-      const { error } = await supabaseClient
-        .from('fechamentos_caixa')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        alert("Erro ao excluir registro: " + error.message);
-      } else {
-        alert("Registro excluído com sucesso!");
-        await carregarDadosModalGerenciar();
-        await carregarHistorico();
-      }
+      if (!confirm("Excluir este registro?")) return;
+      await supabaseClient.from('fechamentos_caixa').delete().eq('id', id);
+      await carregarDadosModalGerenciar();
+      await carregarHistorico();
     }
-
-    function focarPrimeiroCampo() {
-      setTimeout(() => {
-        const p = document.getElementById('input-moeda-0');
-        if (p) { p.focus(); p.select(); }
-      }, 100);
-    }
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'F2' || (e.ctrlKey && e.key.toLowerCase() === 's')) {
-        e.preventDefault(); salvarFechamento();
-      }
-      if (e.key === 'F8' || (e.ctrlKey && e.key.toLowerCase() === 'p')) {
-        e.preventDefault(); imprimirCupomTermico();
-      }
-      if (e.key === 'Escape') {
-        const modal = document.getElementById('modalGerenciar');
-        if (!modal.classList.contains('hidden')) {
-          fecharModalGerenciar();
-        } else if (confirm("Deseja zerar todos os campos da tela?")) { 
-          zerarTudo(); 
-        }
-      }
-    });
 
     window.onload = function() {
       aplicarDarkModeSalvo();
       operadorLogado = sessionStorage.getItem('farmassim_operador_logado');
-      if (!operadorLogado) {
-        window.location.href = 'index.html';
-        return;
-      }
+      if (!operadorLogado) { window.location.href = 'index.html'; return; }
       document.getElementById('input-operador').value = operadorLogado;
 
       const horaAtual = new Date().getHours();
-      let saudacao = "Bom dia";
-      if (horaAtual >= 12 && horaAtual < 18) saudacao = "Boa tarde";
-      else if (horaAtual >= 18 || horaAtual < 5) saudacao = "Boa noite";
-      
-      document.getElementById('saudacaoOperador').innerHTML = `
-        <i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> ${saudacao}, <span class="font-bold text-white">${operadorLogado}</span>
-      `;
+      let saudacao = horaAtual >= 12 && horaAtual < 18 ? "Boa tarde" : horaAtual >= 18 || horaAtual < 5 ? "Boa noite" : "Bom dia";
+      document.getElementById('saudacaoOperador').innerHTML = `<i class="fa-solid fa-file-invoice-dollar text-farmassimYellow-400"></i> ${saudacao}, <span class="font-bold text-white">${operadorLogado}</span>`;
 
-      renderizarMoedas();
-      renderizarCedulasFixas();
-      renderizarExtras();
-      carregarHistorico();
-      verificarConexaoBanco();
-      focarPrimeiroCampo();
+      renderizarMoedas(); renderizarCedulasFixas(); renderizarExtras(); carregarHistorico(); verificarConexaoBanco();
     };
   </script>
 </body>

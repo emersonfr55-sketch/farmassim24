@@ -8,17 +8,59 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    .logo-text { font-style: italic; font-weight: 900; letter-spacing: -0.03em; }
+    .glass-header {
+        background: rgba(5, 150, 105, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    @keyframes lightBeam {
+        0% { transform: translateX(-150%) skewX(-20deg); }
+        30% { transform: translateX(200%) skewX(-20deg); }
+        100% { transform: translateX(200%) skewX(-20deg); }
+    }
+    .shine-effect {
+        position: relative;
+        overflow: hidden;
+    }
+    .shine-effect::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transform: translateX(-150%) skewX(-20deg);
+        animation: lightBeam 4s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased p-4">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased">
 
-  <div class="max-w-md mx-auto w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 my-6">
-    <div class="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white p-6 text-center space-y-1">
+  <!-- CABEÇALHO PADRONIZADO COM LOGO ANIMADA (SEM LINKS) -->
+  <header class="glass-header text-white shadow-xl sticky top-0 z-40 border-b border-emerald-500/20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-center py-3">
+              <div class="shine-effect px-4 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-700/40 to-emerald-800/60 border border-white/15 shadow-inner text-center">
+                  <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow-md">
+                      FARMASSIM <span class="text-amber-300 font-black">24hrs</span>
+                  </h1>
+                  <p class="text-[9px] tracking-wider uppercase font-semibold text-emerald-100/90">Detalhes do Fechamento</p>
+              </div>
+          </div>
+      </div>
+  </header>
+
+  <div class="max-w-md mx-auto w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 my-6 p-4">
+    <div class="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white p-6 text-center space-y-1 rounded-2xl">
       <div class="text-xs font-black tracking-widest text-amber-400 uppercase">FARMASSIM 24HRS</div>
       <h1 class="text-xl font-black">Detalhes do Fechamento</h1>
       <p id="detalhe-dh" class="text-xs text-emerald-200 font-medium">--/--/---- --:--</p>
     </div>
 
-    <div class="p-6 space-y-6">
+    <div class="p-4 space-y-6">
       <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-between items-center">
         <div>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Operador Responsável</span>
@@ -53,11 +95,11 @@
         </div>
       </div>
     </div>
-
-    <div class="bg-slate-50 p-4 text-center border-t border-slate-100 text-[10px] text-slate-400 font-bold">
-      Emerson de França - 2026
-    </div>
   </div>
+
+  <footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center mt-auto border-t border-slate-800">
+    <p class="font-medium">Emerson de França - 2026</p>
+  </footer>
 
   <script>
     function formatarBRL(valor) {

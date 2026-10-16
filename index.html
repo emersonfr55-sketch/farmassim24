@@ -39,6 +39,35 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
+        .glass-header {
+            background: rgba(5, 150, 105, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.92);
+        }
+        @keyframes lightBeam {
+            0% { transform: translateX(-150%) skewX(-20deg); }
+            30% { transform: translateX(200%) skewX(-20deg); }
+            100% { transform: translateX(200%) skewX(-20deg); }
+        }
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: translateX(-150%) skewX(-20deg);
+            animation: lightBeam 4s infinite ease-in-out;
+        }
+
         #comprovante-wifi-termico, #comprovante-divergencia-termico { display: none; }
 
         @media print {
@@ -72,7 +101,7 @@
 </head>
 <body class="font-sans antialiased h-full text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-950 flex flex-col min-h-screen transition-colors duration-200">
 
-    <!-- MODAL DE LOGIN POR NÚMERO E SENHA INTEGRADO AO PDV -->
+    <!-- MODAL DE LOGIN -->
     <div id="modalSelecaoOperadorInicial" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 p-6 space-y-5 text-center flex flex-col justify-between">
             <div class="space-y-4">
@@ -132,7 +161,7 @@
                 <img id="imgQrcodeWifiModal" src="" alt="QR Code Wi-Fi" class="w-40 h-40 object-contain" />
             </div>
 
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Aponte a câmara do telemóvel para conectar automaticamente à rede.</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Aponte a câmara para conectar automaticamente à rede.</p>
 
             <div class="flex gap-2 pt-2">
                 <button onclick="imprimirWifiTermico()" class="flex-1 py-2.5 bg-farmassim-600 hover:bg-farmassim-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
@@ -198,31 +227,36 @@
         </div>
     </div>
 
-    <!-- CABEÇALHO PADRONIZADO LIMPO COM SAUDAÇÃO CENTRALIZADA -->
-    <header id="mainHeader" class="hidden bg-farmassim-600/95 dark:bg-slate-900/95 backdrop-blur-md text-white shadow-lg sticky top-0 z-40 border-b border-farmassim-500/20 dark:border-slate-800">
+    <!-- CABEÇALHO COM LOGO ANIMADA COM FEIXE DE LUZ -->
+    <header id="mainHeader" class="hidden glass-header text-white shadow-xl sticky top-0 z-40 border-b border-emerald-500/20 dark:border-slate-800/80 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row items-center justify-between py-3 gap-3">
+            <div class="flex flex-col lg:flex-row items-center justify-between py-3.5 gap-3.5">
                 
-                <!-- Lado Esquerdo: Logo e Título -->
+                <!-- Logo Animada com Feixe de Luz -->
                 <div class="flex items-center justify-between w-full lg:w-auto">
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight logo-text text-white drop-shadow">FARMASSIM <span class="text-farmassimYellow-500">24hrs</span></h1>
+                    <div class="flex items-center gap-3">
+                        <div class="shine-effect px-3 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-700/40 to-emerald-800/60 border border-white/15 shadow-inner">
+                            <h1 class="font-extrabold text-xl sm:text-2xl tracking-tight logo-text text-white drop-shadow-md">
+                                FARMASSIM <span class="text-farmassimYellow-400 font-black">24hrs</span>
+                            </h1>
+                            <p class="text-[10px] tracking-wider uppercase font-semibold text-emerald-100/90 dark:text-slate-400">Portal Central</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Centro: Saudação e Nome do Operador Ativo -->
-                <div class="flex items-center justify-center bg-farmassim-700/40 dark:bg-slate-800 px-4 py-1.5 rounded-2xl border border-farmassim-500/30 dark:border-slate-700 shadow-inner">
-                    <p id="saudacaoOperador" class="text-xs text-farmassim-100 dark:text-slate-200 font-medium flex items-center gap-2">
+                <div class="flex items-center justify-center bg-black/10 dark:bg-slate-800/80 px-4 py-2 rounded-2xl border border-white/10 dark:border-slate-700/60 shadow-inner">
+                    <p id="saudacaoOperador" class="text-xs text-emerald-50 dark:text-slate-200 font-medium flex items-center gap-2">
                         <i class="fa-solid fa-user-doctor text-farmassimYellow-400"></i> Carregando...
                     </p>
                 </div>
 
-                <!-- Lado Direito: Ações e Botões Compactos (Incluindo Botão Dark Mode Discreto) -->
-                <div class="flex items-center gap-1.5 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
-                    <button onclick="alternarDarkMode()" class="bg-farmassim-700/80 dark:bg-slate-800 hover:bg-farmassim-700 dark:hover:bg-slate-700 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-farmassim-500/30 dark:border-slate-700" title="Alternar Modo Escuro">
+                <!-- Lado Direito: Ações e Botões Compactos -->
+                <div class="flex items-center gap-2 w-full lg:w-auto justify-center lg:justify-end flex-wrap">
+                    <button onclick="alternarDarkMode()" class="bg-white/10 dark:bg-slate-800 hover:bg-white/20 dark:hover:bg-slate-700 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all border border-white/10 dark:border-slate-700 shadow-sm" title="Alternar Modo Escuro">
                         <i id="darkModeIcon" class="fa-solid fa-moon text-farmassimYellow-400"></i>
                     </button>
-                    <button onclick="sairDoSistema()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95" title="Sair">
+                    <button onclick="sairDoSistema()" class="bg-rose-600/95 hover:bg-rose-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-all shadow-sm" title="Sair">
                         <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
@@ -343,7 +377,7 @@
             <!-- Formulário Nova Nota -->
             <form onsubmit="adicionarNota(event)" class="space-y-3">
                 <div>
-                    <textarea id="inputTextoNota" rows="2" required placeholder="Digite um recado rápido para o plantão (Ex: Cliente esqueceu a compra, ou alguém passa retirar uma chave ;) ..." 
+                    <textarea id="inputTextoNota" rows="2" required placeholder="Digite um recado rápido para o plantão..." 
                               class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white text-xs rounded-xl p-3 font-medium focus:ring-2 focus:ring-farmassim-600 outline-none resize-none"></textarea>
                 </div>
                 <div class="flex justify-between items-center">
