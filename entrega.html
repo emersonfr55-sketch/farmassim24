@@ -253,7 +253,7 @@
             </div>
         </section>
 
-        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS AVANÇADOS -->
+        <!-- TABELA COM NAVEGAÇÃO DE DATA & FILTROS SEGUROS -->
         <section class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-zinc-800 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex flex-col gap-4 bg-slate-50/50 dark:bg-zinc-950/50">
                 
@@ -290,7 +290,7 @@
                     </div>
                 </div>
 
-                <!-- LINHA 2: FILTROS ESPECÍFICOS (OPERADOR, MOTOBOY, BUSCA E STATUS) -->
+                <!-- LINHA 2: FILTROS SEGUROS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/80">
                     <div>
                         <label class="block text-[10px] font-extrabold text-slate-500 dark:text-zinc-400 uppercase mb-1">Filtrar Operador:</label>
@@ -1053,7 +1053,6 @@
             const operadorAtual = selectFiltroOp.value;
             const motoboyAtual = selectFiltroMot.value;
 
-            // Lista garantida de operadores (caixas cadastrados + operador ativo + histórico)
             let listaOps = caixas.map(c => c.nome);
             if (operadorAtivo) listaOps.push(operadorAtivo);
             historico.forEach(r => { if(r.caixa) listaOps.push(r.caixa); });
@@ -1062,7 +1061,6 @@
             selectFiltroOp.innerHTML = `<option value="TODOS">Todos os Operadores</option>` + 
                 operadoresUnicos.map(op => `<option value="${op}" ${op === operadorAtual ? 'selected' : ''}>${op}</option>`).join('');
 
-            // Lista garantida de motoboys (motoboys cadastrados + histórico)
             let listaMots = motoboys.map(m => m.nome);
             historico.forEach(r => { if(r.motoboy) listaMots.push(r.motoboy); });
             const motoboysUnicos = [...new Set(listaMots)].sort();
@@ -1090,7 +1088,7 @@
 
             let lista = [...historico];
 
-            // Aplicar Filtros Avançados
+            // Aplicar Filtros Avançados com segurança
             if (filtroOp !== 'TODOS') {
                 lista = lista.filter(r => r.caixa === filtroOp);
             }
@@ -1109,7 +1107,6 @@
             let totalDia = 0, totalPendente = 0, totalConcluido = 0, qtdPendentes = 0, qtdConcluidas = 0;
             let pendentePorMotoboy = {};
 
-            // Resumo do dia geral
             historico.forEach(r => {
                 totalDia += r.valor;
                 if (r.concluido) {
