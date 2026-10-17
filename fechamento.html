@@ -74,27 +74,44 @@
     .flash-success { animation: flash-emerald 0.35s ease-out; }
     #comprovante-termico { display: none; }
 
+    /* ESTILOS DE IMPRESSÃO ESPECÍFICOS PARA EPSON TM-T20 */
     @media print {
       body * { visibility: hidden !important; }
-      body, html { background-color: #fff !important; margin: 0 !important; padding: 0 !important; }
-      #comprovante-termico, #comprovante-termico * { visibility: visible !important; }
+      html, body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 72mm !important;
+      }
+      #comprovante-termico, #comprovante-termico * {
+        visibility: visible !important;
+      }
       #comprovante-termico {
         display: block !important;
         position: absolute !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
+        left: 0 !important;
         top: 0 !important;
         width: 72mm !important;
         margin: 0 !important;
-        padding: 2mm !important;
-        font-family: 'Courier New', Courier, monospace !important;
+        padding: 0 1mm !important;
+        font-family: 'Courier New', Courier, monospace, monospace !important;
         font-size: 11px !important;
-        font-weight: 700 !important;
-        line-height: 1.25 !important;
-        color: #000 !important;
-        background: #fff !important;
+        line-height: 1.2 !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
-      @page { size: 80mm auto; margin: 0; }
+      #comprovante-termico img {
+        display: block !important;
+        margin: 4px auto !important;
+        image-rendering: pixelated !important;
+        image-rendering: crisp-edges !important;
+      }
+      @page {
+        size: 80mm auto;
+        margin: 0mm;
+      }
     }
   </style>
 </head>
@@ -699,26 +716,60 @@
       });
 
       const urlDestino = 'https://farmassim-24hrs.vercel.app/detalhes.html?' + params.toString();
-      const urlQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(urlDestino)}`;
+      
+      // QR Code gerado em alta resolução (300x300) com margem zero para alta nitidez na TM-T20
+      const urlQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=${encodeURIComponent(urlDestino)}`;
 
-      document.getElementById('comprovante-termico').innerHTML = `
-        <div style="text-align: center; margin-bottom: 6px;">
-          <strong style="font-size: 13px; font-weight: 950; text-transform: uppercase;">FARMASSIM 24HRS</strong><br>
-          <span style="font-size: 10px; font-weight: 900;">FECHAMENTO DE CAIXA E MALOTE</span><br>
-          <span>--------------------------------</span>
+      const divComprovante = document.getElementById('comprovante-termico');
+      divComprovante.innerHTML = `
+        <div style="width: 100%; text-align: center; font-family: 'Courier New', monospace; color: #000;">
+          <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">FARMASSIM 24HRS</div>
+          <div style="font-size: 10px; font-weight: 700;">FECHAMENTO DE CAIXA E MALOTE</div>
+          <div>================================</div>
+          <div style="font-size: 10px; text-align: left; margin: 4px 0;">
+            <b>DATA/HORA:</b> ${dataHoraAtual}<br>
+            <b>OPERADOR:</b> ${operador}
+          </div>
+          <div>--------------------------------</div>
+          <div style="font-size: 11px; text-align: left; margin: 4px 0;">
+            <b>TOTAL MOEDAS :</b> ${formatarBRL(totalMoedas)}<br>
+            <b>TOTAL CÉDULAS:</b> ${formatarBRL(totalCedulas)}<br>
+            ${totalExtras > 0 ? `<b>EXTRAS       :</b> ${formatarBRL(totalExtras)}<br>` : ''}
+            ${sangria > 0 ? `<b>SANGRIA      :</b> -${formatarBRL(sangria)}<br>` : ''}
+            <div>--------------------------------</div>
+            <b style="font-size: 12px;">TOTAL LÍQUIDO : ${formatarBRL(totalGeral)}</b><br>
+            <b>STATUS MALOTE : ${fechou ? 'SIM (OK)' : 'NÃO (FORA DO ALVO)'}</b>
+          </div>
+          <div>================================</div>
+          <div style="margin: 8px 0 4px 0; text-align: center;">
+            <img id="qrCodeImg" src="${urlQRCode}" style="width: 36mm; height: 36mm; margin: 0 auto; display: block;" />
+          </div>
+          <div style="font-size: 9px; font-weight: bold;">Escanear para conferência detalhada</div>
+          <br>
+          <div style="margin-top: 15px; font-size: 10px;">
+            ____________________________________<br>
+            Assinatura do Operador
+          </div>
+          <div style="margin-top: 10px;">.</div>
         </div>
-        <div style="font-size: 10px; font-weight: 900; margin-bottom: 6px;">
-          <b>DATA/HORA:</b> ${dataHoraAtual}<br><b>OPERADOR:</b> ${operador}<br><span>--------------------------------</span>
-        </div>
-        <div style="font-size: 11px; font-weight: 950; margin-bottom: 10px;">
-          <strong>TOTAL GERAL: ${formatarBRL(totalGeral)}</strong><br>
-          <strong>FECHOU MALOTE? ${fechou ? 'SIM (OK)' : 'NÃO'}</strong><br>
-          <span>--------------------------------</span>
-        </div>
-        <div style="text-align: center; margin: 10px 0;"><img src="${urlQRCode}" style="width: 32mm; height: 32mm;" /></div>
-        <div style="text-align: center; font-size: 10px; margin-top: 15px;">____________________________________<br>Assinatura</div>
       `;
-      window.print();
+
+      // Pré-carrega a imagem do QR Code na memória antes de disparar o diálogo de impressão
+      const img = document.getElementById('qrCodeImg');
+      if (img) {
+        if (img.complete) {
+          window.print();
+        } else {
+          img.onload = function() {
+            window.print();
+          };
+          img.onerror = function() {
+            window.print();
+          };
+        }
+      } else {
+        window.print();
+      }
     }
 
     function zerarTudo() {
