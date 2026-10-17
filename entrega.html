@@ -855,6 +855,34 @@
             renderizarTabela();
         }
 
+        async function alterarCampoEntrega(id, campo, novoValor) {
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
+
+            if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
+                alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}".`);
+                renderizarTabela(); // Restaura o select/input original na tela
+                return;
+            }
+
+            item[campo] = novoValor;
+
+            if (supabaseClient) {
+                try {
+                    const payload = {};
+                    if (campo === 'motoboy') payload.motoboy = novoValor;
+                    if (campo === 'coo') payload.coo = novoValor;
+                    if (campo === 'formaPag') payload.forma_pag = novoValor;
+
+                    await supabaseClient.from('entregas_farmassim').update(payload).eq('id', id);
+                } catch (e) {
+                    console.error("Erro ao atualizar no banco", e);
+                }
+            }
+            showToast("Entrega atualizada!");
+            renderizarTabela();
+        }
+
         async function excluirRegistro(id) {
             const item = historico.find(r => r.id === id);
             if (!item) return;
@@ -1132,14 +1160,36 @@
                             </div>`;
                     }
 
+                    // Opções de Motoboys para o select da linha
+                    let optionsMotoboyHtml = motoboys.map(m => `<option value="${m.nome}" ${m.nome === r.motoboy ? 'selected' : ''}>${m.nome}</option>`).join('');
+                    if(!motoboys.some(m => m.nome === r.motoboy)) {
+                        optionsMotoboyHtml += `<option value="${r.motoboy}" selected>${r.motoboy}</option>`;
+                    }
+
+                    // Opções de Formas de Pagamento para o select da linha
+                    let optionsPagHtml = formasPagamento.map(p => `<option value="${p.nome}" ${p.nome === r.formaPag ? 'selected' : ''}>${p.nome}</option>`).join('');
+                    if(!formasPagamento.some(p => p.nome === r.formaPag)) {
+                        optionsPagHtml += `<option value="${r.formaPag}" selected>${r.formaPag}</option>`;
+                    }
+
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/40">
                             <td class="py-3 px-4">${badgeStatusHtml}</td>
                             <td class="py-3 px-4">${r.hora}</td>
                             <td class="py-3 px-4">${r.caixa}</td>
-                            <td class="py-3 px-4 font-mono font-bold">${r.coo}</td>
-                            <td class="py-3 px-4 font-bold">${r.motoboy}</td>
-                            <td class="py-3 px-4">${r.formaPag}</td>
+                            <td class="py-3 px-4 font-mono font-bold">
+                                <input type="text" value="${r.coo}" onchange="alterarCampoEntrega(${r.id}, 'coo', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs w-24 font-bold text-slate-800 dark:text-zinc-100">
+                            </td>
+                            <td class="py-3 px-4">
+                                <select onchange="alterarCampoEntrega(${r.id}, 'motoboy', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-bold text-slate-800 dark:text-zinc-100 max-w-[160px] truncate">
+                                    ${optionsMotoboyHtml}
+                                </select>
+                            </td>
+                            <td class="py-3 px-4">
+                                <select onchange="alterarCampoEntrega(${r.id}, 'formaPag', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-bold text-slate-800 dark:text-zinc-100 max-w-[140px] truncate">
+                                    ${optionsPagHtml}
+                                </select>
+                            </td>
                             <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
                             <td class="py-3 px-4 text-right text-amber-700 dark:text-amber-400 font-semibold">R$ ${r.troco.toFixed(2)}</td>
                             <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
