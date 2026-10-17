@@ -74,7 +74,7 @@
     .flash-success { animation: flash-emerald 0.35s ease-out; }
     #comprovante-termico { display: none; }
 
-    /* ESTILOS DE IMPRESSÃO ESPECÍFICOS PARA EPSON TM-T20 */
+    /* ESTILOS DE IMPRESSÃO OTIMIZADOS PARA EPSON TM-T20 */
     @media print {
       body * { visibility: hidden !important; }
       html, body {
@@ -92,15 +92,20 @@
         left: 0 !important;
         top: 0 !important;
         width: 72mm !important;
-        margin: 0 !important;
-        padding: 0 1mm !important;
-        font-family: 'Courier New', Courier, monospace, monospace !important;
-        font-size: 11px !important;
-        line-height: 1.2 !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
         color: #000000 !important;
         background: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+      }
+      #comprovante-termico b, #comprovante-termico strong {
+        font-weight: 900 !important;
+        color: #000000 !important;
       }
       #comprovante-termico img {
         display: block !important;
@@ -716,22 +721,20 @@
       });
 
       const urlDestino = 'https://farmassim-24hrs.vercel.app/detalhes.html?' + params.toString();
-      
-      // QR Code gerado em alta resolução (300x300) com margem zero para alta nitidez na TM-T20
       const urlQRCode = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=${encodeURIComponent(urlDestino)}`;
 
       const divComprovante = document.getElementById('comprovante-termico');
       divComprovante.innerHTML = `
-        <div style="width: 100%; text-align: center; font-family: 'Courier New', monospace; color: #000;">
+        <div style="width: 100%; text-align: center; font-family: 'Courier New', Courier, monospace; color: #000000; font-weight: 900;">
           <div style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">FARMASSIM 24HRS</div>
-          <div style="font-size: 10px; font-weight: 700;">FECHAMENTO DE CAIXA E MALOTE</div>
+          <div style="font-size: 10px; font-weight: 900;">FECHAMENTO DE CAIXA E MALOTE</div>
           <div>================================</div>
-          <div style="font-size: 10px; text-align: left; margin: 4px 0;">
+          <div style="font-size: 11px; font-weight: 900; text-align: left; margin: 4px 0;">
             <b>DATA/HORA:</b> ${dataHoraAtual}<br>
             <b>OPERADOR:</b> ${operador}
           </div>
           <div>--------------------------------</div>
-          <div style="font-size: 11px; text-align: left; margin: 4px 0;">
+          <div style="font-size: 11px; font-weight: 900; text-align: left; margin: 4px 0;">
             <b>TOTAL MOEDAS :</b> ${formatarBRL(totalMoedas)}<br>
             <b>TOTAL CÉDULAS:</b> ${formatarBRL(totalCedulas)}<br>
             ${totalExtras > 0 ? `<b>EXTRAS       :</b> ${formatarBRL(totalExtras)}<br>` : ''}
@@ -744,9 +747,9 @@
           <div style="margin: 8px 0 4px 0; text-align: center;">
             <img id="qrCodeImg" src="${urlQRCode}" style="width: 36mm; height: 36mm; margin: 0 auto; display: block;" />
           </div>
-          <div style="font-size: 9px; font-weight: bold;">Escanear para conferência detalhada</div>
+          <div style="font-size: 9px; font-weight: 900;">Escanear para conferência detalhada</div>
           <br>
-          <div style="margin-top: 15px; font-size: 10px;">
+          <div style="margin-top: 15px; font-size: 10px; font-weight: 900;">
             ____________________________________<br>
             Assinatura do Operador
           </div>
@@ -754,18 +757,13 @@
         </div>
       `;
 
-      // Pré-carrega a imagem do QR Code na memória antes de disparar o diálogo de impressão
       const img = document.getElementById('qrCodeImg');
       if (img) {
         if (img.complete) {
           window.print();
         } else {
-          img.onload = function() {
-            window.print();
-          };
-          img.onerror = function() {
-            window.print();
-          };
+          img.onload = function() { window.print(); };
+          img.onerror = function() { window.print(); };
         }
       } else {
         window.print();
