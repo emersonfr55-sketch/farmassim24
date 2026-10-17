@@ -373,23 +373,24 @@
 
             </div>
 
-            <div class="overflow-x-auto">
-                <table id="tabelaRegistros" class="w-full text-left border-collapse">
+            <!-- Tabela com largura fixa e colunas dimensionadas para evitar scroll horizontal -->
+            <div class="overflow-x-hidden w-full">
+                <table id="tabelaRegistros" class="w-full text-left border-collapse table-fixed">
                     <thead>
-                        <tr class="bg-slate-100/70 dark:bg-zinc-950 text-slate-600 dark:text-zinc-400 uppercase text-[11px] font-extrabold border-b border-slate-200 dark:border-zinc-800">
-                            <th class="py-3.5 px-4">Status / Tempo</th>
-                            <th class="py-3.5 px-4">Hora</th>
-                            <th class="py-3.5 px-4">Operador</th>
-                            <th class="py-3.5 px-4">COO / Pedido</th>
-                            <th class="py-3.5 px-4">Motoboy</th>
-                            <th class="py-3.5 px-4">Pagamento</th>
-                            <th class="py-3.5 px-4 text-right">Pedido</th>
-                            <th class="py-3.5 px-4 text-right">Troco</th>
-                            <th class="py-3.5 px-4 text-right bg-slate-200/50 dark:bg-zinc-800/50">A Trazer</th>
-                            <th class="py-3.5 px-4 text-center">Ações</th>
+                        <tr class="bg-slate-100/70 dark:bg-zinc-950 text-slate-600 dark:text-zinc-400 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-zinc-800">
+                            <th class="py-3 px-2 w-[16%]">Status / Tempo</th>
+                            <th class="py-3 px-1.5 w-[7%]">Hora</th>
+                            <th class="py-3 px-1.5 w-[8%]">Op.</th>
+                            <th class="py-3 px-1.5 w-[10%]">COO</th>
+                            <th class="py-3 px-2 w-[19%]">Motoboy</th>
+                            <th class="py-3 px-2 w-[14%]">Pagamento</th>
+                            <th class="py-3 px-1.5 text-right w-[7%]">Pedido</th>
+                            <th class="py-3 px-1.5 text-right w-[6%]">Troco</th>
+                            <th class="py-3 px-2 text-right bg-slate-200/50 dark:bg-zinc-800/50 w-[8%]">A Trazer</th>
+                            <th class="py-3 px-1 text-center w-[5%]">Ações</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-zinc-800 text-xs font-semibold text-slate-700 dark:text-zinc-300"></tbody>
+                    <tbody class="divide-y divide-slate-100 dark:divide-zinc-800 text-[11px] font-semibold text-slate-700 dark:text-zinc-300"></tbody>
                 </table>
             </div>
         </section>
@@ -861,7 +862,7 @@
 
             if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
                 alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}".`);
-                renderizarTabela(); // Restaura o select/input original na tela
+                renderizarTabela();
                 return;
             }
 
@@ -1106,11 +1107,11 @@
         }
 
         function calcularTempoDecorrido(createdAtStr) {
-            if (!createdAtStr) return "0 min";
+            if (!createdAtStr) return "0m";
             const diffMin = Math.floor((new Date() - new Date(createdAtStr)) / 60000);
-            if (diffMin < 1) return "Agora mesmo";
-            if (diffMin < 60) return `${diffMin} min`;
-            return `${Math.floor(diffMin / 60)}h ${diffMin % 60}m`;
+            if (diffMin < 1) return "Agora";
+            if (diffMin < 60) return `${diffMin}m`;
+            return `${Math.floor(diffMin / 60)}h${diffMin % 60}m`;
         }
 
         function renderizarTabela() {
@@ -1146,7 +1147,7 @@
                 lista.forEach(r => {
                     let badgeStatusHtml = '';
                     if (r.concluido) {
-                        badgeStatusHtml = `<button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">Concluído</button>`;
+                        badgeStatusHtml = `<button onclick="alternarStatus(${r.id})" class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">Concluído</button>`;
                     } else {
                         const diffMin = Math.floor((new Date() - new Date(r.createdAt || Date.now())) / 60000);
                         let corTempo = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300';
@@ -1154,19 +1155,17 @@
                         else if (diffMin >= 30) corTempo = 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300 animate-pulse';
 
                         badgeStatusHtml = `
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <button onclick="alternarStatus(${r.id})" class="px-2.5 py-1 rounded-lg text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">Pendente</button>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${corTempo}"><i class="fa-solid fa-stopwatch"></i> ${calcularTempoDecorrido(r.createdAt)}</span>
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <button onclick="alternarStatus(${r.id})" class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">Pendente</button>
+                                <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold ${corTempo}">${calcularTempoDecorrido(r.createdAt)}</span>
                             </div>`;
                     }
 
-                    // Opções de Motoboys para o select da linha
                     let optionsMotoboyHtml = motoboys.map(m => `<option value="${m.nome}" ${m.nome === r.motoboy ? 'selected' : ''}>${m.nome}</option>`).join('');
                     if(!motoboys.some(m => m.nome === r.motoboy)) {
                         optionsMotoboyHtml += `<option value="${r.motoboy}" selected>${r.motoboy}</option>`;
                     }
 
-                    // Opções de Formas de Pagamento para o select da linha
                     let optionsPagHtml = formasPagamento.map(p => `<option value="${p.nome}" ${p.nome === r.formaPag ? 'selected' : ''}>${p.nome}</option>`).join('');
                     if(!formasPagamento.some(p => p.nome === r.formaPag)) {
                         optionsPagHtml += `<option value="${r.formaPag}" selected>${r.formaPag}</option>`;
@@ -1174,26 +1173,26 @@
 
                     tbody.innerHTML += `
                         <tr class="border-b border-slate-100 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/40">
-                            <td class="py-3 px-4">${badgeStatusHtml}</td>
-                            <td class="py-3 px-4">${r.hora}</td>
-                            <td class="py-3 px-4">${r.caixa}</td>
-                            <td class="py-3 px-4 font-mono font-bold">
-                                <input type="text" value="${r.coo}" onchange="alterarCampoEntrega(${r.id}, 'coo', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs w-24 font-bold text-slate-800 dark:text-zinc-100">
+                            <td class="py-2 px-2 truncate">${badgeStatusHtml}</td>
+                            <td class="py-2 px-1.5 truncate">${r.hora}</td>
+                            <td class="py-2 px-1.5 truncate" title="${r.caixa}">${r.caixa}</td>
+                            <td class="py-2 px-1.5 font-mono font-bold">
+                                <input type="text" value="${r.coo}" onchange="alterarCampoEntrega(${r.id}, 'coo', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-1.5 py-0.5 text-[11px] w-full font-bold text-slate-800 dark:text-zinc-100">
                             </td>
-                            <td class="py-3 px-4">
-                                <select onchange="alterarCampoEntrega(${r.id}, 'motoboy', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-bold text-slate-800 dark:text-zinc-100 max-w-[160px] truncate">
+                            <td class="py-2 px-2">
+                                <select onchange="alterarCampoEntrega(${r.id}, 'motoboy', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-800 dark:text-zinc-100 w-full truncate">
                                     ${optionsMotoboyHtml}
                                 </select>
                             </td>
-                            <td class="py-3 px-4">
-                                <select onchange="alterarCampoEntrega(${r.id}, 'formaPag', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-2 py-1 text-xs font-bold text-slate-800 dark:text-zinc-100 max-w-[140px] truncate">
+                            <td class="py-2 px-2">
+                                <select onchange="alterarCampoEntrega(${r.id}, 'formaPag', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-800 dark:text-zinc-100 w-full truncate">
                                     ${optionsPagHtml}
                                 </select>
                             </td>
-                            <td class="py-3 px-4 text-right font-semibold">R$ ${r.valor.toFixed(2)}</td>
-                            <td class="py-3 px-4 text-right text-amber-700 dark:text-amber-400 font-semibold">R$ ${r.troco.toFixed(2)}</td>
-                            <td class="py-3 px-4 text-right font-black">R$ ${r.valorATrazer.toFixed(2)}</td>
-                            <td class="py-3 px-4 text-center flex gap-1 justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1.5 text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+                            <td class="py-2 px-1.5 text-right font-semibold truncate">R$ ${r.valor.toFixed(2)}</td>
+                            <td class="py-2 px-1.5 text-right text-amber-700 dark:text-amber-400 font-semibold truncate">R$ ${r.troco.toFixed(2)}</td>
+                            <td class="py-2 px-2 text-right font-black truncate">R$ ${r.valorATrazer.toFixed(2)}</td>
+                            <td class="py-2 px-1 text-center flex justify-center"><button onclick="excluirRegistro(${r.id})" class="p-1 text-rose-500 hover:text-rose-700" title="Excluir"><i class="fa-solid fa-trash"></i></button></td>
                         </tr>`;
                 });
             }
