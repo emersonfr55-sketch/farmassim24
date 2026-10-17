@@ -373,7 +373,7 @@
 
             </div>
 
-            <!-- Tabela com largura fixa e colunas dimensionadas para evitar scroll horizontal -->
+            <!-- Tabela com largura fixa otimizada -->
             <div class="overflow-x-hidden w-full">
                 <table id="tabelaRegistros" class="w-full text-left border-collapse table-fixed">
                     <thead>
@@ -497,6 +497,32 @@
         </div>
     </div>
 
+    <!-- Modal Auxiliar para Pagamento Misto direto na Tabela -->
+    <div id="modalMistoTabela" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-100 dark:border-zinc-800 my-8">
+            <div class="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-farmassim-600 dark:bg-zinc-950 text-white">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-split text-farmassimYellow-400"></i> Pagamento Múltiplo (Linha)</h3>
+                <button onclick="closeModal('modalMistoTabela')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 space-y-3">
+                <input type="hidden" id="mistoTabIdEntrega" value="">
+                <div class="text-xs font-bold text-slate-500 dark:text-zinc-400">Valor Total do Pedido: R$ <span id="mistoTabValorTotal" class="text-slate-800 dark:text-zinc-100 font-black">0,00</span></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">1ª Forma</label><select id="mistoTabForma1" class="w-full bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">Valor 1 (R$)</label><input type="number" step="0.01" id="mistoTabVal1" oninput="calcularRestanteMistoTab()" class="w-full bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-lg p-2 font-bold"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">2ª Forma</label><select id="mistoTabForma2" class="w-full bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-lg p-2 font-bold"></select></div>
+                    <div><label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">Valor 2 (R$)</label><input type="number" step="0.01" id="mistoTabVal2" readonly class="w-full bg-slate-100 dark:bg-zinc-950 border border-slate-300 dark:border-zinc-800 text-slate-800 dark:text-zinc-100 text-xs rounded-lg p-2 font-black"></div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-zinc-950 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-2">
+                <button onclick="closeModal('modalMistoTabela')" class="px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-zinc-400 bg-slate-200 dark:bg-zinc-800 rounded-xl">Cancelar</button>
+                <button onclick="confirmarMistoTabela()" class="px-4 py-1.5 text-xs font-extrabold text-white bg-farmassim-600 hover:bg-farmassim-700 rounded-xl">Aplicar Misto</button>
+            </div>
+        </div>
+    </div>
+
     <div id="areaImpressao" class="hidden p-4 font-mono text-black">
         <div class="text-center border-b pb-2 mb-2"><h2 class="font-bold text-lg">FARMASSIM 24HRS</h2><p class="text-xs">COMPROVANTE</p></div>
         <div id="conteudoCupom" class="text-xs space-y-1"></div>
@@ -545,9 +571,10 @@
                 if (form) { form.requestSubmit(); }
             } else if (e.key === 'Escape') {
                 const modalMisto = document.getElementById('modalAddMisto');
+                const modalMistoTab = document.getElementById('modalMistoTabela');
                 const modalHist = document.getElementById('modalConsultaHistorico');
                 const modalCad = document.getElementById('modalCadastros');
-                if (modalMisto.classList.contains('hidden') && modalHist.classList.contains('hidden') && modalCad.classList.contains('hidden')) {
+                if (modalMisto.classList.contains('hidden') && modalMistoTab.classList.contains('hidden') && modalHist.classList.contains('hidden') && modalCad.classList.contains('hidden')) {
                     limparFormularioRegistro();
                 }
             }
@@ -748,6 +775,46 @@
             document.getElementById('pagamentoMistoAtivo').value = "false";
             document.getElementById('badgePagamentoMistoAtivo').classList.add('hidden');
             tratarMudancaFormaPagamento('formaPagamento', 'troco');
+        }
+
+        // Funções para o modal de pagamento misto direto na linha da tabela
+        function abrirModalMistoTabela(id) {
+            const item = historico.find(r => r.id === id);
+            if (!item) return;
+            if (item.caixa.trim().toUpperCase() !== operadorAtivo.trim().toUpperCase()) {
+                alert(`Acesso Negado! Esta entrega pertence ao operador "${item.caixa}".`);
+                return;
+            }
+            document.getElementById('mistoTabIdEntrega').value = id;
+            document.getElementById('mistoTabValorTotal').innerText = item.valor.toFixed(2);
+            
+            const opcoesPag = formasPagamento.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+            document.getElementById('mistoTabForma1').innerHTML = opcoesPag;
+            document.getElementById('mistoTabForma2').innerHTML = opcoesPag;
+            
+            document.getElementById('mistoTabVal1').value = (item.valor / 2).toFixed(2);
+            calcularRestanteMistoTab();
+            openModal('modalMistoTabela');
+        }
+
+        function calcularRestanteMistoTab() {
+            const id = document.getElementById('mistoTabIdEntrega').value;
+            const item = historico.find(r => r.id == id);
+            const valTotal = item ? item.valor : 0;
+            const v1 = parseFloat(document.getElementById('mistoTabVal1').value) || 0;
+            document.getElementById('mistoTabVal2').value = Math.max(0, valTotal - v1).toFixed(2);
+        }
+
+        async function confirmarMistoTabela() {
+            const id = document.getElementById('mistoTabIdEntrega').value;
+            const f1 = document.getElementById('mistoTabForma1').value;
+            const v1 = parseFloat(document.getElementById('mistoTabVal1').value) || 0;
+            const f2 = document.getElementById('mistoTabForma2').value;
+            const v2 = parseFloat(document.getElementById('mistoTabVal2').value) || 0;
+            const textoMisto = `${f1} (R$ ${v1.toFixed(2)}) + ${f2} (R$ ${v2.toFixed(2)})`;
+
+            closeModal('modalMistoTabela');
+            await alterarCampoEntrega(id, 'formaPag', textoMisto);
         }
 
         function calcularTrocoAvançado() {
@@ -1185,9 +1252,14 @@
                                 </select>
                             </td>
                             <td class="py-2 px-2">
-                                <select onchange="alterarCampoEntrega(${r.id}, 'formaPag', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-800 dark:text-zinc-100 w-full truncate">
-                                    ${optionsPagHtml}
-                                </select>
+                                <div class="flex items-center gap-1">
+                                    <select onchange="alterarCampoEntrega(${r.id}, 'formaPag', this.value)" class="bg-slate-50 dark:bg-black border border-slate-300 dark:border-zinc-700 rounded px-1.5 py-0.5 text-[11px] font-bold text-slate-800 dark:text-zinc-100 w-full truncate" title="${r.formaPag}">
+                                        ${optionsPagHtml}
+                                    </select>
+                                    <button type="button" onclick="abrirModalMistoTabela(${r.id})" class="text-farmassim-600 dark:text-farmassim-400 hover:text-farmassim-800 px-1 py-0.5 rounded bg-farmassim-50 dark:bg-zinc-800 border border-farmassim-200 dark:border-zinc-700 text-[10px]" title="Pagamento Múltiplo / Misto">
+                                        <i class="fa-solid fa-split"></i>
+                                    </button>
+                                </div>
                             </td>
                             <td class="py-2 px-1.5 text-right font-semibold truncate">R$ ${r.valor.toFixed(2)}</td>
                             <td class="py-2 px-1.5 text-right text-amber-700 dark:text-amber-400 font-semibold truncate">R$ ${r.troco.toFixed(2)}</td>
